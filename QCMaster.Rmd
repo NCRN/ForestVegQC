@@ -1,0 +1,331 @@
+---
+title: "NCRN Forest Vegetation QC"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(NPSForVeg)
+library(tidyverse)
+library(DT)
+
+options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
+
+NiceTable<-function(DF){
+   
+
+   datatable(DF, rownames = F, extensions = "Buttons", options=list(
+      columnDefs=list(list(className='dt-center', targets=0:ncol(DF)-1 )),
+      pageLength=25,
+      dom='Btip',
+      buttons=c('copy','csv'))
+)}
+
+
+NCRN<-importNCRN("C:/Users/jschmit/Desktop/Some data/Veg_NCRN")
+
+QCYears<-2006:2009
+```
+
+#  {.tabset}
+
+## Introduction
+
+Run on `r Sys.Date()`.
+
+Years covered: `r paste0(min(QCYears),"-", max(QCYears)) `.
+
+
+### The following data is not currenty QCed;
+
+- All: Flags are not exported from the database and are not considedered during QC.
+
+- Plots: Retired date for retired plots not currently exported.
+
+- Events: Need to export table that matches years with panels so we can verify the correct plots were sampled.
+
+## Plots
+
+
+```{r, include=F}
+QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
+TotPlots<-nrow(QCPlots)
+
+Plots_No_Unit<-QCPlots %>% filter(is.na(Unit_Code)) %>% select(Unit_Code, Plot_Name)
+Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope)
+Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
+Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
+   select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
+Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude<  -79.5  | Longitude > -76.1 ) %>% 
+   select(Unit_Code, Plot_Name, Latitude, Longitude)
+```
+
+### Unit Codes
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a Unit Code.  \n")) else {
+   cat("Plots with no unit code.  \n"); NiceTable(Plots_No_Unit)}
+```
+
+----
+
+### Slope and Aspect
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_Bad_Slope)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable slope measurement.  \n")) else {
+   cat("Plots with a bad slope:  \n"); NiceTable(Plots_Bad_Slope)}
+
+if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable aspect measurement.  \n")) else {
+   cat("Plots with a bad aspect:  \n"); NiceTable(Plots_Bad_Aspect)}
+```
+
+----
+
+### Geographic Coordinates
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_No_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have geographic coordinates.  \n")) else { 
+   cat("Plots with missing coordinates:  \n"); NiceTable(Plots_No_Coords)}
+
+if(nrow(Plots_Bad_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have lat / long within NCRN bounding box.  \n")) else {
+   cat("Plots with lat/long outside bounding box:  \n"); NiceTable(Plots_Bad_Coords)}
+
+```
+
+## Events
+
+```{r, include=F}
+QCEvents<-getEvents(NCRN, years = QCYears) 
+TotEvents<-nrow(QCEvents)
+
+Events_No_Protocol<-QCEvents %>% filter(is.na(Protocol_Name)) %>% select(Unit_Code, Plot_Name, Event_Year, Protocol_Name)
+#Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope)
+#Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
+#Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
+#   select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
+```
+
+- Protocol_Name - what version of the protocol?
+- Event date the correct year (and maybe check for months flag if before April or after October?)
+- Pictures taken should be checked
+- CWD for all transects checked
+- deer impact value present after a certain year
+ 
+###  Protocol Version
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Events_No_Protocol)==0) cat(paste(TotEvents," Events checked, all have a protocol version.  \n")) else {
+   cat("Events with no protocol version .  \n"); NiceTable(Events_No_Protocol)}
+```
+
+----
+
+ 
+## Plot Floor
+- All Plot should have a value for 
+   - Rock Cover
+   - Bare Soild
+   - Trampled 
+   - what is it with humus and earthworms - old thing?
+   - consider what counts as consistent for rock cover
+
+## CWD 
+- All should have:
+ - Transect
+ - Decay Class (1-5)
+ - Species that corresponds to a tree species
+ - Diameter >= 7.5 and < some big number
+ - Hollow as T/F
+ - If it has a tag, should match a tree (past or present)
+ 
+## Trees
+- Should have a status (alive standing etc)
+- should have an Species ID that we recognize as being a tree
+- Should have a tag that makes sense -to the extent this is possible. Should not be retired in office generally
+- should not start as missing, earlier ones should not start as dead, never start as dead fallen
+- should have a crown class in the accepted range, unless dead or missing, and then it should not have a crown class.
+- alive trees should have vines, conditions, and foliage checked. other status should not be checked (not sure how EAB works, maybe conditions checked then)
+- DBH check should not be checked for missing or dead fallen trees. And only be checked in later data
+- Tree vigor should exist only for live trees in later data
+- if tree is listed as live it has to have Equiv diameter > 10cm and all measured stems > 1 cm. Can have dead stems > 10cm too
+- if tree is listed as dead (not fallen) should have dead stems > 10 cm and not enough dbh to be 10 cm alive, live stems should be >1 cm
+- if tree is missing or dead fallen, should have no stems at all
+- Tree foliage condiditons only on living trees, percent between 1 and 100, condiition should be one of the choices in protocol
+- tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current.
+- if condition is vines in crown, should have 1 or more vines on it. 
+- should have a distance and azimuth <15m and between 0 and 360 (but not 0)
+- How do we deal with removed from study? Need to check that everything that was suppsoed to be monitored was actualy monitored
+
+## Vines
+- should have an ID that we recognize as being a vine
+- should be on a living tree - not a dead or missing one and only on a sapling or shrub once we started doing those.
+
+## Saplings
+- Should have a status (alive standing etc)
+- should have an Species ID that we recognize as being a tree
+- Should have a tag that makes sense
+- should not start as missing or dead ever
+- alive saplings should have vines, conditions, and foliage checked. other status should not be checked (not sure how EAB works), but only once we started doing this for saplings
+- DBH check should not be checked for missing or dead saplings. Should only be checked in later data
+- Tree vigor should exist only for live saplings in later data
+- if sapling is listed as live it has to have Equiv diameter between 1 and 10 cm and all meausred stems > 1 cm. Dead stems should be >=10cm (double check)
+- if saplings is listed as dead should not have any dhb's measured
+- if saplings is missing should have no stems at all
+- Tree foliage condiditons only on living saplings, percent between 1 and 100, condiition should be one of the choices and only once we started with this
+- tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current. and only once we started with this
+- if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
+- should be on a microplot
+- how do we check removed from study?
+- habit should be tree (sapling ) not shurb
+- browsed / browsable shoudl be logical and present when we started doing this.
+
+## Shrubs
+- Should have a status
+- should have an Species ID that we recognize as being a shrub - need to account for changing list
+- Should have a tag that makes sense
+- should not start as missing or dead
+- alive shrubs should have vines, conditions, and foliage checked. other status should not be checked (not sure how EAB works). Only when we started doing this
+- DBH check should not be checked (unless there was a drc / dbh check overlap - need to check on that)
+- Tree vigor should exist only for live shrubs in later data
+- if shrub  is listed as live it has to have a drc > 1cm in early data. Shrubs should never have deads stems
+- if shrub is listed as dead (not fallen) should not have any drc's measured as we don't do those
+- if shrub is missing should have no stems at all
+- once we stopped measuring drc we should no longer have that data
+- Tree foliage condiditons only on living shrubs, percent between 1 and 100, condition should be one of the choices and only once we started with this
+- tree conditions only on live shrubs, never on missing. should be from list that was current. and only once we started with this for shrubs
+- if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
+- should be on a microplot
+- how do we check removed from study?
+- habit should be shrub not tree
+- browsed / browsable should be logical and present when we started doing this. 
+
+## Quad general data
+- Should be plot we did that year
+- All quads present and accounted for. 
+- All percent tree rock etc should be between 0 and 100
+- Flag if % add up to something much higher than 100 at least for tree rock cwd? I suppose CWD could be on a rock, but tree and rock are mostly exclusive
+
+## Seedlings
+- should be tree or shrub species
+- should be on a reasonable quadrat - one that was sampled 
+- should be >=15cm and flagged if really tall
+- browsed / browsable should be present and logical and take protocol change into account (but its really always browsable)
+
+
+## Herbs
+- all taxa should be on year specific list
+- precent cover should be >0 <=100
+- browse shold be there once we started tracking it
+
+
+
+## Change over time
+
+###Plots 
+
+Nothing to check - this data does not change over time
+
+### Events
+
+Only data here to check is deer impact but unclear if there is a good check. Need to investigate how this changes over time. Could be an info flag or a
+measure used to assess crew.
+
+### Plot Floor
+
+-Rock Cover / Bare Soil / Trampled should not change more that 1 category between measurements (<1, 1-5, 5-25, 25-50, 50-75. 75-100)
+
+### CWD
+
+Nothing to check - only tagged pieces can be compared and rot can be really uneven
+
+### Trees
+Bad or Suspicious Status Changes
+- Dead Fallen to anything else (should not even be in data). Need to consider if the Dead Fallen status was wrong. 
+- Dead Standing or Dead Leaning to any Alive or Missing except Dead Missing (Alive could happen via small living stems growing)
+- Dead Missing to any Alive or other sort of Missing
+- Alive Fallen to any Standing or Leaning
+- Any Missing, particularly Missing Presumed Dead to any Alive
+- Can Downgraded to non-sampled go straight to Dead Fallen? 
+- Downgraded to Non-Sampled to any Missing
+- 3rd consecutive Missing - these should no longer be getting new data
+- do we repeatedly record downgrad to non-sampled?
+
+-Tree Vigor - trees that are in bad shape and then get much better? Say a 2 unit jump? Maybe a good check in season - should it be a flag?
+
+Crown Class - Few switches are completely impossible but these might be worth double checking (did I miss any?)
+- Open Grown to anything else - will happen in succesional / reforesting areas but double check
+- Dom/Co-dom to Intermediate/ Overtopped - unlikely but possible
+- Dom/Co-dom/intermeidate/overtopped/light gap/ edge tree to Open-grown  - error (?)
+- Dom/co-dom/intermediate/overtopped to Edge tree  - error(?)
+- Do/co-dom to light gap exploiter - very unlikely
+- DO/co-dom  to (overtopped /edge/light gap/open-grown) back to to dom/co-dom
+
+ 
+- Live Tree DBH should not change by more than +3 or -3 (should the negative be more sensitive?) from one cycle to next.  Note - changes in stem # could explain this. Need to consider the case of two values which don't match vs. mutliple values (3+?) with an outlier. Also consider the dbh double checked status
+
+- After 1st time monitoring a plot there should be limits on the size of new stems (>= 13 cm?) As stems are not tracked individually this is tricky but if you go from 1 to 2 and both stems are 20cm this is a problem - this applies to both living and dead stems. Errors here could potentially be explained by mis-checking the live /dead stem checkbox for multi-stemmed trees.
+
+-Dead DBH should not change by more than +3 (+2?, check data?) it can and does happen but it is unusual
+
+Tree Conditions
+- Tree Condition EAB - this seems permanent at this point, any change from present to absent should be flagged - unless maybe tree is dead(?)
+- Tree Condition Dogwood Antracnose - Do we think trees can recover form this? If not - flag if one does.
+- Tree Condition Exposed Roots - this seems very unlikely to go away - should this be flagged if it does?
+- Tree Condition Hemlock Scale - this seems permanent at this point wihtout treatment, any change from present to absent should be flagged - unless maybe tree is dead(?)
+- Tree Condition Hemlock Wooly Adelgid - this seems permanent at this point wihtout treatment, any change from present to absent should be flagged - unless maybe tree is dead(?)
+- Tree Condition Hollow - seems like if a tree is hollow and does not lose stems it should stay hollow - flag if not so?
+- If Vines in crown goes awaye - check. It could happen but is worth checking
+- If Vine Stress goes away - check - could happen but seems unliikly
+
+- Compare the number of conditions on a tree in the same way we compare the number of vines on a tree. May not be wrong and is somewhat subjective but 
+ might want to try and see if these change much cycle to cycle.
+
+### Vines
+
+- Currently QC picks up any instance where change in vines in >0 species on live trees / saplings / shrubs (when there are 2 sets of saplings /shrubs/ vines)  When if ever should this be a flag?
+- Current QC reports # of vines in the plot currently and 4 years ago - is this ever a flag?
+
+
+### Saplings 
+- Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
+Bad or Suspicious Status Changes
+- Dead to anything else (should not even be in data)
+- Alive Fallen to any Standing or Leaning
+- Any Missing, particularly Missing Presumed Dead to any Alive
+- Can Downgraded to non-sampled go straight to Dead Fallen? 
+- Downgraded to Non-Sampled to any Missing
+- 3rd consecutive Missing - these should no longer be getting new data
+
+- Sapling Vigor -Like trees - flag a change of 2? Or is life more dynamic for saplings
+
+- Sapling dbh and condiitons - same general checks as trees
+
+
+### Shrubs
+Bad or Suspicious Status Changes
+- Dead to anything else (should not even be in data)
+- Alive Fallen to any Standing or Leaning
+- Any Missing, particularly Missing Presumed Dead to any Alive
+- Can Downgraded to non-sampled go straight to Dead Fallen? 
+- Downgraded to Non-Sampled to any Missing
+- 3rd consecutive Missing - these should no longer be getting new data
+
+- Shrub Vigor -Like trees - flag a change of 2? Or is life more dynamic for saplings
+
+- Shrub drc and condiitons - same general checks as trees (do we check the old drc measures?)
+
+
+
+### Quad General Data
+- Percent_Tree - If a quad changes by more than X percent: flag - need to define X
+- Percent_Rock - If a quad changes by more than X percent: flag - need to define X
+- Percent Grass/Sedge/Herb/Fern/Bryophyte - need to determine how much these change and if they are consistent enough for QC
+
+### Seedlings
+
+Seedling number / height/ species - need to determine if these are consistent enoough between samples for QC or not
+
+
+### Herbs
+- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
+ to use as QC? What about speices lists? Need to check data.
+

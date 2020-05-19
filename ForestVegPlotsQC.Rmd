@@ -1,0 +1,54 @@
+---
+title: "Forest Vegetation Plots QC"
+author: "John Paul Schmit"
+date: "5/18/2020"
+output: html_document
+---
+
+```{r, include=F}
+
+TotPlots<-nrow(QCPlots) #Total number of plots being checked
+
+Plots_No_Unit<-QCPlots %>% filter(is.na(Unit_Code)) %>% select(Unit_Code, Plot_Name)
+
+Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
+
+Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
+
+Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
+   select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
+
+Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude<  -79.5  | Longitude > -76.1 ) %>% 
+   select(Unit_Code, Plot_Name, Latitude, Longitude)
+```
+
+### Unit Codes
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a Unit Code.  \n")) else {
+   cat("Plots with no unit code.  \n"); NiceTable(Plots_No_Unit)}
+```
+
+---
+
+### Slope and Aspect
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_Bad_Slope)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable slope measurement.  \n")) else {
+   cat("Plots with a bad slope:  \n"); NiceTable(Plots_Bad_Slope)}
+
+if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable aspect measurement.  \n")) else {
+   cat("Plots with a bad aspect:  \n"); NiceTable(Plots_Bad_Aspect)}
+```
+
+---
+
+### Geographic Coordinates
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_No_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have geographic coordinates.  \n")) else { 
+   cat("Plots with missing coordinates:  \n"); NiceTable(Plots_No_Coords)}
+
+if(nrow(Plots_Bad_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have lat / long within NCRN bounding box.  \n")) else {
+   cat("Plots with lat/long outside bounding box:  \n"); NiceTable(Plots_Bad_Coords)}
+
+```

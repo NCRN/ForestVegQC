@@ -1,0 +1,56 @@
+---
+title: "Forest Vegetation Events QC"
+author: "John Paul Schmit"
+date: "5/18/2020"
+output: html_document
+---
+
+```{r, include=F}
+TotEvents<-nrow(QCEvents) #Total Number of events checked
+
+
+Events_No_Protocol<-QCEvents %>% filter(Protocol_Name=="") %>% select(Unit_Code, Plot_Name, Event_Year, Protocol_Name)
+
+Events_Bad_Protocol<-QCEvents %>% filter(Protocol_Name!="") %>%
+  filter( (Event_Year<2009 & Protocol_Name != "1.0") | (Event_Year==2009 & Protocol_Name != "2.0") |
+    (Event_Year %in% 2010:2013 & Protocol_Name != "2.0.1") | (Event_Year==2014 & Protocol_Name != "2.1") |
+    (Event_Year %in% 2015:2016 & Protocol_Name != "2.2") | (Event_Year==2017 & Protocol_Name != "2.3") |
+    (Event_Year==2018 & Protocol_Name != "2.4") | (Event_Year==2019 & Protocol_Name!= "2.5") ) %>% 
+  select(Unit_Code, Plot_Name, Event_Year, Protocol_Name)
+
+Events_No_Date<-QCEvents %>% filter(is.na(Event_Date))  %>% select(Unit_Code,Plot_Name, Event_Year, Event_Date)
+
+Events_Bad_Date<-QCEvents %>% filter( month(Event_Date)<4  | month(Event_Date) >9  | ( month(Event_Date)==4 & mday(Event_Date)<15 ) ) %>% 
+  select(Unit_Code, Plot_Name, Event_Year, Event_Date)
+
+```
+
+
+###  Protocol Version
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+
+if(nrow(Events_No_Protocol)==0) cat(paste(TotEvents," Events checked, all have a protocol version.  \n")) else {
+   cat("Events with no protocol version:  \n"); NiceTable(Events_No_Protocol)}
+if(nrow(Events_Bad_Protocol)==0) cat(paste(TotEvents," Events checked, all have the correct protocol version.  \n")) else {
+   cat("Events with wrong protocol version:  \n"); NiceTable(Events_Bad_Protocol)}
+
+```
+
+---
+
+### Event Date
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Events_No_Date)==0) cat(paste(TotEvents," Events checked, all have an event date.  \n")) else {
+cat("Events with no date:  \n"); NiceTable(Events_No_Date)}
+
+if(nrow(Events_Bad_Date)==0) cat(paste(TotEvents," Events checked, all events between Apr-15 and Sept-30.  \n")) else {
+cat("Events with not between Apr-15 and Sept-30:  \n"); NiceTable(Events_Bad_Date)}
+
+```
+
+
+
+---

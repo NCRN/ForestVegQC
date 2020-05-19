@@ -1,0 +1,85 @@
+---
+title: "Forest Vegetation CWD QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r, include=F}
+TotCWD<-nrow(QCCWD) #Total Number of events checked
+
+CWD_Bad_Transect<-QCCWD %>% filter(is.na(Transect_Azimuth) | !Transect_Azimuth %in% c(120,240,360) ) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Transect_Azimuth)
+
+CWD_Bad_Decay<-QCCWD %>% filter(is.na(Decay_Class) | !Decay_Class %in% c(1:5) ) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Decay_Class )
+
+CWD_No_Name<-QCCWD %>% filter(Latin_Name=="") %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name)
+
+CWD_No_Diameter<-QCCWD %>% filter(is.na(Diameter)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+
+CWD_Bad_Diameter<-QCCWD %>% filter(Diameter<7.5 | Diameter > 150 ) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+
+CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Hollow)
+
+
+```
+
+
+###  Transects
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Transect)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid transect.  \n")) else {
+   cat("Pieces of CWD with an invalid transect:  \n"); NiceTable(CWD_Bad_Transect)}
+
+```
+
+---
+
+### Decay
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Decay)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid decay class.  \n")) else {
+   cat("Pieces of CWD with an invalid decay class:  \n"); NiceTable(CWD_Bad_Decay)}
+
+```
+
+---
+
+### Species ID
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_No_Name)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a species ID.  \n")) else {
+   cat("Pieces of CWD with no species name:  \n"); NiceTable(CWD_No_Name)}
+
+```
+
+
+---
+
+### Diameter
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_No_Diameter)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a diameter.  \n")) else {
+   cat("Pieces of CWD with no diameter:  \n"); NiceTable(CWD_No_Diameter)}
+
+if(nrow(CWD_Bad_Diameter)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a typical diameter.  \n")) else {
+   cat("Pieces of CWD with an unusual diameter:  \n"); NiceTable(CWD_Bad_Diameter)}
+
+```
+
+---
+
+### Hollow
+
+```{r, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Hollow)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid entry for Hollow.  \n")) else {
+   cat("Pieces of CWD with an invalid entry for Hollow:  \n"); NiceTable(CWD_Bad_Hollow)}
+
+```
+
+

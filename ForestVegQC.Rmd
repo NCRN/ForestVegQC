@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(NPSForVeg)
 library(tidyverse)
 library(DT)
+library(lubridate)
 
 options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
 
@@ -25,19 +26,26 @@ NiceTable<-function(DF){
 
 NCRN<-importNCRN("C:/Users/jschmit/Desktop/Some data/Veg_NCRN")
 
-QCYears<-2006:2009
+QCYears<-2006:2019
+
+
+QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
+QCEvents<-getEvents(NCRN, years = QCYears) 
+QCPlotFloor<-read.csv("C:/Users/jschmit/Desktop/Some data/Veg_NCRN/Plot_Floor.csv", stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
+QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
+
 ```
 
 #  {.tabset}
 
 ## Introduction
 
-Run on `r Sys.Date()`.
+**Run on:** `r format(Sys.Date(),"%B %d %Y") `.
 
-Years covered: `r paste0(min(QCYears),"-", max(QCYears)) `.
+**Years covered:** `r paste0(min(QCYears),"-", max(QCYears)) `.
 
 
-### The following data is not currenty QCed;
+### The following data is not currenty QCed:
 
 - All: Flags are not exported from the database and are not considedered during QC.
 
@@ -45,97 +53,37 @@ Years covered: `r paste0(min(QCYears),"-", max(QCYears)) `.
 
 - Events: Need to export table that matches years with panels so we can verify the correct plots were sampled.
 
+- Events: Pictures taken not exported. Need to decide how to check files on drive. 
+
+- Events: CWD check not exported.
+
+- Events: Deer Impact value not exported.
+
+- CWD: Need a mechanism to check if Latin names are reasonable
+
+- CWD: Need to export tree tag to make sure it is correponds to a local tree/ sapling
+
 ## Plots
 
 
-```{r, include=F}
-QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
-TotPlots<-nrow(QCPlots)
-
-Plots_No_Unit<-QCPlots %>% filter(is.na(Unit_Code)) %>% select(Unit_Code, Plot_Name)
-Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope)
-Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
-Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
-   select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
-Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude<  -79.5  | Longitude > -76.1 ) %>% 
-   select(Unit_Code, Plot_Name, Latitude, Longitude)
+```{r child="ForestVegPlotsQC.Rmd"}
 ```
 
-### Unit Codes
-```{r, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a Unit Code.  \n")) else {
-   cat("Plots with no unit code.  \n"); NiceTable(Plots_No_Unit)}
-```
-
-----
-
-### Slope and Aspect
-
-```{r, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_Bad_Slope)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable slope measurement.  \n")) else {
-   cat("Plots with a bad slope:  \n"); NiceTable(Plots_Bad_Slope)}
-
-if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable aspect measurement.  \n")) else {
-   cat("Plots with a bad aspect:  \n"); NiceTable(Plots_Bad_Aspect)}
-```
-
-----
-
-### Geographic Coordinates
-
-```{r, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_No_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have geographic coordinates.  \n")) else { 
-   cat("Plots with missing coordinates:  \n"); NiceTable(Plots_No_Coords)}
-
-if(nrow(Plots_Bad_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have lat / long within NCRN bounding box.  \n")) else {
-   cat("Plots with lat/long outside bounding box:  \n"); NiceTable(Plots_Bad_Coords)}
-
-```
 
 ## Events
 
-```{r, include=F}
-QCEvents<-getEvents(NCRN, years = QCYears) 
-TotEvents<-nrow(QCEvents)
-
-Events_No_Protocol<-QCEvents %>% filter(is.na(Protocol_Name)) %>% select(Unit_Code, Plot_Name, Event_Year, Protocol_Name)
-#Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope)
-#Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
-#Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
-#   select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
+```{r child="ForestVegEventsQC.Rmd"}
 ```
-
-- Protocol_Name - what version of the protocol?
-- Event date the correct year (and maybe check for months flag if before April or after October?)
-- Pictures taken should be checked
-- CWD for all transects checked
-- deer impact value present after a certain year
- 
-###  Protocol Version
-```{r, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Events_No_Protocol)==0) cat(paste(TotEvents," Events checked, all have a protocol version.  \n")) else {
-   cat("Events with no protocol version .  \n"); NiceTable(Events_No_Protocol)}
-```
-
-----
-
  
 ## Plot Floor
-- All Plot should have a value for 
-   - Rock Cover
-   - Bare Soild
-   - Trampled 
-   - what is it with humus and earthworms - old thing?
-   - consider what counts as consistent for rock cover
+
+```{r child="ForestVegPlotFloorQC.Rmd"}
+```
 
 ## CWD 
-- All should have:
- - Transect
- - Decay Class (1-5)
- - Species that corresponds to a tree species
- - Diameter >= 7.5 and < some big number
- - Hollow as T/F
- - If it has a tag, should match a tree (past or present)
+
+```{r child="ForestVegCWDQC.Rmd"}
+```
  
 ## Trees
 - Should have a status (alive standing etc)

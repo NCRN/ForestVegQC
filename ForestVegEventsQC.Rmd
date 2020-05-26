@@ -5,7 +5,7 @@ date: "5/18/2020"
 output: html_document
 ---
 
-```{r, include=F}
+```{r Events_Setup, include=F}
 TotEvents<-nrow(QCEvents) #Total Number of events checked
 
 
@@ -27,8 +27,7 @@ Events_Bad_Date<-QCEvents %>% filter( month(Event_Date)<4  | month(Event_Date) >
 
 
 ###  Protocol Version
-```{r, echo=FALSE, hold=FALSE, results="asis"}
-
+```{r Protocol, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(Events_No_Protocol)==0) cat(paste(TotEvents," Events checked, all have a protocol version.  \n")) else {
    cat("Events with no protocol version:  \n"); NiceTable(Events_No_Protocol)}
@@ -41,7 +40,7 @@ if(nrow(Events_Bad_Protocol)==0) cat(paste(TotEvents," Events checked, all have 
 
 ### Event Date
 
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r Event_date, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(Events_No_Date)==0) cat(paste(TotEvents," Events checked, all have an event date.  \n")) else {
 cat("Events with no date:  \n"); NiceTable(Events_No_Date)}
@@ -52,5 +51,3 @@ cat("Events with not between Apr-15 and Sept-30:  \n"); NiceTable(Events_Bad_Dat
 ```
 
 
-
----

@@ -33,6 +33,13 @@ QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numer
 QCEvents<-getEvents(NCRN, years = QCYears) 
 QCPlotFloor<-read.csv("C:/Users/jschmit/Desktop/Some data/Veg_NCRN/Plot_Floor.csv", stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
 QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
+QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all")
+
+Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
+Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
+Missing_Status<-c("Missing", "Missing - Presumed Dead", "Missing - Uncertain")
+Other_Status<-c( "Downgraded to Non-Sampled")
+
 
 ```
 
@@ -63,45 +70,42 @@ QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
 
 - CWD: Need to export tree tag to make sure it is correponds to a local tree/ sapling
 
+- Trees: Need  a mechanism ot check if Latin names are reasonable
+
+- Trees: Need a way to check that tree tag is not retired
+
+- Trees: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to check living trees are checked, and non-EAB dead trees are not.
+
+
+
 ## Plots
 
 
-```{r child="ForestVegPlotsQC.Rmd"}
+```{r Plot-QC, child="ForestVegPlotsQC.Rmd"}
 ```
 
 
 ## Events
 
-```{r child="ForestVegEventsQC.Rmd"}
+```{r Event-QC, child="ForestVegEventsQC.Rmd"}
 ```
  
 ## Plot Floor
 
-```{r child="ForestVegPlotFloorQC.Rmd"}
+```{r Plot_Floor-QC, child="ForestVegPlotFloorQC.Rmd"}
 ```
 
 ## CWD 
 
-```{r child="ForestVegCWDQC.Rmd"}
+```{r CWD-QC, child="ForestVegCWDQC.Rmd"}
 ```
  
 ## Trees
-- Should have a status (alive standing etc)
-- should have an Species ID that we recognize as being a tree
-- Should have a tag that makes sense -to the extent this is possible. Should not be retired in office generally
-- should not start as missing, earlier ones should not start as dead, never start as dead fallen
-- should have a crown class in the accepted range, unless dead or missing, and then it should not have a crown class.
-- alive trees should have vines, conditions, and foliage checked. other status should not be checked (not sure how EAB works, maybe conditions checked then)
-- DBH check should not be checked for missing or dead fallen trees. And only be checked in later data
-- Tree vigor should exist only for live trees in later data
-- if tree is listed as live it has to have Equiv diameter > 10cm and all measured stems > 1 cm. Can have dead stems > 10cm too
-- if tree is listed as dead (not fallen) should have dead stems > 10 cm and not enough dbh to be 10 cm alive, live stems should be >1 cm
-- if tree is missing or dead fallen, should have no stems at all
-- Tree foliage condiditons only on living trees, percent between 1 and 100, condiition should be one of the choices in protocol
-- tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current.
-- if condition is vines in crown, should have 1 or more vines on it. 
-- should have a distance and azimuth <15m and between 0 and 360 (but not 0)
-- How do we deal with removed from study? Need to check that everything that was suppsoed to be monitored was actualy monitored
+
+```{r Tree-QC, child="ForestVegTreeQC.Rmd"}
+```
+
+
 
 ## Vines
 - should have an ID that we recognize as being a vine

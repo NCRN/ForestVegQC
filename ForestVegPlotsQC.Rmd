@@ -5,7 +5,7 @@ date: "5/18/2020"
 output: html_document
 ---
 
-```{r, include=F}
+```{r Plot_setup, include=F}
 
 TotPlots<-nrow(QCPlots) #Total number of plots being checked
 
@@ -23,7 +23,7 @@ Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude
 ```
 
 ### Unit Codes
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r Plot_unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a Unit Code.  \n")) else {
    cat("Plots with no unit code.  \n"); NiceTable(Plots_No_Unit)}
 ```
@@ -32,7 +32,7 @@ if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a 
 
 ### Slope and Aspect
 
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r slope_aspect, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_Bad_Slope)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable slope measurement.  \n")) else {
    cat("Plots with a bad slope:  \n"); NiceTable(Plots_Bad_Slope)}
 
@@ -44,7 +44,7 @@ if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have
 
 ### Geographic Coordinates
 
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r geo_coords, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_No_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have geographic coordinates.  \n")) else { 
    cat("Plots with missing coordinates:  \n"); NiceTable(Plots_No_Coords)}
 

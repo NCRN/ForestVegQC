@@ -6,7 +6,7 @@ output: html_document
 ---
 
 
-```{r, include=F}
+```{r cwd_setup, include=F}
 TotCWD<-nrow(QCCWD) #Total Number of events checked
 
 CWD_Bad_Transect<-QCCWD %>% filter(is.na(Transect_Azimuth) | !Transect_Azimuth %in% c(120,240,360) ) %>%
@@ -28,7 +28,7 @@ CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Co
 
 
 ###  Transects
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r Transects, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_Bad_Transect)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid transect.  \n")) else {
    cat("Pieces of CWD with an invalid transect:  \n"); NiceTable(CWD_Bad_Transect)}
@@ -38,7 +38,7 @@ if(nrow(CWD_Bad_Transect)==0) cat(paste(TotCWD, " Pieces of CWD checked and all 
 ---
 
 ### Decay
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r Decay_Class, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_Bad_Decay)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid decay class.  \n")) else {
    cat("Pieces of CWD with an invalid decay class:  \n"); NiceTable(CWD_Bad_Decay)}
@@ -49,7 +49,7 @@ if(nrow(CWD_Bad_Decay)==0) cat(paste(TotCWD, " Pieces of CWD checked and all hav
 
 ### Species ID
 
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r CWD_species, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_No_Name)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a species ID.  \n")) else {
    cat("Pieces of CWD with no species name:  \n"); NiceTable(CWD_No_Name)}
@@ -61,7 +61,7 @@ if(nrow(CWD_No_Name)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have 
 
 ### Diameter
 
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r CWD_Diameter, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_No_Diameter)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a diameter.  \n")) else {
    cat("Pieces of CWD with no diameter:  \n"); NiceTable(CWD_No_Diameter)}
@@ -75,7 +75,7 @@ if(nrow(CWD_Bad_Diameter)==0) cat(paste(TotCWD, " Pieces of CWD checked and all 
 
 ### Hollow
 
-```{r, echo=FALSE, hold=FALSE, results="asis"}
+```{r CWD_hollow, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_Bad_Hollow)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid entry for Hollow.  \n")) else {
    cat("Pieces of CWD with an invalid entry for Hollow:  \n"); NiceTable(CWD_Bad_Hollow)}

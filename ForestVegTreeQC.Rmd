@@ -1,0 +1,135 @@
+---
+title: "Forest Vegetation Tree QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r tree_setup, include=F}
+TotTrees<-nrow(QCTrees) #Total Number of events checked
+
+Trees_Bad_Status<-QCTrees %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
+
+Trees_No_Name<-QCTrees %>% filter(Latin_Name=="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Trees_Bad_Tag<-QCTrees %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Trees_Live_Bad_Crown<-QCTrees %>% filter(Status %in% Live_Status & (Crown_Description=="" | !Crown_Description %in% 
+   c("Co-dominant", "Dominant", "Edge Tree", "Intermediate", "Light Gap Exploiter", "Open-grown", "Overtopped" ))) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
+
+Trees_Unalive_Bad_Crown<-QCTrees %>% filter(!Status %in% Live_Status & Crown_Description!="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
+
+Trees_Bad_DBH_Check <-QCTrees %>% filter( (Sample_Year<2018 & DBH_Check) | 
+      (Sample_Year>2017 & DBH_Check & 
+          Status %in% c(Missing_Status, "Dead Fallen", "Dead Missing", "Dead - Too Small", Other_Status))) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH_Check)
+
+Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
+      ( (Sample_Year<2017 & !is.na(TreeVigor)) | (Sample_Year >=2017 & (is.na(TreeVigor)  | !TreeVigor %in% 0:5)) )) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
+
+Trees_Unalive_Bad_Vigor<-QCTrees %>% filter(!Status %in% Live_Status & !is.na(TreeVigor)) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
+
+Trees_Live_Bad_DBH<-QCTrees %>% filter(Status %in% Live_Status & (
+   (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 10 | is.na(Equiv_Dead_DBH_cm) | ( Equiv_Dead_DBH_cm>0 & Equiv_Dead_DBH_cm < 10)) ))  %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
+
+```
+
+- should not start as missing, earlier ones should not start as dead, never start as dead fallen
+
+- if tree is listed as live all measured stems > 1 cm. Can have dead stems > 10cm too
+- if tree is listed as dead (not fallen) should have dead stems > 10 cm and not enough dbh to be 10 cm alive, live stems should be >1 cm
+- if tree is missing or dead fallen, should have no stems at all
+
+- Add qc for stems
+
+- Tree foliage condiditons only on living trees, percent between 1 and 100, condiition should be one of the choices in protocol
+- tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current.
+- if condition is vines in crown, should have 1 or more vines on it. 
+- should have a distance and azimuth <15m and between 0 and 360 (but not 0)
+- How do we deal with removed from study? Need to check that everything that was suppsoed to be monitored was actualy monitored
+- Tree disease on correct species
+
+
+
+###  Tree Status
+```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Trees_Bad_Status)==0) cat(paste(TotTrees, " Tree records checked and all have a valid status.  \n")) else {
+   cat("Tree records with an invalid status:  \n"); NiceTable(Trees_Bad_Status)}
+
+```
+
+---
+
+### Species ID
+
+```{r Tree_Species, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ if(nrow(Trees_No_Name)==0) cat(paste(TotTrees, " Tree records checked and all have a species ID.  \n")) else {
+    cat("Tree records with no species name:  \n"); NiceTable(Trees_No_Name)}
+
+```
+
+
+---
+
+### Tree Tag
+
+```{r Tree_Tag, echo=FALSE, hold=FALSE, results="asis"}
+ if(nrow(Trees_Bad_Tag)==0) cat(paste(TotTrees, " Tree records checked and all have a valid tag.  \n")) else {
+    cat("Tree records with an invalid tag:  \n"); NiceTable(Trees_Bad_Tag)}
+
+```
+
+---
+
+### Tree Crown
+
+```{r Tree_Crown, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ if(nrow(Trees_Live_Bad_Crown)==0) cat(paste(TotTrees, " Tree records checed and all living trees have a valid crown description.  \n")) else {
+    cat("Living Tree records with an invalid crown descirption:  \n"); NiceTable(Trees_Live_Bad_Crown)}
+
+ if(nrow(Trees_Unalive_Bad_Crown)==0) cat(paste(TotTrees, " Tree records checked and no non-living trees have a crown description.  \n")) else { 
+    cat("Non-living tree records with a crown description:  \n"); NiceTable(Trees_Unalive_Bad_Crown)}
+```
+
+---
+
+### Tree Diameter
+
+```{r Tree_Diameter, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Trees_Bad_DBH_Check)==0) cat(paste(TotTrees, " Trees records checked and none have an inappropriate DBH check.  \n")) else { 
+    cat("Tree records with an inappropriate DBH check:  \n"); NiceTable(Trees_Bad_DBH_Check)}
+
+ if(nrow(Trees_Live_Bad_DBH)==0) cat(paste(TotTrees, " Trees records checked and no live trees have an invlid DBH.  \n")) else { 
+    cat("Live tree records with an invalid DBH:  \n"); NiceTable(Trees_Live_Bad_DBH)}
+
+
+```
+
+---
+
+### Tree Vigor
+
+```{r Tree_vigor, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ if(nrow(Trees_Live_Bad_Vigor)==0) cat(paste(TotTrees, " Tree records checked and all live trees have a valid vigor.  \n")) else {
+    cat("Living tree records with an invalid vigor:  \n"); NiceTable(Trees_Live_Bad_Vigor)}
+
+ if(nrow(Trees_Unalive_Bad_Vigor)==0) cat(paste(TotTrees, " Tree records checked and no non-living trees have a vigor.  \n")) else {
+    cat("Non-living tree records with a vigor:  \n"); NiceTable(Trees_Unalive_Bad_Vigor)}
+
+```
+
+

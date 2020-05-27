@@ -23,8 +23,8 @@ NiceTable<-function(DF){
       buttons=c('copy','csv'))
 )}
 
-
-NCRN<-importNCRN("C:/Users/jschmit/Desktop/Some data/Veg_NCRN")
+DataDir<-"C:/Users/jschmit/Desktop/Some data/Veg_NCRN"
+NCRN<-importNCRN(DataDir)
 
 QCYears<-2006:2019
 
@@ -34,6 +34,7 @@ QCEvents<-getEvents(NCRN, years = QCYears)
 QCPlotFloor<-read.csv("C:/Users/jschmit/Desktop/Some data/Veg_NCRN/Plot_Floor.csv", stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
 QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
 QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all")
+QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)
 
 Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
 Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")

@@ -47,13 +47,13 @@ Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Stat
        Equiv_Dead_DBH_cm !=0 )) )  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
-Stems_Live_Bad_DBH<-QCStems %>% filter(Live==T & Class=="Tree", (is.na(DBH) | DBH<1)) %>% 
+Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T & Class=="Tree", (is.na(DBH) | DBH<1)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
-Stems_Dead_Bad_DBH<-QCStems %>% filter(Live==F & Class=="Tree", (is.na(DBH) | DBH<10)) %>% 
+Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F & Class=="Tree", (is.na(DBH) | DBH<10)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
-Stems_Other_Bad_DBH<-QCStems %>% filter(Status %in% c(Missing_Status, Other_Status, 
+Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Status %in% c(Missing_Status, Other_Status, 
     "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
@@ -64,15 +64,24 @@ Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status &
 Trees_Unalive_Bad_Vigor<-QCTrees %>% filter(!Status %in% Live_Status & !is.na(TreeVigor)) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
 
+Trees_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
+              !Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other") )) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
+  
+
+Trees_Bad_Foliage_Percent<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Percent_Afflicted) | 
+                            Percent_Afflicted<1 |Percent_Afflicted>100)) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
+
+Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year  %in% QCYears & !Status %in% Live_Status ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
 ```
 
 - should not start as missing, earlier ones should not start as dead, never start as dead fallen
 
 - dead trees wth > 1cm live dbh should not exist in a microplot as it would be a sapling
 
-- Add qc for stems
 
-- Tree foliage condiditons only on living trees, percent between 1 and 100, condiition should be one of the choices in protocol
 - tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current.
 - if condition is vines in crown, should have 1 or more vines on it. 
 - should have a distance and azimuth <15m and between 0 and 360 (but not 0)
@@ -178,4 +187,19 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
 
 ```
 
+
+### Tree Conditions
+
+```{r Tree_Condition, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ # if(nrow(Trees_Bad_Tree_Condition)==0) cat(paste(TotTrees, " Tree records checked and all foliage conditions are valid.  \n")) else {
+ #    cat("Living tree records with invalid foliage conditions:  \n"); NiceTable(Trees_Bad_Foliage_Condition)}
+ # 
+ # if(nrow(Trees_Bad_Foliage_Condition)==0) cat(paste(TotTrees, " Tree records checked and all foliage percents are valid.  \n")) else {
+ #    cat("Living tree records with invalid foliage percents:  \n"); NiceTable(Trees_Bad_Foliage_Percent)}
+ # 
+ # if(nrow(Trees_Unalive_Foliage)==0) cat(paste(TotTrees, " Tree records checked and no non-living trees have foliage condiditons.  \n")) else {
+ #    cat("Non-living tree records with foliage conditions:  \n"); NiceTable(Trees_Unalive_Foliage)}
+
+```
 

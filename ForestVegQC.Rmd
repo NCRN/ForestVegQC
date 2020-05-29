@@ -35,6 +35,8 @@ QCPlotFloor<-read.csv("C:/Users/jschmit/Desktop/Some data/Veg_NCRN/Plot_Floor.cs
 QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
 QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all")
 QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)
+QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F)
+QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F)
 
 Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
 Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
@@ -76,6 +78,8 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 - Trees: Need a way to check that tree tag is not retired
 
 - Trees: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to check living trees are checked, and non-EAB dead trees are not.
+
+- Trees: Trees with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable?
 
 
 

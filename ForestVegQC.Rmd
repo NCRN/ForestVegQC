@@ -55,9 +55,9 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 **Years covered:** `r paste0(min(QCYears),"-", max(QCYears)) `.
 
 
-### The following data is not currenty QCed:
+### The following data is not currently QCed:
 
-- All: Flags are not exported from the database and are not considedered during QC.
+- All: Flags are not exported from the database and are not considered during QC.
 
 - Plots: Retired date for retired plots not currently exported.
 
@@ -71,13 +71,13 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 
 - CWD: Need a mechanism to check if Latin names are reasonable
 
-- CWD: Need to export tree tag to make sure it is correponds to a local tree/ sapling
+- CWD: Need to export tree tags to make sure they correpond to a local tree/ sapling
 
-- Trees: Need  a mechanism ot check if Latin names are reasonable
+- Trees: Need  a mechanism to check if Latin names are reasonable
 
 - Trees: Need a way to check that tree tag is not retired
 
-- Trees: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to check living trees are checked, and non-EAB dead trees are not.
+- Trees: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify the yare checked for living trees and dead trees with EAB have conditions checked, but not checked in other cases.
 
 - Trees: Trees with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable?
 

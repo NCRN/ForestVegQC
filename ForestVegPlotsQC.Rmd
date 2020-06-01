@@ -34,10 +34,10 @@ if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a 
 
 ```{r slope_aspect, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_Bad_Slope)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable slope measurement.  \n")) else {
-   cat("Plots with a bad slope:  \n"); NiceTable(Plots_Bad_Slope)}
+   cat("Plots with a missing slope or a slope <0 or >58:  \n"); NiceTable(Plots_Bad_Slope)}
 
 if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable aspect measurement.  \n")) else {
-   cat("Plots with a bad aspect:  \n"); NiceTable(Plots_Bad_Aspect)}
+   cat("Plots with a missing aspect or an aspect <1 or >360:  \n"); NiceTable(Plots_Bad_Aspect)}
 ```
 
 ---

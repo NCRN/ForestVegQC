@@ -31,7 +31,7 @@ CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Co
 ```{r Transects, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_Bad_Transect)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid transect.  \n")) else {
-   cat("Pieces of CWD with an invalid transect:  \n"); NiceTable(CWD_Bad_Transect)}
+   cat("Pieces of CWD with a transect other than 120, 240 or 360:  \n"); NiceTable(CWD_Bad_Transect)}
 
 ```
 
@@ -41,7 +41,7 @@ if(nrow(CWD_Bad_Transect)==0) cat(paste(TotCWD, " Pieces of CWD checked and all 
 ```{r Decay_Class, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(CWD_Bad_Decay)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a valid decay class.  \n")) else {
-   cat("Pieces of CWD with an invalid decay class:  \n"); NiceTable(CWD_Bad_Decay)}
+   cat("Pieces of CWD with an decay class other than 1-5:  \n"); NiceTable(CWD_Bad_Decay)}
 
 ```
 

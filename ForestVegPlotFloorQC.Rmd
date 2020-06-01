@@ -17,7 +17,7 @@ Plots_No_Cover<-QCPlotFloor%>% filter(is.na(Rock_Cover) | is.na(Bare_Soil_Cover)
 
 
 ```{r Plot_Floor_records_check , echo=FALSE, hold=FALSE, results="asis"} 
-if(TotEvents!=TotPlotFloor) cat("Error:")
+if(TotEvents!=TotPlotFloor) cat("**Error:**")
 ```
 
 `r TotEvents` events checked and there are `r TotPlotFloor` records of plot floor cover.

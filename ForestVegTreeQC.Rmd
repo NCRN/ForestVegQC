@@ -84,13 +84,13 @@ Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status 
 
 
 ## Tree Conditions
-Trees_Live_Bad_Tree_Condition<-QCConditions %>% filter(Sample_Year %in% QCYears & !Pest & Status %in% Live_Status &
+Trees_Live_Bad_Tree_Condition<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &
   !Condition %in% c("Advanced decay", "Primary branch broken",  "Large dead branches", "Lightning Damage", "Wind Damage", "Buck Rub", "Bark Damage",
                     "Beaver Damage", "Human Damage", "Mammal Damage", "Bird Damage", "Exposed roots", "Epicormic sprouts", "Fungus", "Fire", "Hollow",
                     "Sparse foliage", "Open wound", "Vines in the crown",  "Vine stress", "Other visible condition", "Other visible damage")) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
-Trees_Live_Anachronistic_Tree_Conditions<-QCConditions %>% filter(Sample_Year %in% QCYears & !Pest & Status %in% Live_Status &
+Trees_Live_Anachronistic_Tree_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &
       (
         (Condition =="Lightning Damage" & Sample_Year< 2009) | 
           (Condition %in% c("Buck Rub", "Bark Damage", "Human Damage") & Sample_Year < 2014) |
@@ -103,6 +103,42 @@ Trees_Live_Anachronistic_Tree_Conditions<-QCConditions %>% filter(Sample_Year %i
         )) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 
+Trees_Unalive_Tree_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & 
+                (Status %in% c(Dead_Status, Missing_Status, Other_Status))) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+
+## Tree Pests
+
+Trees_Live_Bad_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
+  !Condition %in% c("Asian longhorned beetle", "Beech bark disease",  "Butternut canker", "Chestnut blight", "Dogwood anthracnose", 
+                    "Emerald ash borer", "Gypsy moth","Hemlock Scale", "Hemlock wooly adelgid", "Oak wilt", "Spotted lanternfly", 
+                    "Thousand cankers disease", "Tent caterpillars", "Other significant insect damage")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+
+Trees_Live_Anachronistic_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
+      (
+        (Condition %in% c("Dogwood anthracnose","Hemlock Scale") & Sample_Year< 2008) | 
+          (Condition =="Emrerald ash borer" & Sample_Year < 2009) |
+          (Condition %in% c("Asian longhotnrf beetle","Chestnut blight", "Oak wilt", "Thousand cankers disease") & Sample_Year < 2014) |
+          (Condition =="Tent caterpillars" & Sample_Year< 2017) |
+          (Condition =="Spotted lanternfly" & Sample_Year < 2018))
+    ) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+
+
+Trees_Unalive_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & 
+                (Status %in% c(Dead_Status, Missing_Status, Other_Status))) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+
+Trees_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest & 
+  (
+   (Condition == "Beach bark disease" & Latin_Name !="Fagus grandifolia") |
+    (Condition =="Butternut canker" & Latin_Name != "Junglans cinerea") |
+    (Condition == "Chestnut blight" & Latin_Name != "Castanea dentata") |
+    (Condition == "Dogwood anthracnose" & Latin_Name != "Cornus florida") |
+    (Condition =="Emerald ash borer" & !Latin_Name %in% c("Fraxinus americana", "Fraxinus nigra", "Fraxinus pennsylvanica", "Fraxinus profunda")) |
+    (Condition %in% c("Hemlock Scale", "Hemlock wooly adelgid") & Latin_Name != "Tsuga canadensis") |
+    (Condition =="Thousand cankers disease" & Latin_Name !="Juglans nigra")
+  )) %>% select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
 ```
 
@@ -202,8 +238,6 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
 
 ---
 
-
-
 ### Tree Vigor
 
 ```{r Tree_vigor, echo=FALSE, hold=FALSE, results="asis"}
@@ -215,6 +249,8 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
     cat("Non-living tree records with a vigor:  \n"); NiceTable(Trees_Unalive_Bad_Vigor)}
 
 ```
+
+---
 
 ### Tree Foliage
 
@@ -230,15 +266,38 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
      cat("Non-living tree records with foliage conditions:  \n"); NiceTable(Trees_Unalive_Foliage)}
 ```
 
+---
 
 ### Tree Conditions
 
-```{r Tree_Condition, echo=FALSE, hold=FALSE, results="asis"}
+```{r Tree_Conditions, echo=FALSE, hold=FALSE, results="asis"}
  
 if(nrow(Trees_Live_Bad_Tree_Condition)==0) cat(paste(TotTrees, " Tree records checked and all tree conditions are valid.  \n")) else {
      cat("Living tree records with a tree condition we don't monitor:  \n"); NiceTable(Trees_Live_Bad_Tree_Condition)}
+
 if(nrow(Trees_Live_Anachronistic_Tree_Conditions)==0) cat(paste(TotTrees, " Tree records checked and all tree conditions are from the correct year.  \n")) else {cat("Living tree records with a tree condition from the wrong year:  \n"); NiceTable(Trees_Live_Anachronistic_Tree_Conditions)}
 
+if(nrow(Trees_Unalive_Tree_Conditions)==0) cat(paste(TotTrees, " Tree records checked and all non-living trees have no conditions.  \n")) else {cat("Non-living tree records with a tree condition:  \n"); NiceTable(Trees_Unalive_Tree_Conditions)}
+
+```
+
+---
+
+### Tree Pests
+
+```{r Tree_Pests, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Trees_Live_Bad_Pest)==0) cat(paste(TotTrees, " Tree records checked and all pest records are valid.  \n")) else {
+     cat("Living tree records with a pest we don't monitor:  \n"); NiceTable(Trees_Live_Bad_Pest)}
+ 
+ if(nrow(Trees_Live_Anachronistic_Pest)==0) cat(paste(TotTrees, " Tree records checked and all pests are from the correct year.  \n")) else {cat("Living tree records with a pest from the wrong year:  \n"); NiceTable(Trees_Live_Anachronistic_Pest)}
+ 
+ if(nrow(Trees_Unalive_Pest)==0) cat(paste(TotTrees, " Tree records checked and all non-living trees have no pests.  \n")) else {
+   cat("Non-living tree records with a pest:  \n"); NiceTable(Trees_Unalive_Pest)}
+
+ 
+ if(nrow(Trees_Pest_Bad_Host)==0) cat(paste(TotTrees, " Tree records checked and no pests on incorrect host species.  \n")) else {
+   cat("Trees with inconsistent host species - pest pairs:  \n"); NiceTable(Trees_Pest_Bad_Host)}
 
 ```
 

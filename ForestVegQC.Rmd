@@ -37,6 +37,8 @@ QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all")
 QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)
 QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F)
 QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F)
+QCVines<-getPlants(NCRN,"vines",  years=QCYears )
+QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all")
 
 Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
 Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
@@ -77,11 +79,17 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 
 - Trees: Need a way to check that tree tag is not retired
 
-- Trees: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify the yare checked for living trees and dead trees with EAB have conditions checked, but not checked in other cases.
+- Trees: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living trees and dead trees with EAB have conditions checked, but not checked in other cases.
 
 - Trees: Trees with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable?
 
+- Trees: Need to export distance and azimuth to verify these are credible and check for sapling accidentaly recoreded as a tree.
 
+- Saplings: Need  a mechanism to check if Latin names are reasonable
+
+- Saplings: Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living saplings and dead saplings with EAB have conditions checked from 2015? on, but not checked in other cases.
+
+- Saplings: Equivalent diameter is not exported for dead stems of saplings (this will typcially = 0)
 
 ## Plots
 
@@ -111,29 +119,14 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 ```
 
 
-
-## Vines
-- should have an ID that we recognize as being a vine
-- should be on a living tree - not a dead or missing one and only on a sapling or shrub once we started doing those.
-
 ## Saplings
-- Should have a status (alive standing etc)
-- should have an Species ID that we recognize as being a tree
-- Should have a tag that makes sense
-- should not start as missing or dead ever
-- alive saplings should have vines, conditions, and foliage checked. other status should not be checked (not sure how EAB works), but only once we started doing this for saplings
-- DBH check should not be checked for missing or dead saplings. Should only be checked in later data
-- Tree vigor should exist only for live saplings in later data
-- if sapling is listed as live it has to have Equiv diameter between 1 and 10 cm and all meausred stems > 1 cm. Dead stems should be >=10cm (double check)
-- if saplings is listed as dead should not have any dhb's measured
-- if saplings is missing should have no stems at all
-- Tree foliage condiditons only on living saplings, percent between 1 and 100, condiition should be one of the choices and only once we started with this
-- tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current. and only once we started with this
-- if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
-- should be on a microplot
-- how do we check removed from study?
-- habit should be tree (sapling ) not shurb
-- browsed / browsable shoudl be logical and present when we started doing this.
+
+```{r Tree-QC, child="ForestVegSaplingQC.Rmd"}
+```
+
+
+
+
 
 ## Shrubs
 - Should have a status
@@ -155,7 +148,15 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 - habit should be shrub not tree
 - browsed / browsable should be logical and present when we started doing this. 
 
-## Quad general data
+
+
+## Vines
+- should have an ID that we recognize as being a vine
+- should be on a living tree - not a dead or missing one and only on a sapling or shrub once we started doing those.
+
+
+
+## Quadrats
 - Should be plot we did that year
 - All quads present and accounted for. 
 - All percent tree rock etc should be between 0 and 100

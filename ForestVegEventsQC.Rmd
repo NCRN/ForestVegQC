@@ -25,14 +25,17 @@ Events_Bad_Date<-QCEvents %>% filter( month(Event_Date)<4  | month(Event_Date) >
 
 ```
 
+#### **Events Checked:** `r TotEvents` ####
 
 ###  Protocol Version
 ```{r Protocol, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Missing Protocol Version**<br>")
+if(nrow(Events_No_Protocol)==0) cat("All events have a protocol version.<br>") else {
+   errorText("Events with no protocol version:"); NiceTable(Events_No_Protocol)}
 
-if(nrow(Events_No_Protocol)==0) cat(paste(TotEvents," Events checked, all have a protocol version.  \n")) else {
-   cat("Events with no protocol version:  \n"); NiceTable(Events_No_Protocol)}
-if(nrow(Events_Bad_Protocol)==0) cat(paste(TotEvents," Events checked, all have the correct protocol version.  \n")) else {
-   cat("Events with wrong protocol version:  \n"); NiceTable(Events_Bad_Protocol)}
+cat("<br>**Wrong Protocol Version**<br>")
+if(nrow(Events_Bad_Protocol)==0) cat("All events have the correct protocol version.<br>") else {
+   errorText("Events with the wrong protocol version:"); NiceTable(Events_Bad_Protocol)}
 
 ```
 
@@ -42,11 +45,13 @@ if(nrow(Events_Bad_Protocol)==0) cat(paste(TotEvents," Events checked, all have 
 
 ```{r Event_date, echo=FALSE, hold=FALSE, results="asis"}
 
-if(nrow(Events_No_Date)==0) cat(paste(TotEvents," Events checked, all have an event date.  \n")) else {
-cat("Events with no date:  \n"); NiceTable(Events_No_Date)}
+cat("<br>**Missing Event Date**<br>")
+if(nrow(Events_No_Date)==0) cat("All events have an event date.<br>") else {
+errorText("Events with no date:"); NiceTable(Events_No_Date)}
 
-if(nrow(Events_Bad_Date)==0) cat(paste(TotEvents," Events checked, all events between Apr-15 and Sept-30.  \n")) else {
-cat("Events with not between Apr-15 and Sept-30:  \n"); NiceTable(Events_Bad_Date)}
+cat("<br>**Early or Late Events**<br>")
+if(nrow(Events_Bad_Date)==0) cat("All events took place between Apr-15 and Sept-30.<br>") else {
+errorText("Events not between Apr-15 and Sept-30:"); NiceTable(Events_Bad_Date)}
 
 ```
 

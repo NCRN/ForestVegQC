@@ -5,6 +5,8 @@ date: "5/19/2020"
 output: html_document
 ---
 
+
+
 ```{r Plot_Floor_setup, include=F}
 
 TotPlotFloor<-nrow(QCPlotFloor) #Total number of plots being checked
@@ -13,11 +15,14 @@ Plots_No_Cover<-QCPlotFloor%>% filter(is.na(Rock_Cover) | is.na(Bare_Soil_Cover)
    select(Unit_Code, Plot_Name, Sample_Year, Rock_Cover, Bare_Soil_Cover, Trampled)
 ```
 
+#### **Plot Floor Records Checked:** `r TotPlotFloor` ####
+
+
 ### Events with Plot Cover
 
 
 ```{r Plot_Floor_records_check , echo=FALSE, hold=FALSE, results="asis"} 
-if(TotEvents!=TotPlotFloor) cat("**Error:**")
+if(TotEvents!=TotPlotFloor) errorText("**Error**")
 ```
 
 `r TotEvents` events checked and there are `r TotPlotFloor` records of plot floor cover.
@@ -27,7 +32,7 @@ if(TotEvents!=TotPlotFloor) cat("**Error:**")
 
 ### Plot Cover
 ```{r Plot_Cover, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_No_Cover)==0) cat(paste(TotPlotFloor," Records checked, all have data on plot floor cover.  \n")) else {
-   cat("Events with missing data on plot floor cover.  \n"); NiceTable(Plots_No_Cover)}
+if(nrow(Plots_No_Cover)==0) cat("All records have data on plot floor cover.<br>") else {
+   errorText("Events with missing data on plot floor cover."); NiceTable(Plots_No_Cover)}
 ```
 

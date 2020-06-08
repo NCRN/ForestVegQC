@@ -153,13 +153,14 @@ Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_S
 - habit should be tree (sapling ) not shurb
 - browsed / browsable shoudl be logical and present when we started doing this.
 
-
+#### **Saplings Checked:** `r TotSaplings` ####
+#### **Stems Checked:** `r TotStems` ####
 
 ###  Sapling Status
 ```{r Sapling_Status, echo=FALSE, hold=FALSE, results="asis"}
 
-if(nrow(Saplings_Bad_Status)==0) cat(paste(TotSaplings, " Sapling records checked and all have a valid status.  \n")) else {
-   cat("Sapling records with a missing status or a status we do not use:  \n"); NiceTable(Saplings_Bad_Status)}
+if(nrow(Saplings_Bad_Status)==0) cat("All sapling records have a valid status.<br>") else {
+   errorText("Sapling records with a missing status or a status we do not use:"); NiceTable(Saplings_Bad_Status)}
 
 ```
 
@@ -169,8 +170,8 @@ if(nrow(Saplings_Bad_Status)==0) cat(paste(TotSaplings, " Sapling records checke
 
 ```{r Sapling_Species, echo=FALSE, hold=FALSE, results="asis"}
   
-  if(nrow(Saplings_No_Name)==0) cat(paste(TotSaplings, " Sapling records checked and all have a species ID.  \n")) else {
-     cat("Saplings records with no species name:  \n"); NiceTable(Saplings_No_Name)}
+  if(nrow(Saplings_No_Name)==0) cat("All sapling records have a species ID.<br>") else {
+     errorText("Saplings records with no species name:<br>"); NiceTable(Saplings_No_Name)}
 
 ```
 
@@ -181,8 +182,8 @@ if(nrow(Saplings_Bad_Status)==0) cat(paste(TotSaplings, " Sapling records checke
 
 ```{r Sapling_Tag, echo=FALSE, hold=FALSE, results="asis"}
 
-  if(nrow(Saplings_Bad_Tag)==0) cat(paste(TotSaplings, " Sapling records checked and all have a valid tag.  \n")) else {
-     cat("Sapling records with no tag or a tag <1 or >30,000 tag:  \n"); NiceTable(Saplings_Bad_Tag)}
+  if(nrow(Saplings_Bad_Tag)==0) cat("All sapling records have a valid tag.<br>") else {
+     errorText("Sapling records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Saplings_Bad_Tag)}
 
 ```
 
@@ -193,17 +194,21 @@ if(nrow(Saplings_Bad_Status)==0) cat(paste(TotSaplings, " Sapling records checke
 ### Sapling Diameter
 
 ```{r Sapling_Diameter, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**DBH Check**<br>")
+  if(nrow(Saplings_Bad_DBH_Check)==0) cat("No sapling records have an inappropriate DBH check.<br>") else { 
+     errorText("Sapling records with the DBH check box checked before that was done or for tree with no DBH:<br>"); NiceTable(Saplings_Bad_DBH_Check)}
+ 
+cat("<br>**Living Sapling DBH Incorrect**<br>")
+  if(nrow(Saplings_Live_Bad_DBH)==0) cat("No living saplings records have an invlid DBH.<br>") else { 
+     errorText("Live sapling records with a living DBH=0 or > 10cm:"); NiceTable(Saplings_Live_Bad_DBH)}
 
-  if(nrow(Saplings_Bad_DBH_Check)==0) cat(paste(TotSaplings, " Sapling records checked and none have an inappropriate DBH check.  \n")) else { 
-     cat("Sapling records with the DBH check box checked before that was done or for tree with no DBH:  \n"); NiceTable(Saplings_Bad_DBH_Check)}
+cat("<br>**Dead Saplings DBH Incorrect**<br>")   
+ if(nrow(Saplings_Dead_Bad_DBH)==0) cat("No dead saplings have a mising or live DBH.<br>") else { 
+     errorText("Dead sapling records with a living or missing DBH:"); NiceTable(Saplings_Dead_Bad_DBH)}
  
-  if(nrow(Saplings_Live_Bad_DBH)==0) cat(paste(TotSaplings, " Saplings records checked and no live trees have an invlid DBH.  \n")) else { 
-     cat("Live sapling records with a living DBH=0 or > 10cm:  \n"); NiceTable(Saplings_Live_Bad_DBH)}
-  
- if(nrow(Saplings_Dead_Bad_DBH)==0) cat(paste(TotSaplings, " Sapling records checked and no dead trees have a mising or live DBH.  \n")) else { 
-     cat("Dead sapling records with a living or missing DBH:  \n"); NiceTable(Saplings_Dead_Bad_DBH)}
- 
- if(nrow(Saplings_Other_Bad_DBH)==0) cat(paste(TotSaplings, " Sapling records checked and no saplings have a live DBH when they should not.  \n")) else     { cat("Sapling records with a live DBH that should not have one:  \n"); NiceTable(Saplings_Other_Bad_DBH)}
+cat("<br>**DBH Wrongly Recorded**<br>")
+ if(nrow(Saplings_Other_Bad_DBH)==0) cat("No saplings have a live DBH when they should not.<br>") else {
+   errorText("Sapling records with a live DBH that should not have one:"); NiceTable(Saplings_Other_Bad_DBH)}
 
 ```
 
@@ -214,14 +219,17 @@ if(nrow(Saplings_Bad_Status)==0) cat(paste(TotSaplings, " Sapling records checke
 
 ```{r Sapling_Stem_Diameter, echo=FALSE, hold=FALSE, results="asis"}
 
-  if(nrow(Sapling_Stems_Live_Bad_DBH)==0) cat(paste(TotStems, " Stem records checked and no live sapling stems have an invlid DBH.  \n")) else { 
-     cat("Live sapling stem records with a missing DBH,  DBH <1 cm or DBH >0 10cm:  \n"); NiceTable(Sapling_Stems_Live_Bad_DBH)}
+cat("<br>**Living Stem DBH Incorrect**<br>")
+  if(nrow(Sapling_Stems_Live_Bad_DBH)==0) cat("No live sapling stems have an invlid DBH.<br>") else { 
+     errorText("Live sapling stem records with a missing DBH,  DBH <1 cm or DBH >0 10cm:"); NiceTable(Sapling_Stems_Live_Bad_DBH)}
   
-  if(nrow(Sapling_Stems_Dead_Bad_DBH)==0) cat(paste(TotStems, " Stem records checked and no dead sapling stems have an invlid DBH.  \n")) else { 
-     cat("Dead sapling stem records with a missing DBH or a DBH <10 cm:  \n"); NiceTable(Sapling_Stems_Dead_Bad_DBH)}
+cat("<br>**Dead Stem DBH Incorrect**<br>")
+  if(nrow(Sapling_Stems_Dead_Bad_DBH)==0) cat("No dead sapling stems have an invlid DBH.<br>") else { 
+     errorText("Dead sapling stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Sapling_Stems_Dead_Bad_DBH)}
   
-  if(nrow(Sapling_Stems_Other_Bad_DBH)==0) cat(paste(TotStems, " Stem records checked and no sapling stems have a DBH when they should not.  \n")) else { 
-     cat("Sapling stem records with a DBH on a tree that should not have any DBH:  \n"); NiceTable(Sapling_Stems_Other_Bad_DBH)}
+cat("<br>**Stem DBH Wrongly Recorded**<br>") 
+  if(nrow(Sapling_Stems_Other_Bad_DBH)==0) cat("No sapling stems have a DBH when they should not.<br>") else { 
+     errorText("Sapling stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Sapling_Stems_Other_Bad_DBH)}
 
 ```
 
@@ -230,12 +238,14 @@ if(nrow(Saplings_Bad_Status)==0) cat(paste(TotSaplings, " Sapling records checke
 ### Sapling Vigor
 
 ```{r Sapling_vigor, echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Living Saplings Vigor Invalid**<br>") 
+  if(nrow(Saplings_Live_Bad_Vigor)==0) cat("All live saplings have a valid vigor.<br>") else {
+     errorText("Living sa[;omg] records with a vigor other than 0-5:"); NiceTable(Saplings_Live_Bad_Vigor)}
   
-  if(nrow(Saplings_Live_Bad_Vigor)==0) cat(paste(TotSaplings, " Sapling records checked and all live saplings have a valid vigor.  \n")) else {
-     cat("Living sa[;omg] records with a vigor other than 0-5:  \n"); NiceTable(Saplings_Live_Bad_Vigor)}
-  
-  if(nrow(Saplings_Unalive_Bad_Vigor)==0) cat(paste(TotSaplings, " Sapling records checked and no non-living trees have a vigor.  \n")) else {
-     cat("Non-living tree records with a vigor:  \n"); NiceTable(Saplings_Unalive_Bad_Vigor)}
+cat("<br>**Non-Living Saplings with Vigor**<br>")
+  if(nrow(Saplings_Unalive_Bad_Vigor)==0) cat("No non-living saplings have a vigor.<br>") else {
+     errorText("Non-living tree records with a vigor:"); NiceTable(Saplings_Unalive_Bad_Vigor)}
 
 ```
 

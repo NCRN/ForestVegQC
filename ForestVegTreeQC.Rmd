@@ -125,8 +125,8 @@ Trees_Live_Anachronistic_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYear
     ) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 
-Trees_Unalive_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & 
-                (Status %in% c(Dead_Status, Missing_Status, Other_Status))) %>% 
+Trees_Unalive_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & Condition !="Emerald ash borer" &
+                (Status %in% c(Dead_Status, Missing_Status, Other_Status) )) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
 Trees_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest & 
@@ -151,12 +151,14 @@ Trees_Bad_Vines<-QCConditions %>% filter(Condition=="Vines in the crown")%>%
 
 - dead trees wth > 1cm live dbh should not exist in a microplot as it would be a sapling (need distance / azimuht)
 
+#### **Trees Checked:** `r TotTrees` ####
+#### **Stems Checked:** `r TotStems` ####
 
 ###  Tree Status
 ```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
 
-if(nrow(Trees_Bad_Status)==0) cat(paste(TotTrees, " Tree records checked and all have a valid status.  \n")) else {
-   cat("Tree records with a missing status or a status we do not use:  \n"); NiceTable(Trees_Bad_Status)}
+if(nrow(Trees_Bad_Status)==0) cat("All tree records checked have a valid status.<br>") else {
+   errorText("Tree records with a missing status or a status we do not use:"); NiceTable(Trees_Bad_Status)}
 
 ```
 
@@ -166,8 +168,8 @@ if(nrow(Trees_Bad_Status)==0) cat(paste(TotTrees, " Tree records checked and all
 
 ```{r Tree_Species, echo=FALSE, hold=FALSE, results="asis"}
  
- if(nrow(Trees_No_Name)==0) cat(paste(TotTrees, " Tree records checked and all have a species ID.  \n")) else {
-    cat("Tree records with no species name:  \n"); NiceTable(Trees_No_Name)}
+ if(nrow(Trees_No_Name)==0) cat("All tree records checked have a species ID.<br>") else {
+    errorText("Tree records with no species name:"); NiceTable(Trees_No_Name)}
 
 ```
 
@@ -177,8 +179,8 @@ if(nrow(Trees_Bad_Status)==0) cat(paste(TotTrees, " Tree records checked and all
 ### Tree Tag
 
 ```{r Tree_Tag, echo=FALSE, hold=FALSE, results="asis"}
- if(nrow(Trees_Bad_Tag)==0) cat(paste(TotTrees, " Tree records checked and all have a valid tag.  \n")) else {
-    cat("Tree records with no tag or a tag <1 or >30,000 tag:  \n"); NiceTable(Trees_Bad_Tag)}
+ if(nrow(Trees_Bad_Tag)==0) cat("All tree records have a valid tag.<br>") else {
+    errorText("Tree records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Trees_Bad_Tag)}
 
 ```
 
@@ -187,12 +189,13 @@ if(nrow(Trees_Bad_Status)==0) cat(paste(TotTrees, " Tree records checked and all
 ### Tree Crown
 
 ```{r Tree_Crown, echo=FALSE, hold=FALSE, results="asis"}
- 
- if(nrow(Trees_Live_Bad_Crown)==0) cat(paste(TotTrees, " Tree records checed and all living trees have a valid crown description.  \n")) else {
-    cat("Living Tree records with a mising crown description or one we do not use:  \n"); NiceTable(Trees_Live_Bad_Crown)}
+ cat("<br>**Living Trees' Crown Description**<br>")
+ if(nrow(Trees_Live_Bad_Crown)==0) cat("All tree records have a valid crown description.<br>") else {
+    errorText("Living Tree records with a mising crown description or one we do not use:"); NiceTable(Trees_Live_Bad_Crown)}
 
- if(nrow(Trees_Unalive_Bad_Crown)==0) cat(paste(TotTrees, " Tree records checked and no non-living trees have a crown description.  \n")) else { 
-    cat("Non-living tree records with a crown description:  \n"); NiceTable(Trees_Unalive_Bad_Crown)}
+cat("<br>**Non-Living Trees' Crown Description**<br>")
+ if(nrow(Trees_Unalive_Bad_Crown)==0) cat("All tree records checked and no non-living trees have a crown description.<br>") else { 
+    errorText("Non-living tree records with a crown description:"); NiceTable(Trees_Unalive_Bad_Crown)}
 ```
 
 ---
@@ -200,18 +203,21 @@ if(nrow(Trees_Bad_Status)==0) cat(paste(TotTrees, " Tree records checked and all
 ### Tree Diameter
 
 ```{r Tree_Diameter, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**DBH Check**<br>")
+ if(nrow(Trees_Bad_DBH_Check)==0) cat("No tree records have an inappropriate DBH check.<br>") else { 
+    errorText("Tree records with the DBH check box checked before that was done or for tree with no DBH:"); NiceTable(Trees_Bad_DBH_Check)}
 
- if(nrow(Trees_Bad_DBH_Check)==0) cat(paste(TotTrees, " Tree records checked and none have an inappropriate DBH check.  \n")) else { 
-    cat("Tree records with the DBH check box checked before that was done or for tree with no DBH:  \n"); NiceTable(Trees_Bad_DBH_Check)}
+cat("<br>**Living Tree DBH Incorrect**<br>")
+ if(nrow(Trees_Live_Bad_DBH)==0) cat("No live tree records have an invlid DBH.<br>") else { 
+    errorText("Live tree records with a living or dead DBH < 10cm:"); NiceTable(Trees_Live_Bad_DBH)}
 
- if(nrow(Trees_Live_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and no live trees have an invlid DBH.  \n")) else { 
-    cat("Live tree records with a living or dead DBH < 10cm:  \n"); NiceTable(Trees_Live_Bad_DBH)}
- 
-if(nrow(Trees_Dead_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and no dead trees have an invlid DBH.  \n")) else { 
-    cat("Dead tree records with a living or dead DBH <10cm:  \n"); NiceTable(Trees_Dead_Bad_DBH)}
+cat("<br>**Dead Tree DBH Incorrect**<br>") 
+if(nrow(Trees_Dead_Bad_DBH)==0) cat(" No dead tree records have an invlid DBH.<br>") else { 
+    errorText("Dead tree records with a dead DBH <10cm:"); NiceTable(Trees_Dead_Bad_DBH)}
 
-if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and no trees have a DBH when they should not.  \n")) else { 
-    cat("Tree records with a DBH that should not have one:  \n"); NiceTable(Trees_Other_Bad_DBH)}
+cat("<br>**DBH Wrongly Recorded**<br>")
+if(nrow(Trees_Other_Bad_DBH)==0) cat("No tree records have a DBH when they should not.<br>") else { 
+    errorText("Tree records with a DBH that should not have one:"); NiceTable(Trees_Other_Bad_DBH)}
 
 ```
 
@@ -221,15 +227,17 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
 ### Stem Diameter
 
 ```{r Tree_Stem_Diameter, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Living Stem DBH Incorrect**<br>")
+ if(nrow(Tree_Stems_Live_Bad_DBH)==0) cat("No live tree stems have an invlid DBH.<br>") else { 
+    errorText("Live tree stem records with a missing DBH or a DBH <1 cm:"); NiceTable(Tree_Stems_Live_Bad_DBH)}
 
- if(nrow(Tree_Stems_Live_Bad_DBH)==0) cat(paste(TotStems, " Stem records checked and no live tree stems have an invlid DBH.  \n")) else { 
-    cat("Live tree stem records with a missing DBH or a DBH <1 cm:  \n"); NiceTable(Tree_Stems_Live_Bad_DBH)}
+cat("<br>**Dead Stem DBH Incorrect**<br>")
+ if(nrow(Tree_Stems_Dead_Bad_DBH)==0) cat("No dead tree stems have an invlid DBH.<br>") else { 
+    errorText("Dead tree stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Tree_Stems_Dead_Bad_DBH)}
 
- if(nrow(Tree_Stems_Dead_Bad_DBH)==0) cat(paste(TotStems, " Stem records checked and no dead tree stems have an invlid DBH.  \n")) else { 
-    cat("Dead tree stem records with a missing DBH or a DBH <10 cm:  \n"); NiceTable(Tree_Stems_Dead_Bad_DBH)}
- 
- if(nrow(Tree_Stems_Other_Bad_DBH)==0) cat(paste(TotStems, " Stem records checked and no tree stems have a DBH when they should not.  \n")) else { 
-    cat("Tree stem records with a DBH on a tree that should not have any DBH:  \n"); NiceTable(Tree_Stems_Other_Bad_DBH)}
+cat("<br>**Stem DBH Wrongly Recorded**<br>") 
+ if(nrow(Tree_Stems_Other_Bad_DBH)==0) cat("Mo tree stems have a DBH when they should not.<br>") else { 
+    errorText("Tree stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Tree_Stems_Other_Bad_DBH)}
 
 ```
 
@@ -239,11 +247,13 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
 
 ```{r Tree_vigor, echo=FALSE, hold=FALSE, results="asis"}
  
- if(nrow(Trees_Live_Bad_Vigor)==0) cat(paste(TotTrees, " Tree records checked and all live trees have a valid vigor.  \n")) else {
-    cat("Living tree records with a vigor other than 0-5:  \n"); NiceTable(Trees_Live_Bad_Vigor)}
+cat("<br>**Living Tree Vigor Invalid**<br>")
+ if(nrow(Trees_Live_Bad_Vigor)==0) cat("All live trees have a valid vigor.<br>") else {
+    errorText("Living tree records with a vigor other than 0-5:"); NiceTable(Trees_Live_Bad_Vigor)}
 
- if(nrow(Trees_Unalive_Bad_Vigor)==0) cat(paste(TotTrees, " Tree records checked and no non-living trees have a vigor.  \n")) else {
-    cat("Non-living tree records with a vigor:  \n"); NiceTable(Trees_Unalive_Bad_Vigor)}
+cat("<br>**Non-Living Trees with Vigor**<br>")
+ if(nrow(Trees_Unalive_Bad_Vigor)==0) cat("No non-living trees have a vigor.<br>") else {
+    errorText("Non-living tree records with a vigor:"); NiceTable(Trees_Unalive_Bad_Vigor)}
 
 ```
 
@@ -253,14 +263,17 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
 
 ```{r Tree_Foliatge, echo=FALSE, hold=FALSE, results="asis"}
  
-  if(nrow(Trees_Bad_Foliage_Condition)==0) cat(paste(TotTrees, " Tree records checked and all foliage conditions are valid.  \n")) else {
-     cat("Living tree records with invalid foliage conditions:  \n"); NiceTable(Trees_Bad_Foliage_Condition)}
+cat("<br>**Living Tree Foliage Conditions**<br>")
+  if(nrow(Trees_Bad_Foliage_Condition)==0) cat("All live tree foliage conditions are valid. <br>") else {
+     errorText("Living tree records with invalid foliage conditions:"); NiceTable(Trees_Bad_Foliage_Condition)}
   
-  if(nrow(Trees_Bad_Foliage_Condition)==0) cat(paste(TotTrees, " Tree records checked and all foliage percents are valid.  \n")) else {
-     cat("Living tree records with invalid foliage percents:  \n"); NiceTable(Trees_Bad_Foliage_Percent)}
-  
-  if(nrow(Trees_Unalive_Foliage)==0) cat(paste(TotTrees, " Tree records checked and no non-living trees have foliage condiditons.  \n")) else {
-     cat("Non-living tree records with foliage conditions:  \n"); NiceTable(Trees_Unalive_Foliage)}
+cat("<br>**Living Tree Foliage Percent**<br>")
+  if(nrow(Trees_Bad_Foliage_Condition)==0) cat("All foliage percents on live trees are valid.<br>") else {
+     errorText("Living tree records with invalid foliage percents:"); NiceTable(Trees_Bad_Foliage_Percent)}
+
+cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
+  if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
+     errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
 ```
 
 ---
@@ -269,15 +282,21 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat(paste(TotTrees, " Tree records checked and 
 
 ```{r Tree_Conditions, echo=FALSE, hold=FALSE, results="asis"}
  
-if(nrow(Trees_Live_Bad_Tree_Condition)==0) cat(paste(TotTrees, " Tree records checked and all tree conditions are valid.  \n")) else {
-     cat("Living tree records with a tree condition we don't monitor:  \n"); NiceTable(Trees_Live_Bad_Tree_Condition)}
+cat("<br>**Living Tree Conditions**<br>")
+if(nrow(Trees_Live_Bad_Tree_Condition)==0) cat("All tree conditions are valid.") else {
+     errorText("Living tree records with a tree condition we don't monitor:"); NiceTable(Trees_Live_Bad_Tree_Condition)}
 
-if(nrow(Trees_Live_Anachronistic_Tree_Conditions)==0) cat(paste(TotTrees, " Tree records checked and all tree conditions are from the correct year.  \n")) else {cat("Living tree records with a tree condition from the wrong year:  \n"); NiceTable(Trees_Live_Anachronistic_Tree_Conditions)}
+cat("<br>**Anachronistic Tree Conditions**<br>")
+if(nrow(Trees_Live_Anachronistic_Tree_Conditions)==0) cat("All tree conditions are from the correct year.<br>") else {
+  errorText("Living tree records with a tree condition from the wrong year:"); NiceTable(Trees_Live_Anachronistic_Tree_Conditions)}
 
-if(nrow(Trees_Unalive_Tree_Conditions)==0) cat(paste(TotTrees, " Tree records checked and all non-living trees have no conditions.  \n")) else { cat("Non-living tree records with a tree condition:  \n"); NiceTable(Trees_Unalive_Tree_Conditions)}
+cat("<br>**Non-Living Tree Conditions**<br>")
+if(nrow(Trees_Unalive_Tree_Conditions)==0) cat("No non-living trees have tree-conditions.<br>") else { 
+  errorText("Non-living tree records with a tree condition:"); NiceTable(Trees_Unalive_Tree_Conditions)}
 
-
-if(nrow(Trees_Bad_Vines)==0) cat(paste(TotTrees, " Tree records checked and with vines in the crown had vine records.  \n")) else { cat("Tree records with vines in the crown but no corresponding vine record:  \n"); NiceTable(Trees_Bad_Vines)}
+cat("<br>**Vines in the Crown vs. Vines**<br>")
+if(nrow(Trees_Bad_Vines)==0) cat("All tree records withvines in the crown had vine species recorded.<br>") else { 
+  errorText("Tree records with vines in the crown but no corresponding vine record:"); NiceTable(Trees_Bad_Vines)}
 ```
 
 ---
@@ -286,17 +305,21 @@ if(nrow(Trees_Bad_Vines)==0) cat(paste(TotTrees, " Tree records checked and with
 
 ```{r Tree_Pests, echo=FALSE, hold=FALSE, results="asis"}
  
-if(nrow(Trees_Live_Bad_Pest)==0) cat(paste(TotTrees, " Tree records checked and all pest records are valid.  \n")) else {
-     cat("Living tree records with a pest we don't monitor:  \n"); NiceTable(Trees_Live_Bad_Pest)}
- 
- if(nrow(Trees_Live_Anachronistic_Pest)==0) cat(paste(TotTrees, " Tree records checked and all pests are from the correct year.  \n")) else {cat("Living tree records with a pest from the wrong year:  \n"); NiceTable(Trees_Live_Anachronistic_Pest)}
- 
- if(nrow(Trees_Unalive_Pest)==0) cat(paste(TotTrees, " Tree records checked and all non-living trees have no pests.  \n")) else {
-   cat("Non-living tree records with a pest:  \n"); NiceTable(Trees_Unalive_Pest)}
+cat("<br>**Living Tree Pests**<br>")
+if(nrow(Trees_Live_Bad_Pest)==0) cat("All pest records from live trees are valid.<br>") else {
+     errorText("Living tree records with a pest we don't monitor:"); NiceTable(Trees_Live_Bad_Pest)}
 
+cat("<br>**Anachronistic Pests**<br>") 
+ if(nrow(Trees_Live_Anachronistic_Pest)==0) cat("No pests recorded before we started monitoring them.<br>") else {
+   errorText("Living tree records with a pest from the wrong year:"); NiceTable(Trees_Live_Anachronistic_Pest)}
  
- if(nrow(Trees_Pest_Bad_Host)==0) cat(paste(TotTrees, " Tree records checked and no pests on incorrect host species.  \n")) else {
-   cat("Trees with inconsistent host species - pest pairs:  \n"); NiceTable(Trees_Pest_Bad_Host)}
+cat("<br>**Non-Living Tree Pests**<br>")
+ if(nrow(Trees_Unalive_Pest)==0) cat("No non-living trees have pests (except for EAB).<br>") else {
+   errorText("Non-living tree records with a pest other than EAB:"); NiceTable(Trees_Unalive_Pest)}
+
+cat("<br>**Mis-matched Tree Pests**<br>")
+ if(nrow(Trees_Pest_Bad_Host)==0) cat("No pests on incorrect host species.<br>") else {
+   errorText("Trees with inconsistent host species - pest pairs:"); NiceTable(Trees_Pest_Bad_Host)}
 
 ```
 

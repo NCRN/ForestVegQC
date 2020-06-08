@@ -22,10 +22,12 @@ Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude
    select(Unit_Code, Plot_Name, Latitude, Longitude)
 ```
 
+#### **Plots Checked:** `r TotPlots` ####
+
 ### Unit Codes
 ```{r Plot_unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a Unit Code.  \n")) else {
-   cat("Plots with no unit code.  \n"); NiceTable(Plots_No_Unit)}
+if(nrow(Plots_No_Unit)==0) cat("All plots have a Unit Code.<br>") else {
+   cat("<span style='color:red;'> Plots with no unit code.</span><br>"); NiceTable(Plots_No_Unit)}
 ```
 
 ---
@@ -33,11 +35,13 @@ if(nrow(Plots_No_Unit)==0) cat(paste(TotPlots," Plots checked, all plots have a 
 ### Slope and Aspect
 
 ```{r slope_aspect, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_Bad_Slope)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable slope measurement.  \n")) else {
-   cat("Plots with a missing slope or a slope <0 or >58:  \n"); NiceTable(Plots_Bad_Slope)}
+cat("<br>**Slope**<br>")
+if(nrow(Plots_Bad_Slope)==0) cat("All plots have an acceptable slope measurement.<br>") else {
+   errorText("Plots with a missing slope or a slope <0 or >58"); NiceTable(Plots_Bad_Slope)}
 
-if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have an acceptable aspect measurement.  \n")) else {
-   cat("Plots with a missing aspect or an aspect <1 or >360:  \n"); NiceTable(Plots_Bad_Aspect)}
+cat("\n  **Aspect**  \n")
+if(nrow(Plots_Bad_Aspect)==0) cat("All plots have an acceptable aspect measurement.  \n") else {
+   errorText("Plots with a missing aspect or an aspect <1 or >360:"); NiceTable(Plots_Bad_Aspect)}
 ```
 
 ---
@@ -45,10 +49,12 @@ if(nrow(Plots_Bad_Aspect)==0) cat(paste(TotPlots," Plots checked, all plots have
 ### Geographic Coordinates
 
 ```{r geo_coords, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_No_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have geographic coordinates.  \n")) else { 
+cat("<br>**Coordinates Present**<br>")
+if(nrow(Plots_No_Coords)==0) cat("All plots have geographic coordinates.  \n") else { 
    cat("Plots with missing coordinates:  \n"); NiceTable(Plots_No_Coords)}
 
-if(nrow(Plots_Bad_Coords)==0) cat(paste(TotPlots," Plots checked, all plots have lat / long within NCRN bounding box.  \n")) else {
-   cat("Plots with lat/long outside bounding box:  \n"); NiceTable(Plots_Bad_Coords)}
+cat("<br>**Bounding Box**<br>")
+if(nrow(Plots_Bad_Coords)==0) cat("All plots' latitude and longitude are within the NCRN bounding box.<br>") else {
+   errorText("Plots with lat/long outside bounding box:"); NiceTable(Plots_Bad_Coords)}
 
 ```

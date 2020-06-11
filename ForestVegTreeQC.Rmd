@@ -30,6 +30,7 @@ Trees_Unalive_Bad_Crown<-QCTrees %>% filter(!Status %in% Live_Status & Crown_Des
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
 
 
+
 ## DBH
 Trees_Bad_DBH_Check <-QCTrees %>% filter( (Sample_Year<2018 & DBH_Check) | 
       (Sample_Year>2017 & DBH_Check & 
@@ -158,7 +159,7 @@ Trees_Bad_Vines<-QCConditions %>% filter(Condition=="Vines in the crown")%>%
 ```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(Trees_Bad_Status)==0) cat("All tree records checked have a valid status.<br>") else {
-   errorText("Tree records with a missing status or a status we do not use:"); NiceTable(Trees_Bad_Status)}
+   errorText("Tree records without a status or a status we do not use:"); NiceTable(Trees_Bad_Status)}
 
 ```
 

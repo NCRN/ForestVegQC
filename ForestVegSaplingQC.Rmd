@@ -17,9 +17,20 @@ Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_S
  Saplings_No_Name<-QCSaplings %>% filter(Latin_Name=="") %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
  
- Saplings_Bad_Tag<-QCTrees %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
+ Saplings_Bad_Tag<-QCSaplings %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)  
 
+
+Saplings_Bad_Habit<-QCSaplings %>% filter(!Habit=="Tree") %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Habit)  
+
+## Stems
+ Saplings_Live_No_Stems<-QCSaplings %>% filter(Status %in% Live_Status & StemsLive<1)  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, StemsLive)
+ 
+  Saplings_Unalive_Living_Stems<-QCSaplings %>% filter(!Status %in% Live_Status & StemsLive>0)  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, StemsLive)
+ 
 
 ## DBH
 
@@ -61,7 +72,7 @@ Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_S
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
 
 ## Foliage
-# Trees_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
+# Saplings_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
 #               !Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other") )) %>% 
 #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
 #   
@@ -135,7 +146,27 @@ Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_S
 #   left_join(QCVines %>% select(Plot_Name,Sample_Year,Tag=Host_Tag, Vine= Latin_Name )) %>% 
 #   filter(is.na(Vine) | Vine=="") %>% 
 #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Status,  Condition, Vine)
+ 
+ 
+ ## Sapling Browse
+ Saplings_Live_Bad_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & !Browsable %in% c("Yes","No", "unk") ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+ Saplings_Live_Anachronistic_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & Sample_Year<2010 & Browsable != "unk" ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+ Saplings_Unalive_Browsable<-QCSaplings %>% filter(!Status %in% Live_Status & Browsable !="" ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
 
+ Saplings_Live_Bad_Browsed<-QCSaplings %>% filter(Status %in% Live_Status & !Browsed %in% c("Yes","No") ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+ Saplings_Unalive_Browsed<-QCSaplings %>% filter(!Status %in% Live_Status & Browsed !="" ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+ Saplings_Live_Illogical_Browse <- QCSaplings %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+  
 ```
 
 
@@ -144,14 +175,12 @@ Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_S
 - if sapling is listed as live Dead stems should be >=10cm (double check)
 - if saplings is listed as dead should not have any dhb's measured
 - if saplings is missing should have no stems at all
-
 - Tree foliage condiditons only on living saplings, percent between 1 and 100, condiition should be one of the choices and only once we started with this
 - tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current. and only once we started with this
 - if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
 - should be on a microplot
-- how do we check removed from study?
-- habit should be tree (sapling ) not shurb
-- browsed / browsable shoudl be logical and present when we started doing this.
+
+
 
 #### **Saplings Checked:** `r TotSaplings` ####
 #### **Stems Checked:** `r TotStems` ####
@@ -160,7 +189,7 @@ Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_S
 ```{r Sapling_Status, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(Saplings_Bad_Status)==0) cat("All sapling records have a valid status.<br>") else {
-   errorText("Sapling records with a missing status or a status we do not use:"); NiceTable(Saplings_Bad_Status)}
+   errorText("Sapling records without a status or a status we do not use:"); NiceTable(Saplings_Bad_Status)}
 
 ```
 
@@ -188,8 +217,34 @@ if(nrow(Saplings_Bad_Status)==0) cat("All sapling records have a valid status.<b
 ```
 
 
+### Sapling Habit
+
+```{r Sapling_Habit, echo=FALSE, hold=FALSE, results="asis"}
+
+  if(nrow(Saplings_Bad_Habit)==0) cat("All sapling records have a habit of 'Tree'.<br>") else {
+     errorText("Sapling records without a habit of 'Tree':"); NiceTable(Saplings_Bad_Habit)}
+
+```
 
 ---
+
+### Sapling Stem Number
+
+```{r Sapling_Stem_Number, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Live Sapling Stem Number**<br>")
+  if(nrow(Saplings_Live_No_Stems)==0) cat("All living sapling records have one or more stems.<br>") else {
+     errorText("Living sapling records with <1 stem:"); NiceTable(Saplings_Live_No_Stems)}
+
+cat("<br>**Non-living  Sapling with Live Stems**<br>")
+  if(nrow(Saplings_Unalive_Living_Stems)==0) cat("No non-living sapling records have live stems.<br>") else {
+     errorText("Non-living sapling records with living stems:"); NiceTable(Saplings_Unalive_Living_Stems)}
+
+```
+
+---
+
+
 
 ### Sapling Diameter
 
@@ -241,17 +296,19 @@ cat("<br>**Stem DBH Wrongly Recorded**<br>")
  
 cat("<br>**Living Saplings Vigor Invalid**<br>") 
   if(nrow(Saplings_Live_Bad_Vigor)==0) cat("All live saplings have a valid vigor.<br>") else {
-     errorText("Living sa[;omg] records with a vigor other than 0-5:"); NiceTable(Saplings_Live_Bad_Vigor)}
+     errorText("Living sapling records with a vigor other than 0-5:"); NiceTable(Saplings_Live_Bad_Vigor)}
   
 cat("<br>**Non-Living Saplings with Vigor**<br>")
   if(nrow(Saplings_Unalive_Bad_Vigor)==0) cat("No non-living saplings have a vigor.<br>") else {
-     errorText("Non-living tree records with a vigor:"); NiceTable(Saplings_Unalive_Bad_Vigor)}
+     errorText("Non-living sapling records with a vigor:"); NiceTable(Saplings_Unalive_Bad_Vigor)}
 
 ```
 
 ---
 
-### Tree Foliage
+### Saplings Foliage
+
+Currently checked under Tree Foliage
 
 ```{r Sapling_Foliatge, echo=FALSE, hold=FALSE, results="asis"}
  
@@ -267,7 +324,9 @@ cat("<br>**Non-Living Saplings with Vigor**<br>")
 
 ---
 
-### Tree Conditions
+### Sapling Conditions
+
+Currnetly checked under Tree Conditions
 
 ```{r Sapling_Conditions, echo=FALSE, hold=FALSE, results="asis"}
  
@@ -284,8 +343,9 @@ cat("<br>**Non-Living Saplings with Vigor**<br>")
 
 ---
 
-### Tree Pests
+### Sapling Pests
 
+Currently checked under tree pests
 ```{r Sapling_Pests, echo=FALSE, hold=FALSE, results="asis"}
  
 # if(nrow(Trees_Live_Bad_Pest)==0) cat(paste(TotTrees, " Tree records checked and all pest records are valid.  \n")) else {
@@ -302,4 +362,37 @@ cat("<br>**Non-Living Saplings with Vigor**<br>")
 
 ```
 
+---
+
+### Sapling Browse
+
+```{r Sapling_Browse, echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Living Saplings Browsable Status Invalid**<br>") 
+  if(nrow(Saplings_Live_Bad_Browsable)==0) cat("All live saplings have a valid browsable status.<br>") else {
+     errorText("Living sapling records with a browsable status other than Yes, No, or unk:"); NiceTable(Saplings_Live_Bad_Browsable)}
+  
+
+cat("<br>**Living Saplings Anachronistic Browsable Status**<br>") 
+  if(nrow(Saplings_Live_Anachronistic_Browsable)==0) cat("No living saplings records have a browsable status before 2010.<br>") else {
+     errorText("Living sapling records with a browsable status before 2010:"); NiceTable(Saplings_Live_Anachronistic_Browsable)}
+  
+
+ cat("<br>**Non-Living Saplings with Browsable Status**<br>")
+   if(nrow(Saplings_Unalive_Browsable)==0) cat("No non-living saplings have a browsable status.<br>") else {
+      errorText("Non-living sapling records with a browsable status:"); NiceTable(Saplings_Unalive_Browsable)}
+
+ cat("<br>**Living Saplings Browsed Status Invalid**<br>") 
+  if(nrow(Saplings_Live_Bad_Browsed)==0) cat("All live saplings have a valid browsed status.<br>") else {
+     errorText("Living sapling records with a browsed status other than Yes, or No:"); NiceTable(Saplings_Live_Bad_Browsed)}
+   
+ cat("<br>**Non-Living Saplings with Browsed Status**<br>")
+   if(nrow(Saplings_Unalive_Browsed)==0) cat("No non-living saplings have a browsed status.<br>") else {
+      errorText("Non-living sapling records with a browsed status:"); NiceTable(Saplings_Unalive_Browsed)}
+ 
+  cat("<br>**Non-Living Saplings with Illogical Browsing**<br>")
+   if(nrow(Saplings_Live_Illogical_Browse)==0) cat("No living saplings have contradictory browsable and browsed status.<br>") else {
+      errorText("Living sapling records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Saplings_Live_Illogical_Browse)}
+ 
+```
 

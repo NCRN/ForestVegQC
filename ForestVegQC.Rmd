@@ -41,6 +41,7 @@ QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors 
 QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F)
 QCVines<-getPlants(NCRN,"vines",  years=QCYears )
 QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all")
+QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all")
 
 Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
 Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
@@ -55,6 +56,10 @@ Other_Status<-c( "Downgraded to Non-Sampled")
 ```{css, echo=FALSE}
 h1, h2, h3 {
   text-align: center;
+}
+
+.nav>li>a {
+   padding: 10px;
 }
 ```
 
@@ -97,9 +102,11 @@ h1, h2, h3 {
 
 - Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living trees and dead trees with EAB have conditions checked, but not checked in other cases.
 
-- Trees with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable?
+- Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable? This is not true of Shrubs
 
 - Need to export distance and azimuth to verify these are credible and check for sapling accidentaly recoreded as a tree.
+
+- Export does not distinguish between live and dead stems
 
 #### Saplings
 - Need  a mechanism to check if Latin names are reasonable
@@ -108,6 +115,22 @@ h1, h2, h3 {
 
 - Equivalent diameter is not exported for dead stems of saplings (this will typcially = 0)
 
+- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Vines export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- Microplot # is not exported (60, 180, 300)
+
+- Dead shrubs with no "habit" are exported as saplings
+
+- Dead stems not exported
+
+#### Shrubs
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
 
 ## Plots
 
@@ -139,33 +162,14 @@ h1, h2, h3 {
 
 ## Saplings
 
-```{r Tree-QC, child="ForestVegSaplingQC.Rmd"}
+```{r Sapling-QC, child="ForestVegSaplingQC.Rmd"}
 ```
 
 
-
-
-
 ## Shrubs
-- Should have a status
-- should have an Species ID that we recognize as being a shrub - need to account for changing list
-- Should have a tag that makes sense
-- should not start as missing or dead
-- alive shrubs should have vines, conditions, and foliage checked. other status should not be checked (not sure how EAB works). Only when we started doing this
-- DBH check should not be checked (unless there was a drc / dbh check overlap - need to check on that)
-- Tree vigor should exist only for live shrubs in later data
-- if shrub  is listed as live it has to have a drc > 1cm in early data. Shrubs should never have deads stems
-- if shrub is listed as dead (not fallen) should not have any drc's measured as we don't do those
-- if shrub is missing should have no stems at all
-- once we stopped measuring drc we should no longer have that data
-- Tree foliage condiditons only on living shrubs, percent between 1 and 100, condition should be one of the choices and only once we started with this
-- tree conditions only on live shrubs, never on missing. should be from list that was current. and only once we started with this for shrubs
-- if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
-- should be on a microplot
-- how do we check removed from study?
-- habit should be shrub not tree
-- browsed / browsable should be logical and present when we started doing this. 
 
+```{r Shrub-QC, child="ForestVegShrubQC.Rmd"}
+```
 
 
 ## Vines

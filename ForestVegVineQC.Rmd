@@ -1,0 +1,59 @@
+---
+title: "Forest Vegetation Vine QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r vine_setup, include=F}
+TotVines<-nrow(QCVines) #Total Number of tree records checked
+
+
+Vines_Bad_Tag<-QCVines %>% filter(is.na(Host_Tag) | Host_Tag=="" | Host_Tag<1 | Host_Tag>30000) %>%
+   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
+
+Vines_Bad_Host_Status<-QCVines %>% filter(!Host_Status %in% Live_Status) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
+
+Vines_Anachronistic<-QCVines %>% filter(Tag_Status=="Sapling", Sample_Year<2014) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
+ 
+ 
+```
+
+
+
+#### **Vines Checked:** `r TotVines` ####
+
+###  Host Tag
+```{r Vine_Host_Tag, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Bad_Tag)==0) cat("All vine records have a host tag between 1 and 30,000.<br>") else {
+    errorText("Vine records without a host tag between 1 and 30000:"); NiceTable(Vines_Bad_Tag)}
+
+```
+
+---
+
+### Host Status
+
+```{r Vine_Host_Status, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Bad_Host_Status)==0) cat("All vine records are on a living host.<br>") else {
+    errorText("Vine records from a non-living host:"); NiceTable(Vines_Bad_Host_Status)}
+
+```
+
+---
+
+### Vines on Saplings and Shrubss
+
+```{r Vine_Sapling Shrub, echo=FALSE, hold=FALSE, results="asis"}
+
+errorText("Warning: This test does not check ALL vines on saplings and shrubs, only those with a current Host Tag Status of 'Sapling'")
+
+ if(nrow(Vines_Anachronistic)==0) cat("No vines on saplings or shrubs before 2014.<br>") else {
+    errorText("Vine records from a sapling or shrub before 2014:"); NiceTable(Vines_Anachronistic)}
+
+```

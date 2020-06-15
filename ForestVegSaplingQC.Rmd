@@ -390,7 +390,7 @@ cat("<br>**Living Saplings Anachronistic Browsable Status**<br>")
    if(nrow(Saplings_Unalive_Browsed)==0) cat("No non-living saplings have a browsed status.<br>") else {
       errorText("Non-living sapling records with a browsed status:"); NiceTable(Saplings_Unalive_Browsed)}
  
-  cat("<br>**Non-Living Saplings with Illogical Browsing**<br>")
+  cat("<br>**Living Saplings with Illogical Browsing**<br>")
    if(nrow(Saplings_Live_Illogical_Browse)==0) cat("No living saplings have contradictory browsable and browsed status.<br>") else {
       errorText("Living sapling records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Saplings_Live_Illogical_Browse)}
  

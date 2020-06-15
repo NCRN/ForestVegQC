@@ -1,0 +1,118 @@
+---
+title: "Forest Vegetation Quad QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r quad_setup, include=F}
+TotQuads<-nrow(QCQuads) #Total Number of tree records checked
+
+Quads_Sampled<-QCQuads %>% group_by(Plot_Name, Sample_Year) %>% summarize(Quads_Sampled=n(), Unique_Quads=length(unique(Quadrat_Number))) %>% filter(Quads_Sampled!=12 | Unique_Quads !=12) 
+
+Quads_Percent_Trees<-QCQuads %>% filter(Percent_Trees<0 | Percent_Trees>100 | Percent_Trees=="" | is.na(Percent_Trees)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Trees)
+
+Quads_Percent_Bryophytes<-QCQuads %>% filter(Percent_Bryophytes<0 | Percent_Bryophytes>100 | Percent_Bryophytes=="" | is.na(Percent_Bryophytes)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Bryophytes)
+
+Quads_Percent_Rock<-QCQuads %>% filter(Percent_Rock<0 | Percent_Rock>100 | Percent_Rock=="" | is.na(Percent_Rock)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Rock)
+
+Quads_Percent_CWD<-QCQuads %>% filter(Percent_Coarse_Woody_Debris<0 | Percent_Coarse_Woody_Debris>100 | Percent_Coarse_Woody_Debris=="" |
+                                        is.na(Percent_Coarse_Woody_Debris)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Coarse_Woody_Debris)
+
+Quads_Percent_FWD<-QCQuads %>% filter(Percent_Fine_Woody_Debris<0 | Percent_Fine_Woody_Debris>100 | Percent_Fine_Woody_Debris=="" | 
+                                        is.na(Percent_Fine_Woody_Debris)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Fine_Woody_Debris)
+
+Quads_Percent_Other<-QCQuads %>% filter(Percent_Other<0 | Percent_Other>100 | Percent_Other=="" | is.na(Percent_Other)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Other)
+
+Quads_Percent_Grasses<-QCQuads %>% filter(Percent_Grasses<0 | Percent_Grasses>100 | Percent_Grasses=="" | is.na(Percent_Grasses)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Grasses)
+
+Quads_Percent_Sedges<-QCQuads %>% filter(Percent_Sedges<0 | Percent_Sedges>100 | Percent_Sedges=="" | is.na(Percent_Sedges)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Sedges)
+
+Quads_Percent_Herbs<-QCQuads %>% filter(Percent_Herbs<0 | Percent_Herbs>100 | Percent_Herbs=="" | is.na(Percent_Herbs)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Herbs)
+
+Quads_Percent_Ferns<-QCQuads %>% filter(Percent_Ferns<0 | Percent_Ferns>100 | Percent_Ferns=="" | is.na(Percent_Ferns)) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Ferns)
+
+Quads_Percent_Overload<-QCQuads %>% 
+  mutate(Total= Percent_Trees + Percent_Rock + Percent_Coarse_Woody_Debris + Percent_Fine_Woody_Debris + Percent_Other) %>%
+  filter(Total > 100) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number, Tree=Percent_Trees, Rock=Percent_Rock, CWD=Percent_Coarse_Woody_Debris,
+         FWD=Percent_Fine_Woody_Debris,Other= Percent_Other, Total) 
+
+```
+
+
+#### **Quads Checked:** `r TotQuads` ####
+
+###  Quadrats Sampled
+```{r Quads_Sampled, echo=FALSE, hold=FALSE, results="asis"}
+
+  if(nrow(Quads_Sampled)==0) cat("All plots have exactly 12 different quadrats sampled. <br>") else {
+     errorText("Plots with more or less than 12 quadrats sampled:"); NiceTable(Quads_Sampled)}
+
+```
+
+---
+
+###  Quadrats Percent Cover
+```{r Quads_Percent_Cover, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Quadrats Percent Tree Cover**<br>") 
+  if(nrow(Quads_Percent_Trees)==0) cat("All plots have between 0 and 100% tree cover. <br>") else {
+     errorText("Plots without 0 to 100% tree cover:"); NiceTable(Quads_Percent_Trees)}
+
+
+cat("<br>**Quadrats Percent Bryophyte Cover**<br>") 
+  if(nrow(Quads_Percent_Bryophytes)==0) cat("All plots have between 0 and 100% bryophyte cover. <br>") else {
+     errorText("Plots without 0 to 100% bryophyte cover:"); NiceTable(Quads_Percent_Bryophytes)}
+
+cat("<br>**Quadrats Percent Rock Cover**<br>") 
+  if(nrow(Quads_Percent_Rock)==0) cat("All plots have between 0 and 100% rock cover. <br>") else {
+     errorText("Plots without 0 to 100% rock cover:"); NiceTable(Quads_Percent_Rock)}
+
+cat("<br>**Quadrats Percent Coarse Woody Debris (CWD)**<br>") 
+  if(nrow(Quads_Percent_CWD)==0) cat("All plots have between 0 and 100% CWD cover. <br>") else {
+     errorText("Plots without 0 to 100% CWD cover:"); NiceTable(Quads_Percent_CWD)}
+
+cat("<br>**Quadrats Percent Fine Woody Debris (FWD)**<br>") 
+  if(nrow(Quads_Percent_FWD)==0) cat("All plots have between 0 and 100% FWD cover. <br>") else {
+     errorText("Plots without 0 to 100% FWD cover:"); NiceTable(Quads_Percent_FWD)}
+
+cat("<br>**Quadrats Percent Other Cover (FWD)**<br>") 
+  if(nrow(Quads_Percent_Other)==0) cat("All plots have between 0 and 100% other cover. <br>") else {
+     errorText("Plots without 0 to 100% other cover:"); NiceTable(Quads_Percent_Other)}
+
+cat("<br>**Quadrats Percent Grass Cover**<br>") 
+  if(nrow(Quads_Percent_Grasses)==0) cat("All plots have between 0 and 100% grass cover. <br>") else {
+     errorText("Plots without 0 to 100% grass cover:"); NiceTable(Quads_Percent_Grasses)}
+
+cat("<br>**Quadrats Percent Sedge Cover**<br>") 
+  if(nrow(Quads_Percent_Sedges)==0) cat("All plots have between 0 and 100% sedge cover. <br>") else {
+     errorText("Plots without 0 to 100% sedge cover:"); NiceTable(Quads_Percent_Sedges)}
+
+cat("<br>**Quadrats Percent Herb Cover**<br>") 
+  if(nrow(Quads_Percent_Herbs)==0) cat("All plots have between 0 and 100% herb cover. <br>") else {
+     errorText("Plots without 0 to 100% herb cover:"); NiceTable(Quads_Percent_Herbs)}
+
+cat("<br>**Quadrats Percent Fern Cover**<br>") 
+  if(nrow(Quads_Percent_Ferns)==0) cat("All plots have between 0 and 100% fern cover. <br>") else {
+     errorText("Plots without 0 to 100% fern cover:"); NiceTable(Quads_Percent_Ferns)}
+
+cat("<br>**Quadrats Non-Living Percent > 100**<br>") 
+  if(nrow(Quads_Percent_Overload)==0) cat("All plots have less than 100% summed tree, rock, CWD, FWD and other cover. <br>") else {
+     errorText("Plots with over 100% summed tree, rock, CWD, FWD and other cover:"); NiceTable(Quads_Percent_Overload)}
+
+
+```
+
+

@@ -16,12 +16,32 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
   Shrubs_No_Name<-QCShrubs %>% filter(Latin_Name=="") %>%
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
   
+  Shrubs_Anachronistic_Name <-QCShrubs %>% filter(
+    (Sample_Year < 2008 & Latin_Name == "Alnus serrulata") | (Sample_Year < 2008 & Latin_Name == "Castanea pumila") |
+    (Sample_Year < 2016 & Latin_Name == "Cephalanthus occidentalis") | (Sample_Year < 2008 & Latin_Name == "Cornus amomum") |
+    (Sample_Year < 2007 & Latin_Name == "Euonymus americanus") | (Sample_Year < 2007 & Latin_Name == "Euonumus atropurpureus") |
+    (Sample_Year < 2008 & Latin_Name == "Ligustrum ovalifolium") | (Sample_Year < 2014 & Latin_Name == "Ligustrum sinense") |
+    (Sample_Year < 2008 & Latin_Name == "Ligustrum vulgare") | (Sample_Year < 2008 & Latin_Name == "Lonicera morrowii") |
+    (Sample_Year < 2014 & Latin_Name == "Mahonia bealei") |  (Sample_Year < 2014 & Latin_Name == "Quercus ilicifolia") |
+    (Sample_Year < 2007 & Latin_Name == "Rhododendron periclymenoides") | (Sample_Year < 2014 & Latin_Name == "Rhodotypos scandens") |
+    (Sample_Year < 2008 & Latin_Name == "Rhus copallina") | (Sample_Year < 2008 & Latin_Name == "Sambucus canadensis") |
+    (Sample_Year < 2007 & Latin_Name == "Sambucus pubens") | (Sample_Year < 2014 & Latin_Name == "Spiraea japonica") |
+    (Sample_Year < 2013 & Latin_Name == "Vaccinium stamineum") | (Sample_Year < 2013 & Latin_Name == "Viburnum dilatatum") |
+    (Sample_Year < 2007 & Latin_Name == "Viburnum plicatum") | (Sample_Year < 2007 & Latin_Name == "Viburnum prunifolium") |
+    (Sample_Year < 2014 & Latin_Name == "Viburnum recognitum") | (Sample_Year < 2007 & Latin_Name == "Viburnum sieboldii") |
+    (Sample_Year > 2009 & Latin_Name == "Gaylussacia frondosa") | (Sample_Year > 2009 & Latin_Name == "Rosa carolina") |
+    (Sample_Year > 2009 & Latin_Name == "Rubus argutus") | (Sample_Year > 2009 & Latin_Name == "Symphoricarpos orbiculatus") |
+    (Sample_Year < 2014 & Latin_Name == "Viburnum acerifolium") | (Sample_Year > 2014 & Latin_Name == "Ilex verticillata") |
+    (Sample_Year > 2014 & Latin_Name == "Lindera benzoin") | (Sample_Year > 2014 & Latin_Name == "Kalmia latifolia")
+  ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
+  
   Shrubs_Bad_Tag<-QCShrubs %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)  
 
  
-# Saplings_Bad_Habit<-QCSaplings %>% filter(!Habit=="Tree") %>% 
-#  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Habit)  
+ Shrubs_Bad_Habit<-QCShrubs %>% filter(!Habit=="Shrub") %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Habit)  
 
 ## Stems
  # Saplings_Live_No_Stems<-QCSaplings %>% filter(Status %in% Live_Status & StemsLive<1)  %>% 
@@ -58,12 +78,12 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 
  ## Vigor
  
- # Saplings_Live_Bad_Vigor<-QCSaplings %>% filter(Status %in% Live_Status & 
- #       ( (Sample_Year<2017 & !is.na(SaplingVigor)) | (Sample_Year >=2017 & (is.na(SaplingVigor)  | !SaplingVigor %in% 0:5)) )) %>% 
- #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
- # 
- # Saplings_Unalive_Bad_Vigor<-QCSaplings %>% filter(!Status %in% Live_Status & !is.na(SaplingVigor)) %>% 
- #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
+  Shrubs_Live_Bad_Vigor<-QCShrubs %>% filter(Status %in% Live_Status & 
+        ( (Sample_Year<2017 & !is.na(SaplingVigor)) | (Sample_Year >=2017 & (is.na(SaplingVigor)  | !SaplingVigor %in% 0:5)) )) %>% 
+     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
+  
+  Shrubs_Unalive_Bad_Vigor<-QCShrubs %>% filter(!Status %in% Live_Status & !is.na(SaplingVigor)) %>% 
+     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
 
 ## Foliage
 # Saplings_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
@@ -142,45 +162,30 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Status,  Condition, Vine)
  
  
- ## Sapling Browse
- # Saplings_Live_Bad_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & !Browsable %in% c("Yes","No", "unk") ) %>% 
- #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
- # 
- # Saplings_Live_Anachronistic_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & Sample_Year<2010 & Browsable != "unk" ) %>% 
- #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
- # 
- # Saplings_Unalive_Browsable<-QCSaplings %>% filter(!Status %in% Live_Status & Browsable !="" ) %>% 
- #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
- # 
- # Saplings_Live_Bad_Browsed<-QCSaplings %>% filter(Status %in% Live_Status & !Browsed %in% c("Yes","No") ) %>% 
- #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
- # 
- # Saplings_Unalive_Browsed<-QCSaplings %>% filter(!Status %in% Live_Status & Browsed !="" ) %>% 
- #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
- # 
- # Saplings_Live_Illogical_Browse <- QCSaplings %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
- #  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ ## Shrub Browse
+  Shrubs_Live_Bad_Browsable<-QCShrubs %>% filter(Status %in% Live_Status & !Browsable %in% c("Yes","No", "unk") ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+  
+  Shrubs_Live_Anachronistic_Browsable<-QCShrubs %>% filter(Status %in% Live_Status & Sample_Year<2010 & Browsable != "unk" ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+  
+  Shrubs_Unalive_Browsable<-QCShrubs %>% filter(!Status %in% Live_Status & Browsable !="" ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+  
+  Shrubs_Live_Bad_Browsed<-QCShrubs %>% filter(Status %in% Live_Status & !Browsed %in% c("Yes","No") ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+  
+  Shrubs_Unalive_Browsed<-QCShrubs %>% filter(!Status %in% Live_Status & Browsed !="" ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+  
+  Shrubs_Live_Illogical_Browse <- QCShrubs %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
   
 ```
 
 
-- should have an Species ID that we recognize as being a shrub - need to account for changing list
 - should not start as missing or dead
-
-
-- Tree vigor should exist only for live shrubs in later data
-- if shrub  is listed as live it has to have a drc > 1cm in early data. Shrubs should never have deads stems
-- if shrub is listed as dead (not fallen) should not have any drc's measured as we don't do those
-- if shrub is missing should have no stems at all
-- once we stopped measuring drc we should no longer have that data
-- Tree foliage condiditons only on living shrubs, percent between 1 and 100, condition should be one of the choices and only once we started with this
-- tree conditions only on live shrubs, never on missing. should be from list that was current. and only once we started with this for shrubs
-- if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
-- should be on a microplot
 - how do we check removed from study?
-- habit should be shrub not tree
-- browsed / browsable should be logical and present when we started doing this. 
-
 
 
 #### **Shrubs Checked:** `r TotShrubs` ####
@@ -198,9 +203,13 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 ### Species ID
 
 ```{r Shrub_Species, echo=FALSE, hold=FALSE, results="asis"}
-  
+  cat("<br>**Species Name**<br>")
   if(nrow(Shrubs_No_Name)==0) cat("All shrub records have a species ID.<br>") else {
      errorText("Shrub records with no species name:<br>"); NiceTable(Shrubs_No_Name)}
+
+cat("<br>**Species Monitored in the Wrong Year**<br>")
+  if(nrow(Shrubs_Anachronistic_Name)==0) cat("All shrub species were monitored in the correct year.<br>") else {
+     errorText("Shrub records where the species was not monitored as a shrub that year:<br>"); NiceTable(Shrubs_Anachronistic_Name)}
 
 ```
 
@@ -217,18 +226,20 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 ```
 
 
-### Sapling Habit
+### Shrub Habit
 
 ```{r Shrub_Habit, echo=FALSE, hold=FALSE, results="asis"}
 
-  # if(nrow(Saplings_Bad_Habit)==0) cat("All sapling records have a habit of 'Tree'.<br>") else {
-  #    errorText("Sapling records without a habit of 'Tree':"); NiceTable(Saplings_Bad_Habit)}
+   if(nrow(Shrubs_Bad_Habit)==0) cat("All shrub records have a habit of 'Shrub'.<br>") else {
+      errorText("Shrub records without a habit of 'Shrub':"); NiceTable(Shrub_Bad_Habit)}
 
 ```
 
 ---
 
-### Sapling Stem Number
+### Shrub Stem Number
+
+Data not currently exported
 
 ```{r Shrub_Stem_Number, echo=FALSE, hold=FALSE, results="asis"}
 
@@ -246,7 +257,9 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 
 
 
-### Sapling Diameter
+### Shrub Diameter
+
+Data not currently exported
 
 ```{r Shrub_Diameter, echo=FALSE, hold=FALSE, results="asis"}
 
@@ -267,7 +280,9 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 ---
 
 
-### Sapling Stem Diameter
+### Shrub Stem Diameter
+
+Data not currently exported
 
 ```{r Shrub_Stem_Diameter, echo=FALSE, hold=FALSE, results="asis"}
 
@@ -287,23 +302,23 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 
 ---
 
-### Sapling Vigor
+### Shrub Vigor
 
 ```{r Shrub_vigor, echo=FALSE, hold=FALSE, results="asis"}
-#  
-# cat("<br>**Living Saplings Vigor Invalid**<br>") 
-#   if(nrow(Saplings_Live_Bad_Vigor)==0) cat("All live saplings have a valid vigor.<br>") else {
-#      errorText("Living sapling records with a vigor other than 0-5:"); NiceTable(Saplings_Live_Bad_Vigor)}
-#   
-# cat("<br>**Non-Living Saplings with Vigor**<br>")
-#   if(nrow(Saplings_Unalive_Bad_Vigor)==0) cat("No non-living saplings have a vigor.<br>") else {
-#      errorText("Non-living sapling records with a vigor:"); NiceTable(Saplings_Unalive_Bad_Vigor)}
+  
+ cat("<br>**Living Shrubs Vigor Invalid**<br>") 
+   if(nrow(Shrubs_Live_Bad_Vigor)==0) cat("All live shrubs have a valid vigor.<br>") else {
+      errorText("Living shrub records with a vigor other than 0-5:"); NiceTable(Shrubs_Live_Bad_Vigor)}
+
+ cat("<br>**Non-Living Shrubs with Vigor**<br>")
+   if(nrow(Shrubs_Unalive_Bad_Vigor)==0) cat("No non-living shrubs have a vigor.<br>") else {
+      errorText("Non-living shrub records with a vigor:"); NiceTable(Shrubs_Unalive_Bad_Vigor)}
 
 ```
 
 ---
 
-### Saplings Foliage
+### Shrub Foliage
 
 Currently checked under Tree Foliage
 
@@ -321,7 +336,7 @@ Currently checked under Tree Foliage
 
 ---
 
-### Sapling Conditions
+### Shrub Conditions
 
 Currnetly checked under Tree Conditions
 
@@ -340,7 +355,7 @@ Currnetly checked under Tree Conditions
 
 ---
 
-### Sapling Pests
+### Shrub Pests
 
 Currently checked under tree pests
 ```{r Shrub_Pests, echo=FALSE, hold=FALSE, results="asis"}
@@ -361,35 +376,33 @@ Currently checked under tree pests
 
 ---
 
-### Sapling Browse
+### Shrub Browse
 
 ```{r Shrub_Browse, echo=FALSE, hold=FALSE, results="asis"}
-#  
-# cat("<br>**Living Saplings Browsable Status Invalid**<br>") 
-#   if(nrow(Saplings_Live_Bad_Browsable)==0) cat("All live saplings have a valid browsable status.<br>") else {
-#      errorText("Living sapling records with a browsable status other than Yes, No, or unk:"); NiceTable(Saplings_Live_Bad_Browsable)}
-#   
-# 
-# cat("<br>**Living Saplings Anachronistic Browsable Status**<br>") 
-#   if(nrow(Saplings_Live_Anachronistic_Browsable)==0) cat("No living saplings records have a browsable status before 2010.<br>") else {
-#      errorText("Living sapling records with a browsable status before 2010:"); NiceTable(Saplings_Live_Anachronistic_Browsable)}
-#   
-# 
-#  cat("<br>**Non-Living Saplings with Browsable Status**<br>")
-#    if(nrow(Saplings_Unalive_Browsable)==0) cat("No non-living saplings have a browsable status.<br>") else {
-#       errorText("Non-living sapling records with a browsable status:"); NiceTable(Saplings_Unalive_Browsable)}
-# 
-#  cat("<br>**Living Saplings Browsed Status Invalid**<br>") 
-#   if(nrow(Saplings_Live_Bad_Browsed)==0) cat("All live saplings have a valid browsed status.<br>") else {
-#      errorText("Living sapling records with a browsed status other than Yes, or No:"); NiceTable(Saplings_Live_Bad_Browsed)}
-#    
-#  cat("<br>**Non-Living Saplings with Browsed Status**<br>")
-#    if(nrow(Saplings_Unalive_Browsed)==0) cat("No non-living saplings have a browsed status.<br>") else {
-#       errorText("Non-living sapling records with a browsed status:"); NiceTable(Saplings_Unalive_Browsed)}
-#  
-#   cat("<br>**Non-Living Saplings with Illogical Browsing**<br>")
-#    if(nrow(Saplings_Live_Illogical_Browse)==0) cat("No living saplings have contradictory browsable and browsed status.<br>") else {
-#       errorText("Living sapling records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Saplings_Live_Illogical_Browse)}
+  
+ cat("<br>**Living Shrubs Browsable Status Invalid**<br>") 
+   if(nrow(Shrubs_Live_Bad_Browsable)==0) cat("All live shrubs have a valid browsable status.<br>") else {
+      errorText("Living shrub records with a browsable status other than Yes, No, or unk:"); NiceTable(Shrubs_Live_Bad_Browsable)}
+
+ cat("<br>**Living Shrubs Anachronistic Browsable Status**<br>") 
+   if(nrow(Shrubs_Live_Anachronistic_Browsable)==0) cat("No living shrubs records have a browsable status before 2010.<br>") else {
+      errorText("Living shrubs records with a browsable status before 2010:"); NiceTable(Shrubs_Live_Anachronistic_Browsable)}
+ 
+  cat("<br>**Non-Living Shrubs with Browsable Status**<br>")
+    if(nrow(Shrubs_Unalive_Browsable)==0) cat("No non-living shrubs have a browsable status.<br>") else {
+       errorText("Non-living shrub records with a browsable status:"); NiceTable(Shrubs_Unalive_Browsable)}
+ 
+  cat("<br>**Living Shrubs Browsed Status Invalid**<br>") 
+   if(nrow(Shrubs_Live_Bad_Browsed)==0) cat("All live shrubs have a valid browsed status.<br>") else {
+      errorText("Living shrub records with a browsed status other than Yes, or No:"); NiceTable(Shrubs_Live_Bad_Browsed)}
+    
+  cat("<br>**Non-Living Shrubs with Browsed Status**<br>")
+    if(nrow(Shrubs_Unalive_Browsed)==0) cat("No non-living shrubs have a browsed status.<br>") else {
+       errorText("Non-living shrub records with a browsed status:"); NiceTable(Shrubs_Unalive_Browsed)}
+  
+   cat("<br>**Living Shrubs with Illogical Browsing**<br>")
+    if(nrow(Shrubs_Live_Illogical_Browse)==0) cat("No living shrubs have contradictory browsable and browsed status.<br>") else {
+       errorText("Living shrub records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Shrubs_Live_Illogical_Browse)}
  
 ```
 

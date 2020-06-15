@@ -42,6 +42,8 @@ QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAs
 QCVines<-getPlants(NCRN,"vines",  years=QCYears )
 QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all")
 QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all")
+QCQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F)
+
 
 Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
 Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
@@ -132,6 +134,28 @@ h1, h2, h3 {
 
 - Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
 
+- Shrub DRC and stems are not exported (should they be?)
+
+- Equivalent diameter is not exported for dead stems of saplings (this will typcially = 0)
+
+- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Vines export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- Microplot # is not exported (60, 180, 300)
+
+#### Vines
+- Need  a mechanism to check if Latin names are reasonable
+
+-  A way to distinguish between tree, sapling and shrub tags
+
+#### Quads
+- Need to export table that matches years with panels so we can verify the correct quads were sampled.
+
+
+
 ## Plots
 
 
@@ -173,16 +197,13 @@ h1, h2, h3 {
 
 
 ## Vines
-- should have an ID that we recognize as being a vine
-- should be on a living tree - not a dead or missing one and only on a sapling or shrub once we started doing those.
-
+```{r Vine-QC, child="ForestVegVineQC.Rmd"}
+```
 
 
 ## Quadrats
-- Should be plot we did that year
-- All quads present and accounted for. 
-- All percent tree rock etc should be between 0 and 100
-- Flag if % add up to something much higher than 100 at least for tree rock cwd? I suppose CWD could be on a rock, but tree and rock are mostly exclusive
+```{r Quad-QC, child="ForestVegQuadsQC.Rmd"}
+```
 
 ## Seedlings
 - should be tree or shrub species

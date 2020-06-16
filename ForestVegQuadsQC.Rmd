@@ -9,6 +9,10 @@ output: html_document
 ```{r quad_setup, include=F}
 TotQuads<-nrow(QCQuads) #Total Number of tree records checked
 
+Quads_Bad_Name<-QCQuads %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
+                                                          "360-3m", "360-8m", "360-13m")) %>% 
+  select(Plot_Name, Sample_Year, Quadrat_Number)
+
 Quads_Sampled<-QCQuads %>% group_by(Plot_Name, Sample_Year) %>% summarize(Quads_Sampled=n(), Unique_Quads=length(unique(Quadrat_Number))) %>% filter(Quads_Sampled!=12 | Unique_Quads !=12) 
 
 Quads_Percent_Trees<-QCQuads %>% filter(Percent_Trees<0 | Percent_Trees>100 | Percent_Trees=="" | is.na(Percent_Trees)) %>% 
@@ -52,13 +56,20 @@ Quads_Percent_Overload<-QCQuads %>%
 ```
 
 
-#### **Quads Checked:** `r TotQuads` ####
+#### **Quadrats Checked:** `r TotQuads` ####
 
 ###  Quadrats Sampled
 ```{r Quads_Sampled, echo=FALSE, hold=FALSE, results="asis"}
 
+cat("<br>**Quadrat Names**<br>") 
+if(nrow(Quads_Bad_Name )==0) cat("All records have a valid quadrat name.<br>") else {
+     errorText("Records without a valid quadrat name:"); NiceTable(Quads_Bad_Name)}
+
+cat("<br>**Quadrats Sampled**<br>") 
   if(nrow(Quads_Sampled)==0) cat("All plots have exactly 12 different quadrats sampled. <br>") else {
      errorText("Plots with more or less than 12 quadrats sampled:"); NiceTable(Quads_Sampled)}
+
+
 
 ```
 
@@ -68,49 +79,48 @@ Quads_Percent_Overload<-QCQuads %>%
 ```{r Quads_Percent_Cover, echo=FALSE, hold=FALSE, results="asis"}
 
 cat("<br>**Quadrats Percent Tree Cover**<br>") 
-  if(nrow(Quads_Percent_Trees)==0) cat("All plots have between 0 and 100% tree cover. <br>") else {
-     errorText("Plots without 0 to 100% tree cover:"); NiceTable(Quads_Percent_Trees)}
-
+  if(nrow(Quads_Percent_Trees)==0) cat("All quadrats have between 0 and 100% tree cover. <br>") else {
+     errorText("Quadrats without 0 to 100% tree cover:"); NiceTable(Quads_Percent_Trees)}
 
 cat("<br>**Quadrats Percent Bryophyte Cover**<br>") 
-  if(nrow(Quads_Percent_Bryophytes)==0) cat("All plots have between 0 and 100% bryophyte cover. <br>") else {
-     errorText("Plots without 0 to 100% bryophyte cover:"); NiceTable(Quads_Percent_Bryophytes)}
+  if(nrow(Quads_Percent_Bryophytes)==0) cat("All quadrats have between 0 and 100% bryophyte cover. <br>") else {
+     errorText("Quadrats without 0 to 100% bryophyte cover:"); NiceTable(Quads_Percent_Bryophytes)}
 
 cat("<br>**Quadrats Percent Rock Cover**<br>") 
-  if(nrow(Quads_Percent_Rock)==0) cat("All plots have between 0 and 100% rock cover. <br>") else {
-     errorText("Plots without 0 to 100% rock cover:"); NiceTable(Quads_Percent_Rock)}
+  if(nrow(Quads_Percent_Rock)==0) cat("All quadrats have between 0 and 100% rock cover. <br>") else {
+     errorText("Quadrats without 0 to 100% rock cover:"); NiceTable(Quads_Percent_Rock)}
 
 cat("<br>**Quadrats Percent Coarse Woody Debris (CWD)**<br>") 
-  if(nrow(Quads_Percent_CWD)==0) cat("All plots have between 0 and 100% CWD cover. <br>") else {
-     errorText("Plots without 0 to 100% CWD cover:"); NiceTable(Quads_Percent_CWD)}
+  if(nrow(Quads_Percent_CWD)==0) cat("All quadrats have between 0 and 100% CWD cover. <br>") else {
+     errorText("Quadrats without 0 to 100% CWD cover:"); NiceTable(Quads_Percent_CWD)}
 
 cat("<br>**Quadrats Percent Fine Woody Debris (FWD)**<br>") 
-  if(nrow(Quads_Percent_FWD)==0) cat("All plots have between 0 and 100% FWD cover. <br>") else {
-     errorText("Plots without 0 to 100% FWD cover:"); NiceTable(Quads_Percent_FWD)}
+  if(nrow(Quads_Percent_FWD)==0) cat("All quadrats have between 0 and 100% FWD cover. <br>") else {
+     errorText("Quadrats without 0 to 100% FWD cover:"); NiceTable(Quads_Percent_FWD)}
 
 cat("<br>**Quadrats Percent Other Cover (FWD)**<br>") 
-  if(nrow(Quads_Percent_Other)==0) cat("All plots have between 0 and 100% other cover. <br>") else {
-     errorText("Plots without 0 to 100% other cover:"); NiceTable(Quads_Percent_Other)}
+  if(nrow(Quads_Percent_Other)==0) cat("All quadrats have between 0 and 100% other cover. <br>") else {
+     errorText("Quadrats without 0 to 100% other cover:"); NiceTable(Quads_Percent_Other)}
 
 cat("<br>**Quadrats Percent Grass Cover**<br>") 
-  if(nrow(Quads_Percent_Grasses)==0) cat("All plots have between 0 and 100% grass cover. <br>") else {
-     errorText("Plots without 0 to 100% grass cover:"); NiceTable(Quads_Percent_Grasses)}
+  if(nrow(Quads_Percent_Grasses)==0) cat("All quadrats have between 0 and 100% grass cover. <br>") else {
+     errorText("Quadrats without 0 to 100% grass cover:"); NiceTable(Quads_Percent_Grasses)}
 
 cat("<br>**Quadrats Percent Sedge Cover**<br>") 
-  if(nrow(Quads_Percent_Sedges)==0) cat("All plots have between 0 and 100% sedge cover. <br>") else {
-     errorText("Plots without 0 to 100% sedge cover:"); NiceTable(Quads_Percent_Sedges)}
+  if(nrow(Quads_Percent_Sedges)==0) cat("All quadrats have between 0 and 100% sedge cover. <br>") else {
+     errorText("Quadrats without 0 to 100% sedge cover:"); NiceTable(Quads_Percent_Sedges)}
 
 cat("<br>**Quadrats Percent Herb Cover**<br>") 
-  if(nrow(Quads_Percent_Herbs)==0) cat("All plots have between 0 and 100% herb cover. <br>") else {
-     errorText("Plots without 0 to 100% herb cover:"); NiceTable(Quads_Percent_Herbs)}
+  if(nrow(Quads_Percent_Herbs)==0) cat("All quadrats have between 0 and 100% herb cover. <br>") else {
+     errorText("Quadrats without 0 to 100% herb cover:"); NiceTable(Quads_Percent_Herbs)}
 
 cat("<br>**Quadrats Percent Fern Cover**<br>") 
-  if(nrow(Quads_Percent_Ferns)==0) cat("All plots have between 0 and 100% fern cover. <br>") else {
-     errorText("Plots without 0 to 100% fern cover:"); NiceTable(Quads_Percent_Ferns)}
+  if(nrow(Quads_Percent_Ferns)==0) cat("All quadrats have between 0 and 100% fern cover. <br>") else {
+     errorText("Quadrats without 0 to 100% fern cover:"); NiceTable(Quads_Percent_Ferns)}
 
 cat("<br>**Quadrats Non-Living Percent > 100**<br>") 
-  if(nrow(Quads_Percent_Overload)==0) cat("All plots have less than 100% summed tree, rock, CWD, FWD and other cover. <br>") else {
-     errorText("Plots with over 100% summed tree, rock, CWD, FWD and other cover:"); NiceTable(Quads_Percent_Overload)}
+  if(nrow(Quads_Percent_Overload)==0) cat("All quadrats have less than 100% summed tree, rock, CWD, FWD and other cover. <br>") else {
+     errorText("Quadrats with over 100% summed tree, rock, CWD, FWD and other cover:"); NiceTable(Quads_Percent_Overload)}
 
 
 ```

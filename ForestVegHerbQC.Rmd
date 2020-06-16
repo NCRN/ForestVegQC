@@ -1,0 +1,158 @@
+---
+title: "Forest Vegetation Seedling QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r herb_setup, include=F}
+TotHerbs<-nrow(QCHerbs) #Total Number of tree records checked
+
+Herbs_Bad_Quad<-QCHerbs %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
+                                                          "360-3m", "360-8m", "360-13m")) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+Herbs_Bad_Name<-QCHerbs %>% filter(is.na(Latin_Name) | Latin_Name == "") %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+Herbs_Wrong_Species<-QCHerbs %>% filter(!Latin_Name %in% c("Akebia quinata", "Alliaria petiolata","Ampelopsis brevipedunculata", "Artemisia vulgaris",
+    "Berberis thunbergii", "Celastrus orbiculatus", "Centaurea biebersteinii", "Cirsium arvense", "Clematis terniflora", "Corydalis incisa", 
+    "Duchesnea indica", "Epipactis helleborine", "Euonymus fortunei", "Gaylussacia spp.", "Glechoma hederacea", "Hedera helix", "Hemerocallis fulva",
+    "Humulus japonicus","Ilex verticillata", "Kalmia latifolia", "Lespedeza cuneata", "Liliaceae Family", "Lindera benzoin", "Lonicera japonica",
+    "Lonicera spp.", "Lysimachia nummularia", "Microstegium vimineum", "Murdannia keisak", "Oplismenus undulatifolius", "Orchid family",
+    "Perilla frutescens", "Podophyllum peltatum", "Polygonum caespitosum", "Polygonum cuspidatum", "Polygonum perfoliatum", "Polygonum persicaria",
+    "Pueraria montana", "Ranunculus ficaria", "Rosa carolina", "Rosa multiflora", "Rubus argutus", "Rubus bifrons", "Rubus discolor", 
+    "Rubus phoenicolasius", "Smilax glauca",  "Smilax rotundifolia",  "Smilax tamnoides", "Symphoricarpos orbiculatus", "Toxicodendron radicans",
+    "Urtica dioica", "Vaccinium spp.", "Vinca minor", "Wisteria floribunda", "Wisteria sinensis")
+  ) %>% 
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+Herbs_Anachronistic_Name <-QCHerbs %>% filter(
+    (Sample_Year < 2013 & Latin_Name == "Artemisia vulgaris") | (Sample_Year < 2017 & Latin_Name == "Corydalis incisa") |
+    (Sample_Year < 2017 & Latin_Name == "Epipactis helleborine") | (Sample_Year < 2013 & Latin_Name == "Humulus japonicus") |
+    (Sample_Year < 2015 & Latin_Name == "Ilex verticillata") | (Sample_Year < 2015 & Latin_Name == "Kalmia latifolia") |
+    (Sample_Year < 2015 & Latin_Name == "Lindera benzoin") | (Sample_Year < 2008 & Latin_Name == "Lysimachia nummularia") |
+    (Sample_Year < 2009 & Latin_Name == "Murdannia keisak") | (Sample_Year < 2009 & Latin_Name == "Oplismenus undulatifolius") |
+    (Sample_Year < 2008 & Latin_Name == "Orchid family") |  (Sample_Year < 2013 & Latin_Name == "Perilla frutescens") |
+    (Sample_Year < 2008 & Latin_Name == "Polygonum caespitosum") | (Sample_Year < 2008 & Latin_Name == "Polygonum persicaria") |
+    (Sample_Year < 2010 & Latin_Name == "Rosa carolina") | (Sample_Year < 2010 & Latin_Name == "Rubus argutus") |
+    (Sample_Year < 2014 & Latin_Name == "Rubus bifrons") | (Sample_Year < 2014 & Latin_Name == "Rubus discolor") |
+    (Sample_Year < 2008 & Latin_Name == "Smilax glauca") | (Sample_Year < 2008 & Latin_Name == "Smilax rotundifolia") |
+    (Sample_Year < 2008 & Latin_Name == "Smilax tamnoides") | (Sample_Year < 2010 & Latin_Name == "Symphoricarpos orbiculatus") |
+    (Sample_Year < 2017 & Latin_Name == "Urtica dioica") | (Sample_Year < 2008 & Latin_Name == "Wisteria floribunda") 
+  ) %>% 
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+Herbs_Bad_Cover<-QCHerbs %>% filter(is.na(Percent_Cover) | Percent_Cover == "", Percent_Cover < 1 | Percent_Cover > 100) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+## Herb Browse
+ 
+#Herb_Bad_Browsable<-QCSeedlings %>% filter(!Browsable %in% c("Yes","No", "unk") ) %>%
+#  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+# 
+# Seedlings_Anachronistic_Browsable<-QCSeedlings %>% filter(Sample_Year<2012 & Browsable != "unk" ) %>%
+#     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+# 
+# Seedlings_Bad_Browsed<-QCSeedlings %>% filter(!Browsed %in% c("Yes","No", "unk") ) %>%
+#      select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+# 
+# Seedlings_Anachronistic_Browsed<-QCSeedlings %>% filter(Sample_Year<2012 & Browsed != "unk" ) %>%
+#     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+#  
+# Seedlings_Illogical_Browse <- QCSeedlings %>% filter(Browsed =="Yes", Browsable == "No") %>%
+#    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+# 
+# Seedlings_Unknown_Browsable <- QCSeedlings %>% filter(Sample_Year >=2012, Browsable == "unk") %>%
+#    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+ 
+```
+
+- browse shold be there once we started tracking post 2015
+
+
+
+#### **Undertory Plant Records Checked:** `r TotHerbs` ####
+
+### Plots and Quadrats
+
+```{r herb_plots, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Herbs_Bad_Quad )==0) cat("All understory plant records have a valid quadrat name.<br>") else {
+     errorText("Understory plant records without a valid quadrat name:"); NiceTable(Herbs_Bad_Quad)}
+```
+
+---
+
+### Latin Name
+
+```{r herb_name, echo=FALSE, hold=FALSE, results="asis"}
+
+ cat("<br>**Missing Latin Name**<br>")
+  if(nrow(Herbs_Bad_Name)==0) cat("All understory plant records have a Latin name.<br>") else {
+     errorText("Understory plant records without a Latin name:"); NiceTable(Herbs_Bad_Name)}
+
+ cat("<br>**Speices not Monitored**<br>")
+  if(nrow(Herbs_Wrong_Species)==0) cat("All understory plant records are from a monitored species.<br>") else {
+     errorText("Understory plant records from a species we do not monitor:"); NiceTable(Herbs_Wrong_Species)}
+ 
+ cat("<br>**Anachronisitc Speices**<br>")
+  if(nrow(Herbs_Anachronistic_Name)==0) cat("No understory plant species were recorded before we started to monitor them.<br>") else {
+     errorText("Understory plant records from a species before we started monitroing it:"); NiceTable(Herbs_Anachronistic_Name)}
+ 
+ 
+ 
+```
+
+
+---
+
+### Hert Percent Cover
+
+
+```{r herb_cover, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Herbs_Bad_Cover )==0) cat("All understory plant records have a precent cover from 1 to 100 %.<br>") else {
+     errorText("Understory plant records with cover not from 1 to 100%:"); NiceTable(Herbs_Bad_Cover)}
+```
+
+---
+
+
+### Herb Browse
+
+Data not yet exported.
+
+```{r Herb_Browse, echo=FALSE, hold=FALSE, results="asis"}
+ 
+# cat("<br>**Seedling Browsable Status Invalid**<br>") 
+#   if(nrow(Seedlings_Bad_Browsable)==0) cat("All seedlings have a valid browsable status.<br>") else {
+#      errorText("Seedling records with a browsable status other than Yes, No, or unk:"); NiceTable(Seedlings_Bad_Browsable)}
+#   
+# cat("<br>**Seedlings Anachronistic Browsable Status**<br>") 
+#    if(nrow(Seedlings_Anachronistic_Browsable)==0) cat("No seedling records have a browsable status before 2012.<br>") else {
+#       errorText("Seedling records with a browsable status before 2012:"); NiceTable(Seedlings_Anachronistic_Browsable)}
+# 
+# cat("<br>**Seedlings Browsed Status Invalid**<br>") 
+#    if(nrow(Seedlings_Bad_Browsed)==0) cat("All seedlings saplings have a valid browsed status.<br>") else {
+#       errorText("Seedling records with a browsed status other than unk, Yes, or No:"); NiceTable(Seedlings_Bad_Browsed)}
+#     
+# cat("<br>**Seedlings Anachronistic Browsed Status**<br>") 
+#    if(nrow(Seedlings_Anachronistic_Browsed)==0) cat("No seedling records have a browsed status before 2012.<br>") else {
+#       errorText("Seedling records with a browsed status before 2012:"); NiceTable(Seedlings_Anachronistic_Browsed)}
+#  
+# cat("<br>**Seedlings with Illogical Browsing**<br>")
+#     if(nrow(Seedlings_Illogical_Browse)==0) cat("No seedings have contradictory browsable and browsed status.<br>") else {
+#        errorText("Seedling records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Seedlings_Illogical_Browse)}
+#   
+# cat("<br>**Seedlings with unknown Browsable Status**<br>")
+#     if(nrow(Seedlings_Unknown_Browsable)==0) cat("No seedings have a browsable status of 'unk' after 2011.<br>") else {
+#        errorText("Seedling records with a browsable status 'unk' after 2011:"); NiceTable(Seedlings_Unknown_Browsable)}
+
+```
+
+
+

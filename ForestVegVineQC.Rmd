@@ -9,6 +9,9 @@ output: html_document
 ```{r vine_setup, include=F}
 TotVines<-nrow(QCVines) #Total Number of tree records checked
 
+Vines_Bad_Name<-QCVines %>% filter(is.na(Latin_Name) | Latin_Name == "")
+
+Vines_Bad_Host_Name<-QCVines %>% filter(is.na(Host_Latin_Name) | Host_Latin_Name== "")
 
 Vines_Bad_Tag<-QCVines %>% filter(is.na(Host_Tag) | Host_Tag=="" | Host_Tag<1 | Host_Tag>30000) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
@@ -25,6 +28,23 @@ Vines_Anachronistic<-QCVines %>% filter(Tag_Status=="Sapling", Sample_Year<2014)
 
 
 #### **Vines Checked:** `r TotVines` ####
+
+### Latin Name
+
+```{r vine_name, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Vine Latin Names**<br>") 
+  if(nrow(Vines_Bad_Name)==0) cat("All vine records have a Latin name.<br>") else {
+     errorText("Vine records without a Latin name:"); NiceTable(Vines_Bad_Name)}
+
+cat("<br>**Vine Host Latin Names**<br>") 
+  if(nrow(Vines_Bad_Host_Name)==0) cat("All vine records have a host Latin name.<br>") else {
+     errorText("Vine records without a host Latin name:"); NiceTable(Vines_Bad_Host_Name)}
+
+```
+
+
+
 
 ###  Host Tag
 ```{r Vine_Host_Tag, echo=FALSE, hold=FALSE, results="asis"}
@@ -47,7 +67,7 @@ Vines_Anachronistic<-QCVines %>% filter(Tag_Status=="Sapling", Sample_Year<2014)
 
 ---
 
-### Vines on Saplings and Shrubss
+### Vines on Saplings and Shrubs
 
 ```{r Vine_Sapling Shrub, echo=FALSE, hold=FALSE, results="asis"}
 

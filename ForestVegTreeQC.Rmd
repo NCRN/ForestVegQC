@@ -141,14 +141,66 @@ Trees_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest &
     (Condition =="Thousand cankers disease" & Latin_Name !="Juglans nigra")
   )) %>% select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
-Trees_Bad_Vines<-QCConditions %>% filter(Condition=="Vines in the crown")%>% 
+Trees_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=="Vines in the crown")%>% 
   left_join(QCVines %>% select(Plot_Name,Sample_Year,Tag=Host_Tag, Vine= Latin_Name )) %>% 
   filter(is.na(Vine) | Vine=="") %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Status,  Condition, Vine)
 
+
+### Multi-Year Checks
+
+Repeat_Trees<-QCTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+
+Trees_Start_Wrong<-if(length(Repeat_Trees>0)){
+  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any(Sample_Year==min(Sample_Year) & (Status  %in% c(Missing_Status, Other_Status, "Dead Fallen")) | 
+           (Status %in% Dead_Status & Sample_Year < 2010 )) ) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>% 
+  select(Plot_Name, Cycle, Tag, Latin_Name, Status, Start_Year) %>% 
+    pivot_wider(id_cols=c(Plot_Name, Tag, Latin_Name, Start_Year) , names_from = Cycle, 
+                names_prefix = "Cycle ", values_from = Status)} else data.frame()
+
+Trees_Dead_Fallen_Plus<-if(length(Repeat_Trees>0)){
+  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any(Sample_Year!=max(Sample_Year) & Status=="Dead FAllen")) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = Status, names_from = Cycle ) } else data.frame()
+
+Trees_Reanimated<-if(length(Repeat_Trees>0)){
+  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any(Status %in% Dead_Status & lead(Status) %in% c(Live_Status, Other_Status, Missing_Status ))) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = Status, names_from = Cycle ) } else data.frame()
+  
+Trees_Levitated<-if(length(Repeat_Trees>0)){
+  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any(Status =="Alive Fallen" & lead(Status) %in% c("Alive Broken", "Alive Leaning", "Alive Standing",
+                                                           "Dead Leaning", "Dead Standing"))) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = Status, names_from = Cycle ) } else data.frame()
+
+Trees_Found_Alive<-if(length(Repeat_Trees>0)){
+  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any( (Status %in% Missing_Status) & (lead(Status) %in% Live_Status) )) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = Status, names_from = Cycle ) } else data.frame()
+
+
 ```
 
-- should not start as missing, earlier ones should not start as dead, never start as dead fallen
 
 - dead trees wth > 1cm live dbh should not exist in a microplot as it would be a sapling (need distance / azimuht)
 
@@ -296,7 +348,7 @@ if(nrow(Trees_Unalive_Tree_Conditions)==0) cat("No non-living trees have tree-co
   errorText("Non-living tree records with a tree condition:"); NiceTable(Trees_Unalive_Tree_Conditions)}
 
 cat("<br>**Vines in the Crown vs. Vines**<br>")
-if(nrow(Trees_Bad_Vines)==0) cat("All tree records withvines in the crown had vine species recorded.<br>") else { 
+if(nrow(Trees_Bad_Vines)==0) cat("All tree records with vines in the crown had vine species recorded.<br>") else { 
   errorText("Tree records with vines in the crown but no corresponding vine record:"); NiceTable(Trees_Bad_Vines)}
 ```
 
@@ -324,4 +376,32 @@ cat("<br>**Mis-matched Tree Pests**<br>")
 
 ```
 
+---
 
+### **Change Over Time**
+
+### Tree Status Discrepancies
+
+```{r Tree_Status_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Trees that Start in a Non-Sampled Status**<br>")
+ if(nrow(Trees_Start_Wrong)==0) cat("No tree start as missing downgraded, or dead fallen.<br>") else {
+   errorText("Trees that start in a non-sampled status:"); NiceTable(Trees_Start_Wrong)}
+
+cat("<br>**Trees that are Sampled after they are Dead Fallen**<br>")
+ if(nrow(Trees_Dead_Fallen_Plus)==0) cat("No tree is sampled after it is dead fallen.<br>") else {
+   errorText("Trees that are sampled after they are dead fallen:"); NiceTable(Trees_Dead_Fallen_Plus)}
+
+cat("<br>**Trees that have Risen from the Dead**<br>")
+ if(nrow(Trees_Reanimated)==0) cat("No tree was reanimated after it died.<br>") else {
+   errorText("Trees that died but did not stay dead:"); NiceTable(Trees_Reanimated)}
+
+cat("<br>**Trees Fell Down and then Levitated Back Up**<br>")
+ if(nrow(Trees_Levitated)==0) cat("No tree was Alive Fallen and then became Standing or Leaning.<br>") else {
+   errorText("Trees that were Alive Fallen but then became Standing or Leaning:"); NiceTable(Trees_Levitated)}
+
+cat("<br>**Trees that were Lost and Found Alive**<br>")
+ if(nrow(Trees_Found_Alive)==0) cat("No tree was Missing and then found Alive.<br>") else {
+   errorText("Trees that were Missing but then were found Alive:"); NiceTable(Trees_Found_Alive)}
+
+```

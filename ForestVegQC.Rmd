@@ -16,7 +16,7 @@ options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
 NiceTable<-function(DF){
    
 
-   datatable(DF, rownames = F, extensions = "Buttons", options=list(
+   datatable(DF, rownames = F, extensions = "Buttons", autoHideNavigation = T, options=list(
       columnDefs=list(list(className='dt-center', targets=0:ncol(DF)-1 )),
       pageLength=25,
       dom='Btip',
@@ -231,30 +231,13 @@ h1, h2, h3 {
 
 ## Change over time
 
-### Plots 
-
-Nothing to check - this data does not change over time
-
 ### Events
 
-Only data here to check is deer impact but unclear if there is a good check. Need to investigate how this changes over time. Could be an info flag or a
-measure used to assess crew.
-
-### Plot Floor
-
--Rock Cover / Bare Soil / Trampled should not change more that 1 category between measurements (<1, 1-5, 5-25, 25-50, 50-75. 75-100)
-
-### CWD
-
-Nothing to check - only tagged pieces can be compared and rot can be really uneven
+Only data here to check is deer impact but unclear if there is a good check. Need to investigate how this changes over time. 
 
 ### Trees
 Bad or Suspicious Status Changes
-- Dead Fallen to anything else (should not even be in data). Need to consider if the Dead Fallen status was wrong. 
-- Dead Standing or Dead Leaning to any Alive or Missing except Dead Missing (Alive could happen via small living stems growing)
-- Dead Missing to any Alive or other sort of Missing
-- Alive Fallen to any Standing or Leaning
-- Any Missing, particularly Missing Presumed Dead to any Alive
+
 - Can Downgraded to non-sampled go straight to Dead Fallen? 
 - Downgraded to Non-Sampled to any Missing
 - 3rd consecutive Missing - these should no longer be getting new data
@@ -263,6 +246,7 @@ Bad or Suspicious Status Changes
 -Tree Vigor - trees that are in bad shape and then get much better? Say a 2 unit jump? Maybe a good check in season - should it be a flag?
 
 Crown Class - Few switches are completely impossible but these might be worth double checking (did I miss any?)
+
 - Open Grown to anything else - will happen in succesional / reforesting areas but double check
 - Dom/Co-dom to Intermediate/ Overtopped - unlikely but possible
 - Dom/Co-dom/intermeidate/overtopped/light gap/ edge tree to Open-grown  - error (?)
@@ -278,6 +262,7 @@ Crown Class - Few switches are completely impossible but these might be worth do
 -Dead DBH should not change by more than +3 (+2?, check data?) it can and does happen but it is unusual
 
 Tree Conditions
+
 - Tree Condition EAB - this seems permanent at this point, any change from present to absent should be flagged - unless maybe tree is dead(?)
 - Tree Condition Dogwood Antracnose - Do we think trees can recover form this? If not - flag if one does.
 - Tree Condition Exposed Roots - this seems very unlikely to go away - should this be flagged if it does?

@@ -13,6 +13,58 @@ TotPlotFloor<-nrow(QCPlotFloor) #Total number of plots being checked
 
 Plots_No_Cover<-QCPlotFloor%>% filter(is.na(Rock_Cover) | is.na(Bare_Soil_Cover) | is.na(Trampled)) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Rock_Cover, Bare_Soil_Cover, Trampled)
+
+Repeat_Plot_Floor<-QCPlotFloor %>% group_by(Plot_Name) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% pull(Plot_Name)
+
+Plot_Rock_Change<-if(length(Repeat_Plot_Floor>0)){
+  QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  select(Plot_Name, Sample_Year, Rock_Cover) %>% 
+  mutate(Rock_Cover=factor(Rock_Cover, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
+  group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
+  mutate(Rock_Change=abs(as.numeric(Rock_Cover)-lead(as.numeric(Rock_Cover))), Year_2=lead(Sample_Year), Rock_Cover_2=lead(Rock_Cover) ) %>% 
+  filter(!is.na(Rock_Change), Rock_Change>1) %>% 
+  select(Plot_Name, Year_1=Sample_Year, Rock_Cover_1=Rock_Cover, Year_2, Rock_Cover_2) } else data.frame()
+  
+Plot_Bare_Soil_Change<-if(length(Repeat_Plot_Floor>0)){
+  QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  select(Plot_Name, Sample_Year, Bare_Soil_Cover) %>% 
+  mutate(Bare_Soil_Cover=factor(Bare_Soil_Cover, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
+  group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
+  mutate(Bare_Soil_Change=abs(as.numeric(Bare_Soil_Cover)-lead(as.numeric(Bare_Soil_Cover))), Year_2=lead(Sample_Year), 
+         Bare_Soil_Cover_2=lead(Bare_Soil_Cover) ) %>% 
+  filter(!is.na(Bare_Soil_Change), Bare_Soil_Change>1) %>% 
+  select(Plot_Name, Year_1=Sample_Year, Bare_Soil_Cover_1=Bare_Soil_Cover, Year_2, Bare_Soil_Cover_2) } else data.frame()
+
+  
+Plot_Trampled_Change<-if(length(Repeat_Plot_Floor>0)){
+  QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  select(Plot_Name, Sample_Year, Trampled) %>% 
+  mutate(Trampled=factor(Trampled, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
+  group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
+  mutate(Trampled_Change=abs(as.numeric(Trampled)-lead(as.numeric(Trampled))), Year_2=lead(Sample_Year), 
+         Trampled_2=lead(Trampled) ) %>% 
+  filter(!is.na(Trampled_Change), Trampled_Change>1) %>% 
+  select(Plot_Name, Year_1=Sample_Year, Trampled_1=Trampled, Year_2, Trampled_2) } else data.frame()
+
+Plot_Rock_Change2<-if(length(Repeat_Plot_Floor>0)){
+  QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  select(Plot_Name, Sample_Year, Rock_Cover) %>% 
+  mutate(Rock_Cover=factor(Rock_Cover, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
+  group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
+  mutate(Rock_Change=abs(as.numeric(Rock_Cover)-lead(as.numeric(Rock_Cover)))) %>% 
+  filter(any(Rock_Change>1)) %>% arrange(Sample_Year) %>% 
+    pivot_wider(id_cols=Plot_Name, values_from = Rock_Cover, names_from = Sample_Year)} else data.frame()
+
+  
+Plot_Bare_Soil_Change2<-if(length(Repeat_Plot_Floor>0)){
+  QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  select(Plot_Name, Cycle, Sample_Year, Bare_Soil_Cover) %>% 
+  mutate(Bare_Soil_Cover=factor(Bare_Soil_Cover, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
+  group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
+  mutate(Start_Year=min(Sample_Year), Bare_Soil_Change=abs(as.numeric(Bare_Soil_Cover)-lead(as.numeric(Bare_Soil_Cover)))) %>% 
+  filter(any(Bare_Soil_Change>1)) %>% 
+  pivot_wider(id_cols=c(Plot_Name, Start_Year), names_prefix = "Cycle ", values_from = Bare_Soil_Cover, names_from = Cycle)} else data.frame()
+
 ```
 
 #### **Plot Floor Records Checked:** `r TotPlotFloor` ####
@@ -36,3 +88,36 @@ if(nrow(Plots_No_Cover)==0) cat("All records have data on plot floor cover.<br>"
    errorText("Events with missing data on plot floor cover."); NiceTable(Plots_No_Cover)}
 ```
 
+---
+
+### **Change Over Time**
+
+### Rock Cover Change
+```{r Rock_Cover_Change, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plot_Rock_Change)==0) cat("No records with an unusal change in Rock Cover.<br>") else {
+   errorText("Events with a Rock Cover change of 2 or more between visits."); NiceTable(Plot_Rock_Change)}
+
+NiceTable(Plot_Rock_Change2)
+
+```
+
+---
+
+### Bare Soil Cover Change
+```{r Bare_Soil_Cover_Change, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plot_Bare_Soil_Change)==0) cat("No records with an unusal change in Bare Soil Cover.<br>") else {
+   errorText("Events with a Bare Soil Cover change of 2 or more between visits."); NiceTable(Plot_Bare_Soil_Change)}
+
+NiceTable(Plot_Bare_Soil_Change2)
+
+```
+
+---
+
+### Trampled Change
+```{r Trampled_Change, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plot_Trampled_Change)==0) cat("No records with an unusal change in Trampled percent.<br>") else {
+   errorText("Events with a Trampled percent change of 2 or more between visits."); NiceTable(Plot_Trampled_Change)}
+```
+
+---

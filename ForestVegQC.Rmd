@@ -51,6 +51,8 @@ Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen",
 Missing_Status<-c("Missing", "Missing - Presumed Dead", "Missing - Uncertain")
 Other_Status<-c( "Downgraded to Non-Sampled")
 
+Vigor_Options<-c("Healthy", "Light Decline", "Moderate Decline", "Functionally Dead")
+
 
 ```
 
@@ -236,30 +238,9 @@ h1, h2, h3 {
 Only data here to check is deer impact but unclear if there is a good check. Need to investigate how this changes over time. 
 
 ### Trees
-Bad or Suspicious Status Changes
-
-- Can Downgraded to non-sampled go straight to Dead Fallen? 
-- Downgraded to Non-Sampled to any Missing
-- 3rd consecutive Missing - these should no longer be getting new data
-- do we repeatedly record downgrad to non-sampled?
-
--Tree Vigor - trees that are in bad shape and then get much better? Say a 2 unit jump? Maybe a good check in season - should it be a flag?
-
-Crown Class - Few switches are completely impossible but these might be worth double checking (did I miss any?)
-
-- Open Grown to anything else - will happen in succesional / reforesting areas but double check
-- Dom/Co-dom to Intermediate/ Overtopped - unlikely but possible
-- Dom/Co-dom/intermeidate/overtopped/light gap/ edge tree to Open-grown  - error (?)
-- Dom/co-dom/intermediate/overtopped to Edge tree  - error(?)
-- Do/co-dom to light gap exploiter - very unlikely
-- DO/co-dom  to (overtopped /edge/light gap/open-grown) back to to dom/co-dom
-
- 
-- Live Tree DBH should not change by more than +3 or -3 (should the negative be more sensitive?) from one cycle to next.  Note - changes in stem # could explain this. Need to consider the case of two values which don't match vs. mutliple values (3+?) with an outlier. Also consider the dbh double checked status
 
 - After 1st time monitoring a plot there should be limits on the size of new stems (>= 13 cm?) As stems are not tracked individually this is tricky but if you go from 1 to 2 and both stems are 20cm this is a problem - this applies to both living and dead stems. Errors here could potentially be explained by mis-checking the live /dead stem checkbox for multi-stemmed trees.
 
--Dead DBH should not change by more than +3 (+2?, check data?) it can and does happen but it is unusual
 
 Tree Conditions
 
@@ -282,6 +263,7 @@ Tree Conditions
 
 
 ### Saplings 
+
 - Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
 Bad or Suspicious Status Changes
 - Dead to anything else (should not even be in data)
@@ -297,7 +279,9 @@ Bad or Suspicious Status Changes
 
 
 ### Shrubs
+
 Bad or Suspicious Status Changes
+
 - Dead to anything else (should not even be in data)
 - Alive Fallen to any Standing or Leaning
 - Any Missing, particularly Missing Presumed Dead to any Alive
@@ -312,6 +296,7 @@ Bad or Suspicious Status Changes
 
 
 ### Quad General Data
+
 - Percent_Tree - If a quad changes by more than X percent: flag - need to define X
 - Percent_Rock - If a quad changes by more than X percent: flag - need to define X
 - Percent Grass/Sedge/Herb/Fern/Bryophyte - need to determine how much these change and if they are consistent enough for QC
@@ -322,6 +307,7 @@ Seedling number / height/ species - need to determine if these are consistent en
 
 
 ### Herbs
+
 - Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
  to use as QC? What about speices lists? Need to check data.
 

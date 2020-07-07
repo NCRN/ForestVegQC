@@ -309,16 +309,17 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = c(Stems, DeadDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
-# Trees_Start_Too_Large <-if(length(Repeat_Trees>0)){
-#   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
-#   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
-#   filter(any(Status %in% Live_Status & Stems > 0 & Equiv_Live_DBH_cm >13 & is.na(lag(Equiv_Live_DBH_cm, order_by=Sample_Year))
-#              &!is.na(lag(, order_by = Sample_Year)) 
-#              )) %>% 
-#   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
-#    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, Stems, Start_Year) %>% 
-#    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-#                values_from = c(Stems, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
+ Trees_Start_Too_Large <-if(length(Repeat_Trees>0)){
+  QCTrees %>% 
+  #This next line excludes any tree tag present the first time a plot was sampled
+  filter(!Tag %in% (semi_join(QCTrees, QCEvents %>% group_by(Plot_Name) %>% filter(rank(Event_Year)==1)) %>% pull (Tag)),
+     Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any(Status %in% Live_Status &  Equiv_Live_DBH_cm >13 & is.na(lag(Equiv_Live_DBH_cm, order_by = Sample_Year) ))) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+  select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, Stems, Start_Year) %>% 
+  pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = c(Stems, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
 ```
 

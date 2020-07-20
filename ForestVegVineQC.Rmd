@@ -9,17 +9,21 @@ output: html_document
 ```{r vine_setup, include=F}
 TotVines<-nrow(QCVines) #Total Number of tree records checked
 
-Vines_Bad_Name<-QCVines %>% filter(is.na(Latin_Name) | Latin_Name == "")
+Vines_Bad_Name<-QCVines %>% filter(Sample_Year %in% QCYears, is.na(Latin_Name) | Latin_Name == "")
 
-Vines_Bad_Host_Name<-QCVines %>% filter(is.na(Host_Latin_Name) | Host_Latin_Name== "")
+Vines_Bad_Host_Name<-QCVines %>% filter(Sample_Year %in% QCYears, is.na(Host_Latin_Name) | Host_Latin_Name== "")
 
-Vines_Bad_Tag<-QCVines %>% filter(is.na(Host_Tag) | Host_Tag=="" | Host_Tag<1 | Host_Tag>30000) %>%
+Vines_Bad_Tag<-QCVines %>% filter(Sample_Year %in% QCYears, is.na(Host_Tag) | Host_Tag=="" | Host_Tag<1 | Host_Tag>30000) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
 
-Vines_Bad_Host_Status<-QCVines %>% filter(!Host_Status %in% Live_Status) %>% 
+Vines_Redundant<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
+  group_by(Host_Tag, Sample_Year) %>%  filter(n()!=n_distinct(Latin_Name)) %>%
+   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
+
+Vines_Bad_Host_Status<-QCVines %>% filter(Sample_Year %in% QCYears, !Host_Status %in% Live_Status) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
 
-Vines_Anachronistic<-QCVines %>% filter(Tag_Status=="Sapling", Sample_Year<2014) %>% 
+Vines_Anachronistic<-QCVines %>% filter(Sample_Year %in% QCYears, Tag_Status=="Sapling", Sample_Year<2014) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
  
  
@@ -69,11 +73,21 @@ cat("<br>**Vine Host Latin Names**<br>")
 
 ### Vines on Saplings and Shrubs
 
-```{r Vine_Sapling Shrub, echo=FALSE, hold=FALSE, results="asis"}
+```{r Vine_Sapling_Shrub, echo=FALSE, hold=FALSE, results="asis"}
 
 errorText("Warning: This test does not check ALL vines on saplings and shrubs, only those with a current Host Tag Status of 'Sapling'")
 
  if(nrow(Vines_Anachronistic)==0) cat("No vines on saplings or shrubs before 2014.<br>") else {
     errorText("Vine records from a sapling or shrub before 2014:"); NiceTable(Vines_Anachronistic)}
+
+```
+
+
+### Redundant Vines
+
+```{r Vine_Redundant, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Redundant)==0) cat("No vines are listed twice for the same host during the same event.<br>") else {
+    errorText("Vine species listed twice from the same host during a single event.:"); NiceTable(Vines_Redundant)}
 
 ```

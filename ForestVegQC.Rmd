@@ -28,7 +28,8 @@ errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><
 DataDir<-"C:/Users/jschmit/Desktop/Some data/Veg_NCRN"
 NCRN<-importNCRN(DataDir)
 
-QCYears<-2006:2019
+
+QCYears<-c(2006:2017)
 
 
 QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))

@@ -82,6 +82,12 @@ Trees_Bad_Foliage_Percent<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.
                             Percent_Afflicted<1 |Percent_Afflicted>100)) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
 
+Trees_Redundant_Foliage<-QCFoliage %>% filter(Sample_Year  %in% QCYears) %>% 
+  group_by(Tag, Sample_Year) %>% filter(n()!=n_distinct(Condition_Description)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
+
+  
+
 Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
 
@@ -105,6 +111,9 @@ Trees_Live_Anachronistic_Tree_Conditions<-QCConditions %>% filter( (Sample_Year 
          (Condition =="Other visible damage" & Sample_Year> 2016)
         )) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
+Trees_Live_Redundant_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & (Status %in% Live_Status)) %>% 
+  group_by(Tag, Sample_Year) %>% filter(n()!=n_distinct(Condition)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
 Trees_Unalive_Tree_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & 
                 (Status %in% c(Dead_Status, Missing_Status, Other_Status))) %>% 
@@ -306,8 +315,8 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
           abs(Equiv_Dead_DBH_cm -lead(Equiv_Dead_DBH_cm, order_by=Sample_Year) > 3))) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, DeadDBH=Equiv_Dead_DBH_cm, Stems, Start_Year) %>% 
-   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-               values_from = c(Stems, DeadDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
+    {if(nrow(.)>0)  pivot_wider(.,id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Stems, DeadDBH), names_from = Cycle, names_sep = " " ) else data.frame()}  } else data.frame()
 
  Trees_Start_Too_Large <-if(length(Repeat_Trees>0)){
   QCTrees %>% 
@@ -321,6 +330,21 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Stems, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
+ ## Tree Condition Change
+ 
+ Trees_Lose_EAB<- if(length(Repeat_Trees>0)){
+  QCConditions %>% 
+  filter(Tag %in% Repeat_Trees) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  filter(any( Condition=="Emerald ash borer" & all(lead(Condition != "Emerald ash borer")) )) %>% 
+  {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+    filter(Condition=="Emerald ash borer") %>% 
+  select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Condition) %>% 
+  pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+ 
+
+ 
 ```
 
 
@@ -446,6 +470,11 @@ cat("<br>**Living Tree Foliage Percent**<br>")
   if(nrow(Trees_Bad_Foliage_Condition)==0) cat("All foliage percents on live trees are valid.<br>") else {
      errorText("Living tree records with invalid foliage percents:"); NiceTable(Trees_Bad_Foliage_Percent)}
 
+cat("<br>**Living Redundant Foliage Condition**<br>")
+  if(nrow(Trees_Redundant_Foliage)==0) cat("No foliage conditions were repeated.<br>") else {
+     errorText("Tree records with repeated foliage conditions:"); NiceTable(Trees_Redundant_Foliage)}
+
+
 cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
   if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
      errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
@@ -464,6 +493,10 @@ if(nrow(Trees_Live_Bad_Tree_Condition)==0) cat("All tree conditions are valid.")
 cat("<br>**Anachronistic Tree Conditions**<br>")
 if(nrow(Trees_Live_Anachronistic_Tree_Conditions)==0) cat("All tree conditions are from the correct year.<br>") else {
   errorText("Living tree records with a tree condition from the wrong year:"); NiceTable(Trees_Live_Anachronistic_Tree_Conditions)}
+
+cat("<br>**Redundant Tree Conditions**<br>")
+if(nrow(Trees_Live_Redundant_Conditions)==0) cat("All tree conditions are only entered only once.<br>") else {
+  errorText("Living tree records with a repeated conditions:"); NiceTable(Trees_Live_Redundant_Conditions)}
 
 cat("<br>**Non-Living Tree Conditions**<br>")
 if(nrow(Trees_Unalive_Tree_Conditions)==0) cat("No non-living trees have tree-conditions.<br>") else { 
@@ -541,7 +574,7 @@ cat("<br>**Trees that went Missing Three Times in a Row**<br>")
 
 ---
 
-### Tree Vigor Cahnge
+### Tree Vigor Change
 ```{r Tree_Vigor_Change, echo=FALSE, hold=FALSE, results="asis"}
 
 cat("<br>**Trees that have a Large Improvement in Vigor**<br>")
@@ -592,5 +625,13 @@ cat("<br>**Trees that have a large starting DBH**<br>")
 
 ```
 
+### Tree Condition Change
+
+```{r Tree_Condition_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Trees that have EAB and then later do not**<br>")
+ if(nrow(Trees_Lose_EAB)==0) cat("No tree had EAB and then lost it.<br>") else {
+   errorText("Trees that had EAB and then lost it:"); NiceTable(Trees_Lose_EAB)}
+```
 
 

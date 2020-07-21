@@ -29,7 +29,7 @@ DataDir<-"C:/Users/jschmit/Desktop/Some data/Veg_NCRN"
 NCRN<-importNCRN(DataDir)
 
 
-QCYears<-c(2006:2017)
+QCYears<-c(2006:2019)
 
 
 QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
@@ -244,15 +244,6 @@ Only data here to check is deer impact but unclear if there is a good check. Nee
 
 
 Tree Conditions
-
-- Tree Condition EAB - this seems permanent at this point, any change from present to absent should be flagged - unless maybe tree is dead(?)
-- Tree Condition Dogwood Antracnose - Do we think trees can recover form this? If not - flag if one does.
-- Tree Condition Exposed Roots - this seems very unlikely to go away - should this be flagged if it does?
-- Tree Condition Hemlock Scale - this seems permanent at this point wihtout treatment, any change from present to absent should be flagged - unless maybe tree is dead(?)
-- Tree Condition Hemlock Wooly Adelgid - this seems permanent at this point wihtout treatment, any change from present to absent should be flagged - unless maybe tree is dead(?)
-- Tree Condition Hollow - seems like if a tree is hollow and does not lose stems it should stay hollow - flag if not so?
-- If Vines in crown goes awaye - check. It could happen but is worth checking
-- If Vine Stress goes away - check - could happen but seems unliikly
 
 - Compare the number of conditions on a tree in the same way we compare the number of vines on a tree. May not be wrong and is somewhat subjective but 
  might want to try and see if these change much cycle to cycle.

@@ -52,25 +52,25 @@ Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Stat
        Equiv_Dead_DBH_cm !=0 )) )  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
-Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>% 
+Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
-Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>% 
+Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
-Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status, 
-    "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>% 
+Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
+    "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
 
 ## Vigor
-Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
-      ( (Sample_Year<2017 & VigorClass!="") | (Sample_Year >=2017 & VigorClass=="")  | 
-          (Sample_Year >=2017 & !VigorClass %in% Vigor_Options)  |is.na(VigorClass)) ) %>% 
-   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
-
-Trees_Unalive_Bad_Vigor<-QCTrees %>% filter(!Status %in% Live_Status, !VigorClass %in% "") %>% 
-   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
+# Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
+#       ( (Sample_Year<2017 & VigorClass!="") | (Sample_Year >=2017 & VigorClass=="")  | 
+#           (Sample_Year >=2017 & !VigorClass %in% Vigor_Options)  |is.na(VigorClass)) ) %>% 
+#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
+# 
+# Trees_Unalive_Bad_Vigor<-QCTrees %>% filter(!Status %in% Live_Status, !VigorClass %in% "") %>% 
+#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
 
 ## Foliage
 Trees_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
@@ -85,8 +85,6 @@ Trees_Bad_Foliage_Percent<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.
 Trees_Redundant_Foliage<-QCFoliage %>% filter(Sample_Year  %in% QCYears) %>% 
   group_by(Tag, Sample_Year) %>% filter(n()!=n_distinct(Condition_Description)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
-
-  
 
 Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
@@ -176,7 +174,7 @@ Trees_Start_Wrong<-if(length(Repeat_Trees>0)){
 Trees_Dead_Fallen_Plus<-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
-  filter(any(Sample_Year!=max(Sample_Year) & Status=="Dead FAllen")) %>% 
+  filter(any(Sample_Year!=max(Sample_Year) & Status=="Dead Fallen")) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
@@ -231,10 +229,10 @@ Trees_Downgraded_Missing <-if(length(Repeat_Trees>0)){
 
 Trees_Triple_Missing <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
-  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% mutate(Start_Year=min(Sample_Year)) %>% 
   filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Missing_Status)
               & (lead(Status,n=2, order_by=Sample_Year) %in% Missing_Status))) %>% 
-  mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+  arrange(Sample_Year) %>% 
    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
@@ -243,12 +241,12 @@ Trees_Triple_Missing <-if(length(Repeat_Trees>0)){
 
 Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
-  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  group_by(Tag) %>% mutate(Start_Year=min(Sample_Year)) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( 
     (VigorClass =="Moderate Decline" & lead(Status, order_by=Sample_Year) == "Healthy") |
     (VigorClass =="Functionally Dead" & lead(Status, order_by=Sample_Year) %in% c("Healthy", "Light Decline"))
     )) %>% 
-  mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+  arrange(Sample_Year) %>% 
    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, VigorClass, Start_Year) %>% 
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = VigorClass, names_from = Cycle ) } else data.frame()
@@ -330,6 +328,7 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Stems, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
+ 
  ## Tree Condition Change
  
 Trees_Lose_EAB<- if(length(Repeat_Trees>0)){
@@ -543,13 +542,15 @@ cat("<br>**Stem DBH Wrongly Recorded**<br>")
 
 ```{r Tree_vigor, echo=FALSE, hold=FALSE, results="asis"}
  
-cat("<br>**Living Tree Vigor Invalid**<br>")
- if(nrow(Trees_Live_Bad_Vigor)==0) cat("All live trees have a valid vigor.<br>") else {
-    errorText("Living tree records with a vigor other than 0-5:"); NiceTable(Trees_Live_Bad_Vigor)}
+cat("<br>** Disabled for 2020 data as this is not exported**<br>")
 
-cat("<br>**Non-Living Trees with Vigor**<br>")
- if(nrow(Trees_Unalive_Bad_Vigor)==0) cat("No non-living trees have a vigor.<br>") else {
-    errorText("Non-living tree records with a vigor:"); NiceTable(Trees_Unalive_Bad_Vigor)}
+# cat("<br>**Living Tree Vigor Invalid**<br>")
+#  if(nrow(Trees_Live_Bad_Vigor)==0) cat("All live trees have a valid vigor.<br>") else {
+#     errorText("Living tree records with a vigor other than 0-5:"); NiceTable(Trees_Live_Bad_Vigor)}
+# 
+# cat("<br>**Non-Living Trees with Vigor**<br>")
+#  if(nrow(Trees_Unalive_Bad_Vigor)==0) cat("No non-living trees have a vigor.<br>") else {
+#     errorText("Non-living tree records with a vigor:"); NiceTable(Trees_Unalive_Bad_Vigor)}
 
 ```
 
@@ -673,10 +674,9 @@ cat("<br>**Trees that went Missing Three Times in a Row**<br>")
 
 ### Tree Vigor Change
 ```{r Tree_Vigor_Change, echo=FALSE, hold=FALSE, results="asis"}
-
-cat("<br>**Trees that have a Large Improvement in Vigor**<br>")
- if(nrow(Trees_Vigor_Jump)==0) cat("No tree has a 2 class improvement in vigor.<br>") else {
-   errorText("Trees that have a 2 class improvement in vigor:"); NiceTable(Trees_Vigor_Jump)}
+ cat("<br>**Trees that have a Large Improvement in Vigor**<br>")
+  if(nrow(Trees_Vigor_Jump)==0) cat("No tree has a 2 class improvement in vigor.<br>") else {
+    errorText("Trees that have a 2 class improvement in vigor:"); NiceTable(Trees_Vigor_Jump)}
 ```
 
 ---

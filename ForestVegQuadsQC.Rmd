@@ -9,11 +9,15 @@ output: html_document
 ```{r quad_setup, include=F}
 TotQuads<-nrow(QCQuads) #Total Number of tree records checked
 
+Repeat_Quads<-QCQuads %>% group_by(Plot_Name, Quadrat_Number) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% 
+  select(Plot_Name, Quadrat_Number) %>% ungroup
+
 Quads_Bad_Name<-QCQuads %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
                                                           "360-3m", "360-8m", "360-13m")) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number)
 
-Quads_Sampled<-QCQuads %>% group_by(Plot_Name, Sample_Year) %>% summarize(Quads_Sampled=n(), Unique_Quads=length(unique(Quadrat_Number))) %>% filter(Quads_Sampled!=12 | Unique_Quads !=12) 
+Quads_Sampled<-QCEvents %>% left_join(QCQuads, by=c("Plot_Name"="Plot_Name", "Event_Year"="Sample_Year")) %>% group_by (Plot_Name, Event_Year) %>% summarize(Quads_Sampled=length(na.omit(Quadrat_Number)), Unique_Quads=length(unique(na.omit(Quadrat_Number)))) %>% 
+  filter(Quads_Sampled!=12 | Unique_Quads !=12) 
 
 Quads_Percent_Trees<-QCQuads %>% filter(Percent_Trees<0 | Percent_Trees>100 | Percent_Trees=="" | is.na(Percent_Trees)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Trees)
@@ -53,6 +57,27 @@ Quads_Percent_Overload<-QCQuads %>%
   select(Plot_Name, Sample_Year, Quadrat_Number, Tree=Percent_Trees, Rock=Percent_Rock, CWD=Percent_Coarse_Woody_Debris,
          FWD=Percent_Fine_Woody_Debris,Other= Percent_Other, Total) 
 
+
+Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
+  
+  Repeat_Quads %>% left_join(QCQuads) %>% 
+    select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Trees) %>% 
+    group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+    mutate(Start_Year=min(Sample_Year), Tree_Change=abs(as.numeric(Percent_Trees)-lead(as.numeric(Percent_Trees)))) %>% 
+    filter(any(Tree_Change>10)) %>% 
+   pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Trees, 
+               names_from = Cycle, names_sort = TRUE)
+  } else data.frame()
+  
+
+  # QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  # select(Plot_Name, Cycle, Sample_Year, Trampled) %>% 
+  # mutate(Trampled=factor(Trampled, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
+
+  # group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
+  # mutate(Start_Year=min(Sample_Year), Trampled_Change=abs(as.numeric(Trampled)-lead(as.numeric(Trampled)))) %>% 
+  # filter(any(Trampled_Change>1)) %>% 
+  # pivot_wider(id_cols=c(Plot_Name, Start_Year), names_prefix = "Cycle ", values_from = Trampled, names_from = Cycle)} else data.frame()
 ```
 
 
@@ -121,8 +146,20 @@ cat("<br>**Quadrats Percent Fern Cover**<br>")
 cat("<br>**Quadrats Non-Living Percent > 100**<br>") 
   if(nrow(Quads_Percent_Overload)==0) cat("All quadrats have less than 100% summed tree, rock, CWD, FWD and other cover. <br>") else {
      errorText("Quadrats with over 100% summed tree, rock, CWD, FWD and other cover:"); NiceTable(Quads_Percent_Overload)}
+```
 
+---
+
+### **Change Over Time**
+
+###Tree  Cover Change
+```{r Quads_Tree_ Cover_Change, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Quadrats Tree Percent > 10**<br>") 
+if(nrow(Quads_Percent_Trees_Changed)==0) cat("No records with an unusal change in Tree Cover.<br>") else {
+   errorText("Events with a Tree Cover change of more than 10% between visits."); NiceTable(Quads_Percent_Trees_Changed)}
 
 ```
+
+---
 
 

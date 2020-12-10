@@ -1,5 +1,5 @@
 ---
-title: "Forest Vegetation Seedling QC"
+title: "Forest Vegetation Herbaceous Plant QC"
 author: "John Paul Schmit"
 date: "5/19/2020"
 output: html_document
@@ -46,6 +46,10 @@ Herbs_Anachronistic_Name <-QCHerbs %>% filter(
   ) %>% 
     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
 
+Herbs_Repeat_Species<-QCHerbs %>% 
+  group_by(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+  filter(n()!=n_distinct(Latin_Name)) %>% 
+  select(Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
 
 Herbs_Bad_Cover<-QCHerbs %>% filter(is.na(Percent_Cover) | Percent_Cover == "", Percent_Cover < 1 | Percent_Cover > 100) %>% 
   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
@@ -104,14 +108,17 @@ if(nrow(Herbs_Bad_Quad )==0) cat("All understory plant records have a valid quad
   if(nrow(Herbs_Anachronistic_Name)==0) cat("No understory plant species were recorded before we started to monitor them.<br>") else {
      errorText("Understory plant records from a species before we started monitroing it:"); NiceTable(Herbs_Anachronistic_Name)}
  
- 
+ cat("<br>**Repeated Speices**<br>")
+  if(nrow(Herbs_Repeat_Species)==0) cat("No understory plant species were recorded twice on the same quadarat 
+                                        during a single event.<br>") else {
+     errorText("Understory plant species recored twice on a quadrat during the same event:"); NiceTable(Herbs_Repeat_Species)}
  
 ```
 
 
 ---
 
-### Hert Percent Cover
+### Herb Percent Cover
 
 
 ```{r herb_cover, echo=FALSE, hold=FALSE, results="asis"}

@@ -26,6 +26,23 @@ Vines_Bad_Host_Status<-QCVines %>% filter(Sample_Year %in% QCYears, !Host_Status
 Vines_Anachronistic<-QCVines %>% filter(Sample_Year %in% QCYears, Tag_Status=="Sapling", Sample_Year<2014) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
  
+
+### Multi-Year Checks
+
+# Challenge - makes sure trees with no vines are included!
+# Repeat_V<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+# 
+ Vine_Number<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
+   group_by(Host_Tag,Sample_Year) %>% summarize(Vine_Total=n()) %>% 
+   select(Host_Tag, Sample_Year,Vine_Total)
+ 
+Vines_Number_Changes<-left_join(QCTrees , Vine_Number,  by=c("Sample_Year"="Sample_Year", "Tag"="Host_Tag")) %>%
+  filter(Status %in% Live_Status) %>% 
+  mutate(Vine_Total=ifelse(is.na(Vine_Total),0, Vine_Total)) %>% 
+  group_by(Tag) %>% 
+  filter(length(unique(Vine_Total))!=1) %>% ungroup %>% arrange(Cycle) %>% 
+  pivot_wider(id_cols=c(Tag, Latin_Name), names_from=Cycle, names_prefix="Cycle ",   values_from=Vine_Total) %>% 
+  arrange(Tag)
  
 ```
 
@@ -89,5 +106,17 @@ errorText("Warning: This test does not check ALL vines on saplings and shrubs, o
 
  if(nrow(Vines_Redundant)==0) cat("No vines are listed twice for the same host during the same event.<br>") else {
     errorText("Vine species listed twice from the same host during a single event.:"); NiceTable(Vines_Redundant)}
+
+```
+
+
+### **Change Over Time**
+
+### Trees that Gained or Lost Vines
+
+```{r Vine_Number_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Number_Changes)==0) cat("No trees gained or lost vines.<br>") else {
+    errorText("Trees that gained or lost vines:"); NiceTable(Vines_Number_Changes)}
 
 ```

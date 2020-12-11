@@ -59,7 +59,6 @@ Quads_Percent_Overload<-QCQuads %>%
 
 
 Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
-  
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Trees) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
@@ -69,15 +68,47 @@ Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
   
+Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
+  Repeat_Quads %>% left_join(QCQuads) %>% 
+    select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Rock) %>% 
+    group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+    mutate(Start_Year=min(Sample_Year), Rock_Change=abs(as.numeric(Percent_Rock)-lead(as.numeric(Percent_Rock)))) %>% 
+    filter(any(Rock_Change>10)) %>% 
+   pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Rock, 
+               names_from = Cycle, names_sort = TRUE)
+  } else data.frame()
 
-  # QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
-  # select(Plot_Name, Cycle, Sample_Year, Trampled) %>% 
-  # mutate(Trampled=factor(Trampled, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
 
-  # group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
-  # mutate(Start_Year=min(Sample_Year), Trampled_Change=abs(as.numeric(Trampled)-lead(as.numeric(Trampled)))) %>% 
-  # filter(any(Trampled_Change>1)) %>% 
-  # pivot_wider(id_cols=c(Plot_Name, Start_Year), names_prefix = "Cycle ", values_from = Trampled, names_from = Cycle)} else data.frame()
+Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
+  Repeat_Quads %>% left_join(QCQuads) %>% 
+    select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Bryophytes) %>% 
+    group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+    mutate(Start_Year=min(Sample_Year), Bryophyte_Change=abs(as.numeric(Percent_Bryophytes)-lead(as.numeric(Percent_Bryophytes)))) %>% 
+    filter(any(Bryophyte_Change>15)) %>% 
+   pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Bryophytes, 
+               names_from = Cycle, names_sort = TRUE)
+  } else data.frame()
+
+# Quads_Percent_Herbs_Changed <-if(nrow(Repeat_Quads>0)){
+#   Repeat_Quads %>% left_join(QCQuads) %>% 
+#     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Herbs) %>% 
+#     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+#     mutate(Start_Year=min(Sample_Year), Herb_Change=abs(as.numeric(Percent_Herbs)-lead(as.numeric(Percent_Herbs)))) %>% 
+#     filter(any(Herb_Change>15)) %>% 
+#    pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Herbs, 
+#                names_from = Cycle, names_sort = TRUE)
+#   } else data.frame()
+
+Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
+  Repeat_Quads %>% left_join(QCQuads) %>% 
+    select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Ferns) %>% 
+    group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+    mutate(Start_Year=min(Sample_Year), Fern_Change=abs(as.numeric(Percent_Ferns)-lead(as.numeric(Percent_Ferns)))) %>% 
+    filter(any(Fern_Change>15)) %>% 
+   pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Ferns, 
+               names_from = Cycle, names_sort = TRUE)
+  } else data.frame()
+
 ```
 
 
@@ -152,11 +183,24 @@ cat("<br>**Quadrats Non-Living Percent > 100**<br>")
 
 ### **Change Over Time**
 
-###Tree  Cover Change
-```{r Quads_Tree_ Cover_Change, echo=FALSE, hold=FALSE, results="asis"}
-cat("<br>**Quadrats Tree Percent > 10**<br>") 
+### Quadrat Ground Cover Change
+```{r Quads_Ground_Cover_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Quadrats Tree Change > 10%**<br>") 
 if(nrow(Quads_Percent_Trees_Changed)==0) cat("No records with an unusal change in Tree Cover.<br>") else {
    errorText("Events with a Tree Cover change of more than 10% between visits."); NiceTable(Quads_Percent_Trees_Changed)}
+
+cat("<br>**Quadrats Rock Change > 10%**<br>") 
+if(nrow(Quads_Percent_Rock_Changed)==0) cat("No records with an unusal change in Rock Cover.<br>") else {
+   errorText("Events with a Rock Cover change of more than 10% between visits."); NiceTable(Quads_Percent_Rock_Changed)}
+
+cat("<br>**Quadrats Bryophyte Change > 15%**<br>") 
+if(nrow(Quads_Percent_Bryophytes_Changed)==0) cat("No records with an unusal change in Bryophyte Cover.<br>") else {
+   errorText("Events with a Bryophyte Cover change of more than 15% between visits."); NiceTable(Quads_Percent_Bryophytes_Changed)}
+
+cat("<br>**Quadrats Fern Change > 15%**<br>") 
+if(nrow(Quads_Percent_Ferns_Changed)==0) cat("No records with an unusal change in Fern Cover.<br>") else {
+   errorText("Events with a Fern Cover change of more than 15% between visits."); NiceTable(Quads_Percent_Ferns_Changed)}
 
 ```
 

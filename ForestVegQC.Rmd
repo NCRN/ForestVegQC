@@ -100,7 +100,7 @@ h1, h2, h3 {
 
 - Deer Impact value not exported. Need to check that it exists and is an allowable value
 
-_ Need to check if Deer impact is changing 2 or more between visits.
+- Need to check if Deer impact is changing 2 or more between visits.
 
 
 #### CWD
@@ -246,19 +246,14 @@ Bad or Suspicious Status Changes
 
 ## Change over time
 
-### Quad General Data
-
-- Percent_Tree - If a quad changes by more than X percent: flag - need to define X
-- Percent_Rock - If a quad changes by more than X percent: flag - need to define X
-- Percent Grass/Sedge/Herb/Fern/Bryophyte - need to determine how much these change and if they are consistent enough for QC
 
 ### Seedlings
 
-Seedling number / height/ species - need to determine if these are consistent enoough between samples for QC or not
+Seedling number / height/ species - need to determine if these are consistent enough between samples for QC or not
 
 
 ### Herbs
 
 - Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
- to use as QC? What about speices lists? Need to check data.
+ to use as QC? What about species lists? Need to check data.
 

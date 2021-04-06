@@ -9,20 +9,26 @@ output: html_document
 ```{r vine_setup, include=F}
 TotVines<-nrow(QCVines) #Total Number of tree records checked
 
+#8.1.0
 Vines_Bad_Name<-QCVines %>% filter(Sample_Year %in% QCYears, is.na(Latin_Name) | Latin_Name == "")
 
+#8.2.0
 Vines_Bad_Host_Name<-QCVines %>% filter(Sample_Year %in% QCYears, is.na(Host_Latin_Name) | Host_Latin_Name== "")
 
+#8.3.0
 Vines_Bad_Tag<-QCVines %>% filter(Sample_Year %in% QCYears, is.na(Host_Tag) | Host_Tag=="" | Host_Tag<1 | Host_Tag>30000) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
 
+#8.4.0
 Vines_Redundant<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
   group_by(Host_Tag, Sample_Year) %>%  filter(n()!=n_distinct(Latin_Name)) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
 
+#8.5.0
 Vines_Bad_Host_Status<-QCVines %>% filter(Sample_Year %in% QCYears, !Host_Status %in% Live_Status) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
 
+#8.6.0
 Vines_Anachronistic<-QCVines %>% filter(Sample_Year %in% QCYears, Tag_Status=="Sapling", Sample_Year<2014) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
  

@@ -11,92 +11,122 @@ TotTrees<-nrow(QCTrees) #Total Number of tree records checked
 TotStems<-nrow(QCStems) #Total number of stem records checked
 
 
+## Tree Status
+
+# 5.1.0
 Trees_Bad_Status<-QCTrees %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
 
+## Latin Name
+
+# 5.2.0
 Trees_No_Name<-QCTrees %>% filter(Latin_Name=="") %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
+## Tree Tag
+
+# 5.3.0
 Trees_Bad_Tag<-QCTrees %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
 ## Crown class
 
+# 5.4.0
 Trees_Live_Bad_Crown<-QCTrees %>% filter(Status %in% Live_Status & (Crown_Description=="" | !Crown_Description %in% 
    c("Co-dominant", "Dominant", "Edge Tree", "Intermediate", "Light Gap Exploiter", "Open-grown", "Overtopped" ))) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
 
+# 5.5.0
 Trees_Unalive_Bad_Crown<-QCTrees %>% filter(!Status %in% Live_Status & Crown_Description!="") %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
 
 
 
 ## DBH
+
+#5.6.0
 Trees_Bad_DBH_Check <-QCTrees %>% filter( (Sample_Year<2018 & DBH_Check) | 
       (Sample_Year>2017 & DBH_Check & 
           Status %in% c(Missing_Status, "Dead Fallen", "Dead Missing", "Dead - Too Small", Other_Status))) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH_Check)
 
+# 5.7.0
 Trees_Live_Bad_DBH<-QCTrees %>% filter(Status %in% Live_Status & (
    (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 10 | is.na(Equiv_Dead_DBH_cm) | ( Equiv_Dead_DBH_cm>0 & Equiv_Dead_DBH_cm < 10)) ))  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
+#5.8.0
 Trees_Dead_Bad_DBH<-QCTrees %>% filter(Status %in% c("Dead Leaning", "Dead Standing") & (
    (is.na(Equiv_Dead_DBH_cm) | Equiv_Dead_DBH_cm < 10 | is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm>=10 |
       ( Equiv_Live_DBH_cm >0 & Equiv_Live_DBH_cm < 1)) ))  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
+#5.9.0
 Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Status, 
     "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing") & (
    (is.na(Equiv_Dead_DBH_cm) |is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm!=0 |
        Equiv_Dead_DBH_cm !=0 )) )  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
+#5.10.0
 Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
+#5.11.0
 Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
+#5.12.0
 Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
     "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
 
 ## Vigor
+
+#5.13.0
 # Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
 #       ( (Sample_Year<2017 & VigorClass!="") | (Sample_Year >=2017 & VigorClass=="")  | 
 #           (Sample_Year >=2017 & !VigorClass %in% Vigor_Options)  |is.na(VigorClass)) ) %>% 
 #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
 # 
+#4.14.0
 # Trees_Unalive_Bad_Vigor<-QCTrees %>% filter(!Status %in% Live_Status, !VigorClass %in% "") %>% 
 #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
 
+
 ## Foliage
+
+#5.15.0
 Trees_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
               !Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other") )) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
   
-
+#5.16.0
 Trees_Bad_Foliage_Percent<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Percent_Afflicted) | 
                             Percent_Afflicted<1 |Percent_Afflicted>100)) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
 
+#5.17.0
 Trees_Redundant_Foliage<-QCFoliage %>% filter(Sample_Year  %in% QCYears) %>% 
   group_by(Tag, Sample_Year) %>% filter(n()!=n_distinct(Condition_Description)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
 
+#5.18.0
 Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
 
 
 ## Tree Conditions
+
+#5.19.0
 Trees_Live_Bad_Tree_Condition<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &
   !Condition %in% c("Advanced decay", "Primary branch broken",  "Large dead branches", "Lightning Damage", "Wind Damage", "Buck Rub", "Bark Damage",
                     "Beaver Damage", "Human Damage", "Mammal Damage", "Bird Damage", "Exposed roots", "Epicormic sprouts", "Fungus", "Fire", "Hollow",
                     "Sparse foliage", "Open wound", "Vines in the crown",  "Vine stress", "Other visible condition", "Other visible damage")) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
+#5.20.0
 Trees_Live_Anachronistic_Tree_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &
       (
         (Condition =="Lightning Damage" & Sample_Year< 2009) | 
@@ -109,36 +139,41 @@ Trees_Live_Anachronistic_Tree_Conditions<-QCConditions %>% filter( (Sample_Year 
          (Condition =="Other visible damage" & Sample_Year> 2016)
         )) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
+#5.21.0
 Trees_Live_Redundant_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & (Status %in% Live_Status)) %>% 
   group_by(Tag, Sample_Year) %>% filter(n()!=n_distinct(Condition)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
+#5.22.0
 Trees_Unalive_Tree_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & 
                 (Status %in% c(Dead_Status, Missing_Status, Other_Status))) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
 ## Tree Pests
 
+#5.23.0
 Trees_Live_Bad_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
   !Condition %in% c("Asian longhorned beetle", "Beech bark disease",  "Butternut canker", "Chestnut blight", "Dogwood anthracnose", 
                     "Emerald ash borer", "Gypsy moth","Hemlock Scale", "Hemlock wooly adelgid", "Oak wilt", "Spotted lanternfly", 
                     "Thousand cankers disease", "Tent caterpillars", "Other significant insect damage")) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
+#5.24.0
 Trees_Live_Anachronistic_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
       (
         (Condition %in% c("Dogwood anthracnose","Hemlock Scale") & Sample_Year< 2008) | 
           (Condition =="Emrerald ash borer" & Sample_Year < 2009) |
-          (Condition %in% c("Asian longhotnrf beetle","Chestnut blight", "Oak wilt", "Thousand cankers disease") & Sample_Year < 2014) |
+          (Condition %in% c("Asian longhorn beetle","Chestnut blight", "Oak wilt", "Thousand cankers disease") & Sample_Year < 2014) |
           (Condition =="Tent caterpillars" & Sample_Year< 2017) |
           (Condition =="Spotted lanternfly" & Sample_Year < 2018))
     ) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
-
+#5.25.0
 Trees_Unalive_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & Condition !="Emerald ash borer" &
                 (Status %in% c(Dead_Status, Missing_Status, Other_Status) )) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
+#5.26.0
 Trees_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest & 
   (
    (Condition == "Beach bark disease" & Latin_Name !="Fagus grandifolia") |
@@ -150,6 +185,7 @@ Trees_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest &
     (Condition =="Thousand cankers disease" & Latin_Name !="Juglans nigra")
   )) %>% select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
+#5.27.0
 Trees_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=="Vines in the crown")%>% 
   left_join(QCVines %>% select(Plot_Name,Sample_Year,Tag=Host_Tag, Vine= Latin_Name )) %>% 
   filter(is.na(Vine) | Vine=="") %>% 
@@ -161,6 +197,8 @@ Trees_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=
 Repeat_Trees<-QCTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
 
 #Status  Change 
+
+#5.28.0
 Trees_Start_Wrong<-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -171,6 +209,7 @@ Trees_Start_Wrong<-if(length(Repeat_Trees>0)){
     pivot_wider(id_cols=c(Plot_Name, Tag, Latin_Name, Start_Year) , names_from = Cycle, 
                 names_prefix = "Cycle ", values_from = Status)} else data.frame()
 
+#5.29.0
 Trees_Dead_Fallen_Plus<-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -180,6 +219,7 @@ Trees_Dead_Fallen_Plus<-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
 
+#5.30.0
 Trees_Reanimated<-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -189,6 +229,7 @@ Trees_Reanimated<-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
   
+#5.31.0
 Trees_Levitated<-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -199,6 +240,7 @@ Trees_Levitated<-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
 
+#5.32.0
 Trees_Found_Alive<-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -208,6 +250,7 @@ Trees_Found_Alive<-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
 
+#5.33.0
 Trees_Downgraded_Fallen <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -217,7 +260,7 @@ Trees_Downgraded_Fallen <-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
 
-
+#5.34.0
 Trees_Downgraded_Missing <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -227,6 +270,7 @@ Trees_Downgraded_Missing <-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Status, names_from = Cycle ) } else data.frame()
 
+#5.35.0
 Trees_Triple_Missing <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% mutate(Start_Year=min(Sample_Year)) %>% 
@@ -239,6 +283,7 @@ Trees_Triple_Missing <-if(length(Repeat_Trees>0)){
 
 ## Vigor Change
 
+#5.36.0
 Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% mutate(Start_Year=min(Sample_Year)) %>% arrange(Tag, Sample_Year) %>% 
@@ -253,6 +298,7 @@ Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
 
 ## Crown Class Change
 
+#5.37.0
 Trees_Open_Grown_Change <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -262,7 +308,7 @@ Trees_Open_Grown_Change <-if(length(Repeat_Trees>0)){
    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Crown_Description, Start_Year) %>% 
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Crown_Description, names_from = Cycle ) } else data.frame()
-
+#5.38.0
 Trees_Dom_to_Less <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -273,6 +319,7 @@ Trees_Dom_to_Less <-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Crown_Description, names_from = Cycle ) } else data.frame()
 
+#5.39.0
 Trees_IntOver_to_Other <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -283,6 +330,7 @@ Trees_IntOver_to_Other <-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = Crown_Description, names_from = Cycle ) } else data.frame()
 
+#5.40.0
 Trees_EdgeGap_to_Open <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -295,6 +343,7 @@ Trees_EdgeGap_to_Open <-if(length(Repeat_Trees>0)){
 
 ## Tree Diameter Change
 
+# 5.41.0
 Trees_Live_Large_DBH_change <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -305,6 +354,7 @@ Trees_Live_Large_DBH_change <-if(length(Repeat_Trees>0)){
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = c(Stems, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
+# 5.42.0
 Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -316,6 +366,7 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
     {if(nrow(.)>0)  pivot_wider(.,id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                values_from = c(Stems, DeadDBH), names_from = Cycle, names_sep = " " ) else data.frame()}  } else data.frame()
 
+# 5.43.0
  Trees_Start_Too_Large <-if(length(Repeat_Trees>0)){
   QCTrees %>% 
   #This next line excludes any tree tag present the first time a plot was sampled
@@ -328,10 +379,10 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Stems, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
+## Tree Condition Change
  
- ## Tree Condition Change
- 
-Trees_Lose_EAB<- if(length(Repeat_Trees>0)){
+#5.44.0
+ Trees_Lose_EAB<- if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Emerald ash borer") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
   filter(Tag %in% Repeat_Trees) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
@@ -342,7 +393,7 @@ Trees_Lose_EAB<- if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
  
-
+ #5.45.0
 Trees_Lose_Anthracnose<- if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Dogwood anthracnose") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
@@ -355,6 +406,7 @@ Trees_Lose_Anthracnose<- if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
 
+#5.46.0
 Trees_Lose_Scale <-if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Hemlock Scale") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
@@ -366,7 +418,8 @@ Trees_Lose_Scale <-if(length(Repeat_Trees>0)){
   select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
- 
+
+#5.47.0
 Trees_Lose_Adelgid <-if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Hemlock wooly adelgid") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
@@ -379,7 +432,7 @@ Trees_Lose_Adelgid <-if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
 
-
+#5.48.0
 Trees_Lose_ExpRoots<- if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Exposed roots") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
@@ -392,6 +445,7 @@ Trees_Lose_ExpRoots<- if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
 
+#5.49.0
 Trees_Lose_Hollow<- if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Hollow") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
@@ -404,9 +458,10 @@ Trees_Lose_Hollow<- if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
  
+#5.50.0
 Trees_Lose_Vine_Crown<- if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
-    left_join(QCConditions %>% filter(Condition=="Vines in the crown") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+    left_join(QCConditions %>% filter(Condition=="Vines in the crown") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>%
   filter(Tag %in% Repeat_Trees) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any (Condition=="Vines in the crown" & (lead(Condition, order_by = Sample_Year) != "Vines in the crown") & 
@@ -415,7 +470,8 @@ Trees_Lose_Vine_Crown<- if(length(Repeat_Trees>0)){
   select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
- 
+
+#5.51.0
 Trees_Lose_Vine_Stress<- if(length(Repeat_Trees>0)){
   QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year, Cycle, Status) %>% 
     left_join(QCConditions %>% filter(Condition=="Vine stress") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
@@ -428,6 +484,7 @@ Trees_Lose_Vine_Stress<- if(length(Repeat_Trees>0)){
   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
 
+#5.52.0
 Trees_Change_Conditon_Number<-if(length(Repeat_Trees>0)){
  QCTrees %>% select(Plot_Name, Tag, Latin_Name, Sample_Year,Cycle, Status) %>% 
     filter(Tag %in% Repeat_Trees) %>% 

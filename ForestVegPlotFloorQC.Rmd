@@ -11,11 +11,14 @@ output: html_document
 
 TotPlotFloor<-nrow(QCPlotFloor) #Total number of plots being checked
 
+#3.1.0
 Plots_No_Cover<-QCPlotFloor%>% filter(is.na(Rock_Cover) | is.na(Bare_Soil_Cover) | is.na(Trampled)) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Rock_Cover, Bare_Soil_Cover, Trampled)
 
+#3.2.0
 Repeat_Plot_Floor<-QCPlotFloor %>% group_by(Plot_Name) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% pull(Plot_Name)
 
+#3.3.0
 Plot_Rock_Change<-if(length(Repeat_Plot_Floor>0)){
   QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
   select(Plot_Name, Cycle, Sample_Year, Rock_Cover) %>% 
@@ -25,6 +28,7 @@ Plot_Rock_Change<-if(length(Repeat_Plot_Floor>0)){
   filter(any(Rock_Change>1)) %>% 
   pivot_wider(id_cols=c(Plot_Name, Start_Year), names_prefix = "Cycle ", values_from = Rock_Cover, names_from = Cycle)} else data.frame()
 
+#3.4.0
 Plot_Bare_Soil_Change<-if(length(Repeat_Plot_Floor>0)){
   QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
   select(Plot_Name, Cycle, Sample_Year, Bare_Soil_Cover) %>% 
@@ -34,6 +38,7 @@ Plot_Bare_Soil_Change<-if(length(Repeat_Plot_Floor>0)){
   filter(any(Bare_Soil_Change>1)) %>% 
   pivot_wider(id_cols=c(Plot_Name, Start_Year), names_prefix = "Cycle ", values_from = Bare_Soil_Cover, names_from = Cycle)} else data.frame()
 
+#3.5.0
 Plot_Trampled_Change<-if(length(Repeat_Plot_Floor>0)){
   QCPlotFloor %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
   select(Plot_Name, Cycle, Sample_Year, Trampled) %>% 

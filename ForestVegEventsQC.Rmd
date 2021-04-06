@@ -6,11 +6,13 @@ output: html_document
 ---
 
 ```{r Events_Setup, include=F}
+#2.1.0
 TotEvents<-nrow(QCEvents) #Total Number of events checked
 
-
+#2.2.0
 Events_No_Protocol<-QCEvents %>% filter(Protocol_Name=="" | is.na(Protocol_Name)) %>% select(Unit_Code, Plot_Name, Event_Year, Protocol_Name)
 
+#2.3.0
 Events_Bad_Protocol<-QCEvents %>% filter(Protocol_Name!=""| is.na(Protocol_Name)) %>%
   filter( (Event_Year<2009 & Protocol_Name != "1.0") | (Event_Year==2009 & Protocol_Name != "2.0") |
     (Event_Year %in% 2010:2013 & Protocol_Name != "2.0.1") | (Event_Year==2014 & Protocol_Name != "2.1") |
@@ -19,8 +21,10 @@ Events_Bad_Protocol<-QCEvents %>% filter(Protocol_Name!=""| is.na(Protocol_Name)
      (Event_Year==2020 & Protocol_Name!= "2.6") ) %>% 
   select(Unit_Code, Plot_Name, Event_Year, Protocol_Name)
 
+#2.4.0
 Events_No_Date<-QCEvents %>% filter(is.na(Event_Date))  %>% select(Unit_Code,Plot_Name, Event_Year, Event_Date)
 
+#2.5.0
 Events_Bad_Date<-QCEvents %>% filter( month(Event_Date)<4  | month(Event_Date) >9  | ( month(Event_Date)==4 & mday(Event_Date)<15 ) ) %>% 
   select(Unit_Code, Plot_Name, Event_Year, Event_Date)
 

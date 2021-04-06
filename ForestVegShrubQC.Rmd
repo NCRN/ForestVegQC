@@ -9,13 +9,15 @@ output: html_document
 ```{r shrub_setup, include=F}
 TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 
-
+#7.1.0
  Shrubs_Bad_Status<-QCShrubs %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
  
+#7.2.0
   Shrubs_No_Name<-QCShrubs %>% filter(Latin_Name=="") %>%
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
   
+#7.3.0  
   Shrubs_Anachronistic_Name <-QCShrubs %>% filter(
     (Sample_Year < 2008 & Latin_Name == "Alnus serrulata") | (Sample_Year < 2008 & Latin_Name == "Castanea pumila") |
     (Sample_Year < 2016 & Latin_Name == "Cephalanthus occidentalis") | (Sample_Year < 2008 & Latin_Name == "Cornus amomum") |
@@ -36,19 +38,21 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
   ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
   
+#7.4.0
   Shrubs_Bad_Tag<-QCShrubs %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)  
 
- 
+ #7.5.0
  Shrubs_Bad_Habit<-QCShrubs %>% filter(!Habit=="Shrub") %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Habit)  
  
   ## Vigor
- 
+ #7.6.0
   # Shrubs_Live_Bad_Vigor<-QCShrubs %>% filter(Status %in% Live_Status & 
   #       ( (Sample_Year<2017 & !is.na(SaplingVigor)) | (Sample_Year >=2017 & (is.na(SaplingVigor)  | !SaplingVigor %in% 0:5)) )) %>% 
   #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
   # 
+ #7.7.0
   # Shrubs_Unalive_Bad_Vigor<-QCShrubs %>% filter(!Status %in% Live_Status & !is.na(SaplingVigor)) %>% 
   #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
 
@@ -131,21 +135,26 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
  
  
  ## Shrub Browse
+ #sh1
   Shrubs_Live_Bad_Browsable<-QCShrubs %>% filter(Status %in% Live_Status & !Browsable %in% c("Yes","No", "unk") ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
-  
+
+  #sh2  
   Shrubs_Live_Anachronistic_Browsable<-QCShrubs %>% filter(Status %in% Live_Status & Sample_Year<2010 & Browsable != "unk" ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
   
+  #sh3
   Shrubs_Unalive_Browsable<-QCShrubs %>% filter(!Status %in% Live_Status & Browsable !="" ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
-  
+
+#sh4  
   Shrubs_Live_Bad_Browsed<-QCShrubs %>% filter(Status %in% Live_Status & !Browsed %in% c("Yes","No") ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
   
+  #sh5
   Shrubs_Unalive_Browsed<-QCShrubs %>% filter(!Status %in% Live_Status & Browsed !="" ) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
-  
+#sh6
   Shrubs_Live_Illogical_Browse <- QCShrubs %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
   
@@ -157,6 +166,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
  
 ##Status  Change 
 
+#sh7
   Shrubs_Start_Wrong<-if(length(Repeat_Shrubs>0)){
     QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
     group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
@@ -166,7 +176,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
     select(Plot_Name, Cycle, Tag, Latin_Name, Status, Start_Year) %>%
       pivot_wider(id_cols=c(Plot_Name, Tag, Latin_Name, Start_Year) , names_from = Cycle,
                 names_prefix = "Cycle ", values_from = Status)} else data.frame()
-
+#sh8
   Shrubs_Dead_Plus<-if(length(Repeat_Shrubs>0)){
     QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
     group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
@@ -177,6 +187,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
                 values_from = Status, names_from = Cycle )
      } else data.frame()
 
+  #sh9
  Shrubs_Levitated<-if(length(Repeat_Shrubs>0)){
    QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
@@ -187,6 +198,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = Status, names_from = Cycle ) } else data.frame()
  
+ #sh10
  Shrubs_Found_Alive<-if(length(Repeat_Shrubs>0)){
    QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
@@ -195,7 +207,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
     select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>%
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = Status, names_from = Cycle ) } else data.frame()
- 
+ #sh11
  Shrubs_Downgraded_Persisting <-if(length(Repeat_Shrubs>0)){
    QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
@@ -205,7 +217,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
     select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>%
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = Status, names_from = Cycle ) } else data.frame()
- 
+ #sh12
   Shrubs_Triple_Missing <-if(length(Repeat_Shrubs>0)){
     QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
     group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
@@ -219,6 +231,7 @@ TotShrubs<-nrow(QCShrubs) #Total Number of tree records checked
 
  ## Vigor Change
  
+#sh13
   Shrubs_Vigor_Jump <-if(length(Repeat_Shrubs>0)){
     QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
     group_by(Tag) %>% arrange(Tag, Sample_Year) %>%

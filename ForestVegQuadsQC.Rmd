@@ -9,55 +9,71 @@ output: html_document
 ```{r quad_setup, include=F}
 TotQuads<-nrow(QCQuads) #Total Number of tree records checked
 
+#9.1.0
+
+##                    CHECK THIS !!!!!!!!!!!! DOES NOT TAKE YEAR INTO ACCOUNT
 Repeat_Quads<-QCQuads %>% group_by(Plot_Name, Quadrat_Number) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% 
   select(Plot_Name, Quadrat_Number) %>% ungroup
 
+#9.2.0
 Quads_Bad_Name<-QCQuads %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
                                                           "360-3m", "360-8m", "360-13m")) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number)
 
+#9.3.0
 Quads_Sampled<-QCEvents %>% left_join(QCQuads, by=c("Plot_Name"="Plot_Name", "Event_Year"="Sample_Year")) %>% group_by (Plot_Name, Event_Year) %>% summarize(Quads_Sampled=length(na.omit(Quadrat_Number)), Unique_Quads=length(unique(na.omit(Quadrat_Number)))) %>% 
   filter(Quads_Sampled!=12 | Unique_Quads !=12) 
 
+#9.4.0
 Quads_Percent_Trees<-QCQuads %>% filter(Percent_Trees<0 | Percent_Trees>100 | Percent_Trees=="" | is.na(Percent_Trees)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Trees)
 
+#9.5.0
 Quads_Percent_Bryophytes<-QCQuads %>% filter(Percent_Bryophytes<0 | Percent_Bryophytes>100 | Percent_Bryophytes=="" | is.na(Percent_Bryophytes)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Bryophytes)
 
+#9.6.0
 Quads_Percent_Rock<-QCQuads %>% filter(Percent_Rock<0 | Percent_Rock>100 | Percent_Rock=="" | is.na(Percent_Rock)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Rock)
 
+#9.7.0
 Quads_Percent_CWD<-QCQuads %>% filter(Percent_Coarse_Woody_Debris<0 | Percent_Coarse_Woody_Debris>100 | Percent_Coarse_Woody_Debris=="" |
                                         is.na(Percent_Coarse_Woody_Debris)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Coarse_Woody_Debris)
 
+#9.8.0
 Quads_Percent_FWD<-QCQuads %>% filter(Percent_Fine_Woody_Debris<0 | Percent_Fine_Woody_Debris>100 | Percent_Fine_Woody_Debris=="" | 
                                         is.na(Percent_Fine_Woody_Debris)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Fine_Woody_Debris)
 
+#9.9.0
 Quads_Percent_Other<-QCQuads %>% filter(Percent_Other<0 | Percent_Other>100 | Percent_Other=="" | is.na(Percent_Other)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Other)
 
+#9.10.0
 Quads_Percent_Grasses<-QCQuads %>% filter(Percent_Grasses<0 | Percent_Grasses>100 | Percent_Grasses=="" | is.na(Percent_Grasses)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Grasses)
 
+#9.11.0
 Quads_Percent_Sedges<-QCQuads %>% filter(Percent_Sedges<0 | Percent_Sedges>100 | Percent_Sedges=="" | is.na(Percent_Sedges)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Sedges)
 
+#9.12.0
 Quads_Percent_Herbs<-QCQuads %>% filter(Percent_Herbs<0 | Percent_Herbs>100 | Percent_Herbs=="" | is.na(Percent_Herbs)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Herbs)
 
+#9.13.0
 Quads_Percent_Ferns<-QCQuads %>% filter(Percent_Ferns<0 | Percent_Ferns>100 | Percent_Ferns=="" | is.na(Percent_Ferns)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Ferns)
 
+#9.14.0
 Quads_Percent_Overload<-QCQuads %>% 
   mutate(Total= Percent_Trees + Percent_Rock + Percent_Coarse_Woody_Debris + Percent_Fine_Woody_Debris + Percent_Other) %>%
   filter(Total > 100) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Tree=Percent_Trees, Rock=Percent_Rock, CWD=Percent_Coarse_Woody_Debris,
          FWD=Percent_Fine_Woody_Debris,Other= Percent_Other, Total) 
 
-
+#9.15.0
 Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Trees) %>% 
@@ -68,6 +84,7 @@ Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
   
+#9.16.0
 Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Rock) %>% 
@@ -78,7 +95,7 @@ Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
 
-
+#9.17.0
 Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Bryophytes) %>% 
@@ -99,6 +116,7 @@ Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
 #                names_from = Cycle, names_sort = TRUE)
 #   } else data.frame()
 
+#9.18.0
 Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Ferns) %>% 

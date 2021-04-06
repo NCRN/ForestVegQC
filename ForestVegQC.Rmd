@@ -150,9 +150,6 @@ Bad or Suspicious Status Changes
 
 - Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
 
-- Shrub DRC and stems are not exported (should they be?)
-
-- Equivalent diameter is not exported for dead stems of saplings (this will typcially = 0)
 
 - In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
 
@@ -183,7 +180,6 @@ Bad or Suspicious Status Changes
 - Need to export Herb browsable and browse data
 
 ## Plots
-
 
 ```{r Plot-QC, child="ForestVegPlotsQC.Rmd"}
 ```

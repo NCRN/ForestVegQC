@@ -9,32 +9,41 @@ output: html_document
 ```{r seeding_setup, include=F}
 TotSeeds<-nrow(QCSeedlings) #Total Number of tree records checked
 
+#10.1.0
 Seedlings_Bad_Quad<-QCSeedlings %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
                                                           "360-3m", "360-8m", "360-13m")) %>% 
   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height)
 
+#10.2.0
 Seedlings_Bad_Name<-QCSeedlings %>% filter(is.na(Latin_Name) | Latin_Name == "")
 
+#10.3.0
 Seedlings_Bad_Height<-QCSeedlings %>% filter(is.na(Height) | Height=="" | Height<15 | Height>220) %>%
    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height)
 
  ## Seedling Browse
  
+#10.4.0
 Seedlings_Bad_Browsable<-QCSeedlings %>% filter(!Browsable %in% c("Yes","No", "unk") ) %>%
    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
 
+#10.5.0
 Seedlings_Anachronistic_Browsable<-QCSeedlings %>% filter(Sample_Year<2012 & Browsable != "unk" ) %>%
     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
 
+#10.6.0
 Seedlings_Bad_Browsed<-QCSeedlings %>% filter(!Browsed %in% c("Yes","No", "unk") ) %>%
      select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
 
+#10.7.0
 Seedlings_Anachronistic_Browsed<-QCSeedlings %>% filter(Sample_Year<2012 & Browsed != "unk" ) %>%
     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
  
+#10.8.0
 Seedlings_Illogical_Browse <- QCSeedlings %>% filter(Browsed =="Yes", Browsable == "No") %>%
    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
 
+#10.9.0
 Seedlings_Unknown_Browsable <- QCSeedlings %>% filter(Sample_Year >=2012, Browsable == "unk") %>%
    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
  

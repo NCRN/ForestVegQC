@@ -7,20 +7,28 @@ output: html_document
 
 
 ```{r cwd_setup, include=F}
+
+
 TotCWD<-nrow(QCCWD) #Total Number of events checked
 
+#4.1.0
 CWD_Bad_Transect<-QCCWD %>% filter(is.na(Transect_Azimuth) | !Transect_Azimuth %in% c(120,240,360) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Transect_Azimuth)
 
+#4.2.0
 CWD_Bad_Decay<-QCCWD %>% filter(is.na(Decay_Class) | !Decay_Class %in% c(1:5) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Decay_Class )
 
+#4.3.0
 CWD_No_Name<-QCCWD %>% filter(Latin_Name=="") %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name)
 
+#4.4.0
 CWD_No_Diameter<-QCCWD %>% filter(is.na(Diameter)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
 
+#4.5.0
 CWD_Bad_Diameter<-QCCWD %>% filter(Diameter<7.5 | Diameter > 150 ) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
 
+#4.6.0
 CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Hollow)
 
 

@@ -10,70 +10,86 @@ output: html_document
 TotSaplings<-nrow(QCSaplings) #Total Number of tree records checked
 TotStems<-nrow(QCStems) #Total number of stem records checked
 
-
+#6.1.0
 Saplings_Bad_Status<-QCSaplings %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
 
- Saplings_No_Name<-QCSaplings %>% filter(Latin_Name=="") %>%
+#6.2.0
+Saplings_No_Name<-QCSaplings %>% filter(Latin_Name=="") %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
- 
- Saplings_Bad_Tag<-QCSaplings %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
+
+#6.3.0
+Saplings_Bad_Tag<-QCSaplings %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)  
 
-
+#6.4.0
 Saplings_Bad_Habit<-QCSaplings %>% filter(!Habit=="Tree") %>% 
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Habit)  
 
 ## Stems
+
+#6.5.0
  Saplings_Live_No_Stems<-QCSaplings %>% filter(Status %in% Live_Status & StemsLive<1)  %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, StemsLive)
- 
+
+ #6.6.0
   Saplings_Unalive_Living_Stems<-QCSaplings %>% filter(!Status %in% Live_Status & StemsLive>0)  %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, StemsLive)
  
 
 ## DBH
 
+#6.7.0
  Saplings_Bad_DBH_Check <-QCSaplings %>% filter( (Sample_Year<2018 & DBH_Check) | 
       (Sample_Year>2017 & DBH_Check & 
           Status %in% c(Missing_Status, "Dead Fallen", "Dead Missing", "Dead - Too Small", Other_Status))) %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH_Check)
 
+ #6.8.0
  Saplings_Live_Bad_DBH<-QCSaplings %>% filter(Status %in% Live_Status & (
     (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 1 | Equiv_Live_DBH_cm >= 10) ))  %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm)
  
+ #6.9.0
  Saplings_Dead_Bad_DBH<-QCSaplings %>% filter(Status %in% c("Dead Leaning", "Dead Standing") & (
      is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm>0 ) )  %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm)
  
+ #6.10.0
  Saplings_Other_Bad_DBH<-QCSaplings %>% filter(Status %in% c(Missing_Status, Other_Status, 
      "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing") & (
     is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm!=0 ))  %>% 
     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm)
  
+ # 6.11.0
  Sapling_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Sapling", (is.na(DBH) | DBH<1 |DBH >=10)) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
+ #6.12.0
  Sapling_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F, Class=="Sapling", (is.na(DBH) | DBH<10)) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-
- Sapling_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Sapling", Status %in% c(Missing_Status, Other_Status, 
+ 
+ #6.13.0
+  Sapling_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Sapling", Status %in% c(Missing_Status, Other_Status, 
      "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
  ## Vigor
  
+#6.14.0
  # Saplings_Live_Bad_Vigor<-QCSaplings %>% filter(Status %in% Live_Status & 
  #       ( (Sample_Year<2017 & !is.na(SaplingVigor)) | (Sample_Year >=2017 & (is.na(SaplingVigor)  | !SaplingVigor %in% 0:5)) )) %>% 
  #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
- # 
+ 
+#6.15.0  
  # Saplings_Unalive_Bad_Vigor<-QCSaplings %>% filter(!Status %in% Live_Status & !is.na(SaplingVigor)) %>% 
  #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
  
  
 
 ## Foliage
+
+#6.16.0
 # Saplings_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
 #               !Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other") )) %>% 
 #   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
@@ -151,21 +167,28 @@ Saplings_Bad_Habit<-QCSaplings %>% filter(!Habit=="Tree") %>%
  
  
  ## Sapling Browse
+  
+#s1
  Saplings_Live_Bad_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & !Browsable %in% c("Yes","No", "unk") ) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
  
+ #s2
  Saplings_Live_Anachronistic_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & Sample_Year<2010 & Browsable != "unk" ) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
  
+ #s3
  Saplings_Unalive_Browsable<-QCSaplings %>% filter(!Status %in% Live_Status & Browsable !="" ) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
 
+ #s4
  Saplings_Live_Bad_Browsed<-QCSaplings %>% filter(Status %in% Live_Status & !Browsed %in% c("Yes","No") ) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
  
+ #s5
  Saplings_Unalive_Browsed<-QCSaplings %>% filter(!Status %in% Live_Status & Browsed !="" ) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
  
+ #s6
  Saplings_Live_Illogical_Browse <- QCSaplings %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
  
@@ -174,6 +197,8 @@ Saplings_Bad_Habit<-QCSaplings %>% filter(!Habit=="Tree") %>%
 Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
  
 # #Status  Change 
+
+#s7
  Saplings_Start_Wrong<-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -183,7 +208,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
    select(Plot_Name, Cycle, Tag, Latin_Name, Status, Start_Year) %>% 
      pivot_wider(id_cols=c(Plot_Name, Tag, Latin_Name, Start_Year) , names_from = Cycle, 
                  names_prefix = "Cycle ", values_from = Status)} else data.frame()
- 
+ #s8
  Saplings_Dead_Plus<-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -194,7 +219,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
                 values_from = Status, names_from = Cycle )
      } else data.frame()
              
-   
+#s9   
  Saplings_Levitated<-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -205,6 +230,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = Status, names_from = Cycle ) } else data.frame()
  
+ #s10
  Saplings_Found_Alive<-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -214,6 +240,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = Status, names_from = Cycle ) } else data.frame()
  
+ #s11
  Saplings_Downgraded_Persisting <-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -224,7 +251,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = Status, names_from = Cycle ) } else data.frame()
 
- 
+#s12 
  Saplings_Triple_Missing <-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -238,6 +265,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
  
 ## Vigor Change
  
+ #s13
  Saplings_Vigor_Jump <-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -253,6 +281,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
 
 ## Sapling Diameter Change
 
+ #s14
  Saplings_Live_Large_DBH_change <-if(length(Repeat_Saplings>0)){
    QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -264,7 +293,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
                 values_from = c(StemsLive, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
 
- 
+#s15 
   Saplings_Start_Too_Large <-if(length(Repeat_Saplings>0)){
    QCSaplings %>% 
    #This next line excludes any tree tag present the first time a plot was sampled

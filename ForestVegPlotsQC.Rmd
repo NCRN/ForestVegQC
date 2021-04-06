@@ -9,15 +9,20 @@ output: html_document
 
 TotPlots<-nrow(QCPlots) #Total number of plots being checked
 
+# 1.1.0
 Plots_No_Unit<-QCPlots %>% filter(is.na(Unit_Code)) %>% select(Unit_Code, Plot_Name)
 
+#1.2.0
 Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
 
+#1.3.0
 Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
 
+#1.4.0
 Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
    select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
 
+#1.5.0
 Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude<  -79.5  | Longitude > -76.1 ) %>% 
    select(Unit_Code, Plot_Name, Latitude, Longitude)
 ```
@@ -25,6 +30,7 @@ Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude
 #### **Plots Checked:** `r TotPlots` ####
 
 ### Unit Codes
+
 ```{r Plot_unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_No_Unit)==0) cat("All plots have a Unit Code.<br>") else {
    cat("<span style='color:red;'> Plots with no unit code.</span><br>"); NiceTable(Plots_No_Unit)}
@@ -33,6 +39,7 @@ if(nrow(Plots_No_Unit)==0) cat("All plots have a Unit Code.<br>") else {
 ---
 
 ### Slope and Aspect
+
 
 ```{r slope_aspect, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Slope**<br>")

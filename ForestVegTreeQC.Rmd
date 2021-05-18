@@ -113,8 +113,8 @@ Trees_Redundant_Foliage<-QCFoliage %>% filter(Sample_Year  %in% QCYears) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
 
 #5.18.0
-Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
-    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
+#Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
+#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
 
 
 ## Tree Conditions
@@ -288,13 +288,13 @@ Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
   QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% mutate(Start_Year=min(Sample_Year)) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( 
-    (VigorClass =="Moderate Decline" & lead(Status, order_by=Sample_Year) == "Healthy") |
-    (VigorClass =="Functionally Dead" & lead(Status, order_by=Sample_Year) %in% c("Healthy", "Light Decline"))
+    (TreeVigorClass =="Moderate Decline" & lead(Status, order_by=Sample_Year) == "Healthy") |
+    (TreeVigorClass =="Functionally Dead" & lead(Status, order_by=Sample_Year) %in% c("Healthy", "Light Decline"))
     )) %>% 
   arrange(Sample_Year) %>% 
-   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, VigorClass, Start_Year) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, TreeVigorClass, Start_Year) %>% 
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-               values_from = VigorClass, names_from = Cycle ) } else data.frame()
+               values_from = TreeVigorClass, names_from = Cycle ) } else data.frame()
 
 ## Crown Class Change
 
@@ -630,9 +630,9 @@ cat("<br>**Living Redundant Foliage Condition**<br>")
      errorText("Tree records with repeated foliage conditions:"); NiceTable(Trees_Redundant_Foliage)}
 
 
-cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
-  if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
-     errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
+#cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
+#  if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
+#     errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
 ```
 
 ---

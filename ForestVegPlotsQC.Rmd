@@ -10,21 +10,47 @@ output: html_document
 TotPlots<-nrow(QCPlots) #Total number of plots being checked
 
 # 1.1.0
-Plots_No_Unit<-QCPlots %>% filter(is.na(Unit_Code)) %>% select(Unit_Code, Plot_Name)
+Plots_Bad_Unit<-QCPlots %>% 
+   filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+   select(Unit_Code, Plot_Name)
+
+Plots_Bad_Unit_Group<-QCPlots %>% 
+   filter(!Unit_Group %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+   select(Unit_Group, Plot_Name)
+
+Plots_Mismatch_Unit_Group<-QCPlots %>% 
+   filter(Unit_Code!=Unit_Group)
 
 #1.2.0
-Plots_Bad_Slope<-QCPlots %>% filter(Slope<0 | Slope >58 | is.na(Slope)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
+Plots_No_Plot_Name<-QCPlots %>% 
+   filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+   select(Unit_Code, Plot_Name)
+
+Plots_Duplicated<-QCPlots %>% 
+   group_by(Plot_Name) %>% 
+   summarize(Plot_Count=n()) %>% 
+   filter(Plot_Count !=1) %>% 
+   select(Plot_Name, Plot_Count)
 
 #1.3.0
-Plots_Bad_Aspect<-QCPlots %>% filter(Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% select(Unit_Code, Plot_Name, Slope, Aspect)
+Plots_Bad_Slope_Aspect<-QCPlots %>% 
+   filter(Slope<0 | Slope >58 | is.na(Slope) | Aspect<=0 | Aspect >360 | (is.na(Aspect) & !Slope %in% 0)) %>% 
+   select(Unit_Code, Plot_Name, Slope, Aspect)
 
 #1.4.0
-Plots_No_Coords<-QCPlots %>% filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
+Plots_No_Coords<-QCPlots %>% 
+   filter(is.na(Latitude)| is.na(Longitude) | is.na(UTM_18N_NAD83_X) | is.na(UTM_18N_NAD83_Y)) %>% 
    select(Unit_Code, Plot_Name, Latitude, Longitude, UTM_18N_NAD83_X, UTM_18N_NAD83_Y)
 
 #1.5.0
-Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude<  -79.5  | Longitude > -76.1 ) %>% 
+Plots_Bad_Coords<-QCPlots %>% 
+   filter(Latitude < 37.7| Latitude > 40.36|Longitude<  -79.5  | Longitude > -76.1 ) %>% 
    select(Unit_Code, Plot_Name, Latitude, Longitude)
+
+#1.6.0
+Plots_Bad_Panel <- QCPlots %>% 
+   filter(!Panel %in% 1:4) %>% 
+   select(Unit_Code, Plot_Name, Panel)
 ```
 
 #### **Plots Checked:** `r TotPlots` ####
@@ -32,23 +58,38 @@ Plots_Bad_Coords<-QCPlots %>% filter(Latitude < 37.7| Latitude > 40.36|Longitude
 ### Unit Codes
 
 ```{r Plot_unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Plots_No_Unit)==0) cat("All plots have a Unit Code.<br>") else {
-   cat("<span style='color:red;'> Plots with no unit code.</span><br>"); NiceTable(Plots_No_Unit)}
+if(nrow(Plots_Bad_Unit)==0) cat("All plots have a recognized Unit Code.<br>") else {
+   cat("<span style='color:red;'> Plots with a missing or unrecongized Unit Code.</span><br>"); NiceTable(Plots_Bad_Unit)}
+
+if(nrow(Plots_Bad_Unit_Group)==0) cat("All plots have a recognized Unit Group.<br>") else {
+   cat("<span style='color:red;'> Plots with a missing or unrecongized Unit Group.</span><br>"); NiceTable(Plots_Bad_Unit_Group)}
+
+if(nrow(Plots_Mismatch_Unit_Group)==0) cat("All plots have Unit Group that is consistent with their Unit Code.<br>") else {
+   cat("<span style='color:red;'> Plots with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(Plots_Bad_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r Plot_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Plots_No_Plot_Name)==0) cat("All plots have a Plot Name.<br>") else {
+   cat("<span style='color:red;'> Plots with a missing Plot Name.</span><br>"); NiceTable(Plots_No_Plot_Name)}
+
+if(nrow(Plots_Duplicated)==0) cat("All plots have a unique Plot Name.<br>") else {
+   cat("<span style='color:red;'> Plots with a duplicated Plot Name.</span><br>"); NiceTable(Plots_Duplicated)}
 ```
 
 ---
 
 ### Slope and Aspect
 
-
 ```{r slope_aspect, echo=FALSE, hold=FALSE, results="asis"}
-cat("<br>**Slope**<br>")
-if(nrow(Plots_Bad_Slope)==0) cat("All plots have an acceptable slope measurement.<br>") else {
-   errorText("Plots with a missing slope or a slope <0 or >58"); NiceTable(Plots_Bad_Slope)}
+cat("<br>**Slope and Aspect**<br>")
+if(nrow(Plots_Bad_Slope_Aspect)==0) cat("All plots have an acceptable slope and aspect measurements.<br>") else {
+   errorText("Plots with a missing slope, missing aspect,  a slope <0 or >58, or an aspect <1 or >360"); NiceTable(Plots_Bad_Slope_Aspect)}
 
-cat("\n  **Aspect**  \n")
-if(nrow(Plots_Bad_Aspect)==0) cat("All plots have an acceptable aspect measurement.  \n") else {
-   errorText("Plots with a missing aspect or an aspect <1 or >360:"); NiceTable(Plots_Bad_Aspect)}
 ```
 
 ---
@@ -65,3 +106,14 @@ if(nrow(Plots_Bad_Coords)==0) cat("All plots' latitude and longitude are within 
    errorText("Plots with lat/long outside bounding box:"); NiceTable(Plots_Bad_Coords)}
 
 ```
+
+---
+
+### Plot Sample Data
+
+```{r plot_panel, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Plot Panel**<br>")
+if(nrow(Plots_Bad_Panel)==0) cat("All plots have a Panel between 1 to 4.<br>") else {
+   cat("<span style='color:red;'> Plots without a Panel between 1 to 4.</span><br>"); NiceTable(Plots_Bad_Panel)}
+```
+

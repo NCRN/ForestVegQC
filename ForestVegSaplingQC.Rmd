@@ -290,8 +290,9 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
            abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>% 
    arrange(Sample_Year) %>% 
     select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year) %>% 
-    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-                values_from = c(StemsLive, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
+    {if(nrow(.)!=0) pivot_wider(.,id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = c(StemsLive, LiveDBH), names_from = Cycle, names_sep = " " ) else data.frame()}
+   } else data.frame()
 
 #s15 
   Saplings_Start_Too_Large <-if(length(Repeat_Saplings>0)){

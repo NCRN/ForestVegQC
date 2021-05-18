@@ -29,8 +29,8 @@ Vines_Bad_Host_Status<-QCVines %>% filter(Sample_Year %in% QCYears, !Host_Status
     select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
 
 #8.6.0
-Vines_Anachronistic<-QCVines %>% filter(Sample_Year %in% QCYears, Tag_Status=="Sapling", Sample_Year<2014) %>% 
-  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
+#Vines_Anachronistic<-QCVines %>% filter(Sample_Year %in% QCYears, Tag_Status=="Sapling", Sample_Year<2014) %>% 
+#  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
  
 
 ### Multi-Year Checks
@@ -97,12 +97,12 @@ cat("<br>**Vine Host Latin Names**<br>")
 ### Vines on Saplings and Shrubs
 
 ```{r Vine_Sapling_Shrub, echo=FALSE, hold=FALSE, results="asis"}
-
-errorText("Warning: This test does not check ALL vines on saplings and shrubs, only those with a current Host Tag Status of 'Sapling'")
-
- if(nrow(Vines_Anachronistic)==0) cat("No vines on saplings or shrubs before 2014.<br>") else {
-    errorText("Vine records from a sapling or shrub before 2014:"); NiceTable(Vines_Anachronistic)}
-
+ 
+# errorText("Warning: This test does not check ALL vines on saplings and shrubs, only those with a current Host Tag Status of 'Sapling'")
+# 
+#  if(nrow(Vines_Anachronistic)==0) cat("No vines on saplings or shrubs before 2014.<br>") else {
+#     errorText("Vine records from a sapling or shrub before 2014:"); NiceTable(Vines_Anachronistic)}
+ 
 ```
 
 

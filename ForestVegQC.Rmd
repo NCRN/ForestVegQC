@@ -25,12 +25,11 @@ NiceTable<-function(DF){
 
 errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><br>"))}
 
-DataDir<-"C:/Data/Temp"
-   #"C:/Data/NCRN_Veg_2020"
+DataDir<-"C:/Data/NCRN_Veg_2020"
 
 NCRN<-importNCRN(DataDir)
 
-QCYears<-c(2008, 2012, 2016,2021)
+QCYears<-c(2006:2021)
 
 
 QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
@@ -86,9 +85,9 @@ h1, h2, h3 {
 - Flags are not exported from the database and are not considered during QC.
 
 #### Plots
-- Subunit codes need to be revisited
+- Sub-unit codes need to be revisited
 
-- Retired date for retired plots not currently exported.
+- Retired date for retired plots not currently recorded and should be revisited.
 
 #### Events
 - Need to export table that matches years with panels so we can verify the correct plots were sampled.

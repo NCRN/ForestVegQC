@@ -18,15 +18,61 @@ Events_Bad_Protocol<-QCEvents %>% filter(Protocol!=""| is.na(Protocol)) %>%
     (Event_Year %in% 2010:2013 & Protocol != "2.0.1") | (Event_Year==2014 & Protocol != "2.1") |
     (Event_Year %in% 2015:2016 & Protocol != "2.2") | (Event_Year==2017 & Protocol != "2.3") |
     (Event_Year==2018 & Protocol != "2.4") | (Event_Year==2019 & Protocol!= "2.5") |
-     (Event_Year==2020 & Protocol!= "2.6") ) %>% 
+     (Event_Year==2020:2021 & Protocol!= "2.6") ) %>% 
   select(Unit_Code, Plot_Name, Event_Year, Protocol)
 
 #2.4.0
-Events_No_Date<-QCEvents %>% filter(is.na(Event_Date))  %>% select(Unit_Code,Plot_Name, Event_Year, Event_Date)
+Events_No_Date<-QCEvents %>% left_join(QCPlots, by=c("Unit_Code","Plot_Name")) %>%
+  filter(is.na(Event_Date) | Event_Date< mdy_hm(Install_Date))  %>%
+  select(Unit_Code,Plot_Name, Event_Year, Event_Date, Install_Date)
 
 #2.5.0
 Events_Bad_Date<-QCEvents %>% filter( month(Event_Date)<4  | month(Event_Date) >9  | ( month(Event_Date)==4 & mday(Event_Date)<15 ) ) %>% 
   select(Unit_Code, Plot_Name, Event_Year, Event_Date)
+
+Events_Bad_Year<-QCEvents %>% filter(Event_Year!=year(Event_Date)) %>% 
+  select(Unit_Code, Plot_Name, Event_Date, Event_Year)
+
+
+#2.6.0
+Events_Bad_Unit<-QCEvents %>% 
+   filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+   select(Unit_Code, Plot_Name)
+
+#2.7.0
+Events_Bad_Unit_Group<-QCEvents %>% 
+   filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                            "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+   select(Unit_Group, Plot_Name)
+
+Events_Mismatch_Unit_Group<-QCEvents %>% 
+   filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+             Unit_Code=="CATO" & Unit_Group !="CATO"|
+             Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+             Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+             Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+             Unit_Code=="MANA" & Unit_Group !="MANA" |
+             Unit_Code=="MONO" & Unit_Group !="MONO" |
+             Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+             Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+             Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+             Unit_Code=="WOTR" & Unit_Group!="WOTR"
+          ) %>% 
+   select(Plot_Name, Unit_Code, Unit_Group)
+
+#2.8.0 Reserved for sub-unit codes
+
+#2.9.0
+
+Events_Missing_Plot<-QCEvents %>% 
+  filter(is.na(Plot_Name) | Plot_Name=="" | !Plot_Name %in% QCPlots$Plot_Name) %>% 
+  select(Plot_Name, Unit_Code, Event_Date)
+
+#2.10.0
+Events_Duplicated<-QCEvents %>% 
+  group_by(Unit_Code, Plot_Name, Event_Date) %>% 
+  summarise(Event_Count=n()) %>% 
+  filter(Event_Count!=1)
 
 ```
 
@@ -50,17 +96,56 @@ if(nrow(Events_Bad_Protocol)==0) cat("All events have the correct protocol versi
 
 ```{r Event_date, echo=FALSE, hold=FALSE, results="asis"}
 
-cat("<br>**Missing Event Date**<br>")
-if(nrow(Events_No_Date)==0) cat("All events have an event date.<br>") else {
-errorText("Events with no date:"); NiceTable(Events_No_Date)}
+cat("<br>**Missing or Incorrect Event Date**<br>")
+if(nrow(Events_No_Date)==0) cat("All events have an event date that is after the plot intstallation date.<br>") else {
+errorText("Events with no date or that took place before the plot was installed:"); NiceTable(Events_No_Date)}
 
 cat("<br>**Early or Late Events**<br>")
 if(nrow(Events_Bad_Date)==0) cat("All events took place between Apr-15 and Sept-30.<br>") else {
 errorText("Events not between Apr-15 and Sept-30:"); NiceTable(Events_Bad_Date)}
 
+cat("<br>**Event Year that does not match Event Date**<br>")
+if(nrow(Events_Bad_Year)==0) cat("All event years match the event dates.<br>") else {
+errorText("There is a mismach between event year and event date:"); NiceTable(Events_Bad_Year)}
+
 ```
 
+---
 
+### Event Unit Codes
 
+```{r Event_location, echo=FALSE, hold=FALSE, results="asis"}
 
+cat("<br>**Missing or Incorrect Event Unit Code**<br>")
+if(nrow(Events_Bad_Unit)==0) cat("All events have a recoginized unit code.<br>") else {
+errorText("Events without a recognized unit code:"); NiceTable(Events_Bad_Unit)}
+
+cat("<br>**Missing or Incorrect Event Unit Group**<br>")
+if(nrow(Events_Bad_Unit_Group)==0) cat("All events have a recognized Unit Group.<br>") else {
+   cat("<span style='color:red;'> Events with a missing or unrecongized Unit Group.</span><br>"); NiceTable(Events_Bad_Unit_Group)}
+
+if(nrow(Events_Mismatch_Unit_Group)==0) cat("All events have Unit Group that is consistent with their Unit Code.<br>") else {
+   cat("<span style='color:red;'> Events with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(Events_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Event Plots
+
+```{r Event-Plots,echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Missing or Incorrect Plot Name**<br>")
+if(nrow(Events_Missing_Plot)==0) cat("All events have a plot name that we use.<br>") else {
+errorText("Events without a plot, or from a plot we don't monitor:"); NiceTable(Events_Missing_Plot)}
+
+```
+
+### Duplicated Events
+
+```{r Event-Duped,echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Duplicated Event Data**<br>")
+if(nrow(Events_Duplicated)==0) cat("Each plot /date combination is unqiued.<br>") else {
+errorText("Plots with more than one event on the same day:"); NiceTable(Events_Duplicated)}
+
+```
 

@@ -25,11 +25,15 @@ NiceTable<-function(DF){
 
 errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><br>"))}
 
-DataDir<-"C:/Data/NCRN_Veg_2020"
+#DataDir<-"C:/Data/NCRN_Veg_2020"
+
+DataDir<-"C:/Data/NCRN_Veg_2021/NCRN_Cumulative_ForestVeg/"
 
 NCRN<-importNCRN(DataDir)
 
+#QCYears<-c(2008, 2012,2016,2021)
 QCYears<-c(2006:2021)
+
 
 
 QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))

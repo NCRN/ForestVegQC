@@ -31,7 +31,7 @@ DataDir<-"C:/Data/NCRN_Veg_2021/NCRN_Cumulative_ForestVeg/"
 
 NCRN<-importNCRN(DataDir)
 
-#QCYears<-c(2008, 2012,2016,2021)
+#QCYears<-c(2008, 2012,2016, 2021)
 QCYears<-c(2006:2021)
 
 
@@ -96,10 +96,10 @@ h1, h2, h3 {
 #### Events
 - Need to export table that matches years with panels so we can verify the correct plots were sampled.
 
-- Pictures taken not exported. Need to decide how to check files on drive. 
+- Need to consider if and how to handle Invasive, rare and plot maintenance checks before they were part of interface.
 
-- CWD check not exported.
 
+#### Plot Floor
 - Deer Impact value not exported. Need to check that it exists and is an allowable value
 
 - Need to check if Deer impact is changing 2 or more between visits.

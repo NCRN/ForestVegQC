@@ -46,6 +46,9 @@ Events_Old_Deer <- QCEvents %>% filter(Event_Year<2013 & Deer_Impact!=-1) %>%
 Events_Missing_Deer <- QCEvents %>% filter(Event_Year>=2013 & Deer_Impact==-1) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Deer_Impact, DeerImpactDescription)
 
+Events_Low_Deer<- QCEvents %>% filter(Event_Year>=2013 & Deer_Impact %in% c(1,2)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Deer_Impact, DeerImpactDescription)
+
 #3.5.0
 Plot_Rock_Change<-if(length(Repeat_Plot_Floor>0)){
   QCEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
@@ -130,7 +133,8 @@ if(nrow(Events_Old_Deer)==0) cat("No events prior to 2013 have deer impact recor
 if(nrow(Events_Missing_Deer)==0) cat("No events since 2013 have a missing deer impact.<br>") else {
    errorText("Events starting in 2013 with a missing deer impact."); NiceTable(Events_Bad_Deer)}
 
-
+if(nrow(Events_Low_Deer)==0) cat("No events since 2013 have a deer impact of 1 or 2.<br>") else {
+   errorText("Events starting in 2013 with a deer impact of 1 or 2."); NiceTable(Events_Low_Deer)}
 ```
 
 ---

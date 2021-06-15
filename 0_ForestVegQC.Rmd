@@ -1,0 +1,255 @@
+---
+title: "NCRN Forest Vegetation QC"
+output: html_document
+knit: (function(inputFile, encoding) { 
+          rmarkdown::render(inputFile,
+                        encoding=encoding, 
+                        output_file='NCRN_Forest_Veg_QC.html') })
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(NPSForVeg)
+library(tidyverse)
+library(DT)
+library(lubridate)
+
+options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
+
+NiceTable<-function(DF){
+   
+
+   datatable(DF, rownames = F, extensions = "Buttons", autoHideNavigation = T, options=list(
+      columnDefs=list(list(className='dt-center', targets=0:ncol(DF)-1 )),
+      pageLength=25,
+      dom='Btip',
+      buttons=c('copy','csv'))
+   )}
+
+errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><br>"))}
+
+#DataDir<-"C:/Data/NCRN_Veg_2020"
+
+DataDir<-"C:/Data/NCRN_Veg_2021/NCRN_Cumulative_ForestVeg/"
+
+NCRN<-importNCRN(DataDir)
+
+#QCYears<-c(2008, 2012,2016, 2021)
+QCYears<-c(2006:2021)
+
+
+
+QCPlots<-getPlots(NCRN, years = QCYears,type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
+QCEvents<-getEvents(NCRN, years = QCYears) 
+
+QCPlotFloor<-read.csv(paste0(DataDir,"/Plot_Floor.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
+QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
+QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all")
+QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)
+QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F)
+QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F)
+QCVines<-getPlants(NCRN,"vines",  years=QCYears )
+QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all")
+QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all")
+QCQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F)
+QCSeedlings<-rbind(getPlants(NCRN,"seedlings", years=QCYears),getPlants(NCRN,"shseedlings", years=QCYears) )
+QCHerbs<-getPlants(NCRN, "herbs", years=QCYears)
+
+Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
+Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
+Missing_Status<-c("Missing", "Missing - Presumed Dead", "Missing - Uncertain")
+Other_Status<-c( "Downgraded to Non-Sampled")
+
+Vigor_Options<-c("Healthy", "Light Decline", "Moderate Decline","Severe Decline", "Functionally Dead")
+
+
+```
+
+
+
+```{css, echo=FALSE}
+h1, h2, h3 {
+  text-align: center;
+}
+
+.nav>li>a {
+   padding: 10px;
+}
+```
+
+#  {.tabset .tabset-pills .tabset-fade}
+
+## Introduction
+
+**Run on:** `r format(Sys.Date(),"%B %d %Y") `.
+
+**Years covered:** `r paste0(min(QCYears),"-", max(QCYears)) `.
+
+
+### The following data is not currently QCed:
+
+#### All
+- Flags are not exported from the database and are not considered during QC.
+
+#### Plots
+- Sub-unit codes need to be revisited
+
+- Retired date for retired plots not currently recorded and should be revisited.
+
+#### Events
+- Need to export table that matches years with panels so we can verify the correct plots were sampled.
+
+- Need to consider if and how to handle Invasive, rare and plot maintenance checks before they were part of interface.
+
+#### CWD
+- Need a mechanism to check if Latin names are reasonable
+
+- Need to export tree tags to make sure they correspond to a local tree/ sapling
+
+#### Trees
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need a way to check that tree tag is not retired
+
+- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living trees and dead trees with EAB have conditions checked, but not checked in other cases.
+
+- Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable? This is not true of Shrubs
+
+- Need to export distance and azimuth to verify these are credible and check for sapling accidentaly recoreded as a tree.
+
+
+#### Saplings
+- Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
+Bad or Suspicious Status Changes
+
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living saplings and dead saplings with EAB have conditions checked from 2015? on, but not checked in other cases.
+
+- Equivalent diameter is not exported for dead stems of saplings (this will typcially = 0)
+
+- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Vines export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- Microplot # is not exported (60, 180, 300)
+
+- Dead shrubs with no "habit" are exported as saplings
+
+- Dead stems not exported
+
+#### Shrubs
+- Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
+Bad or Suspicious Status Changes
+
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
+
+
+- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- In Vines export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+- Microplot # is not exported (60, 180, 300)
+
+#### Vines
+- Need  a mechanism to check if Latin names are reasonable
+
+-  A way to distinguish between tree, sapling and shrub tags
+
+#### Quads
+- Need to export table that matches years with panels so we can verify the correct quads were sampled.
+
+#### Seedlings
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need to export table that matches years with panels so we can verify the correct plots/quads were sampled.
+
+#### Herbs
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need to export table that matches years with panels so we can verify the correct plots/quads were sampled.
+
+- Need to export Herb browsable and browse data
+
+## Plots
+
+```{r Plot-QC, child="1_ForestVegPlotsQC.Rmd"}
+```
+
+
+## Events
+
+```{r Event-QC, child="2_ForestVegEventsQC.Rmd"}
+```
+ 
+## Plot Floor
+
+```{r Plot_Floor-QC, child="3_ForestVegPlotFloorQC.Rmd"}
+```
+
+## CWD 
+
+```{r CWD-QC, child="4_ForestVegCWDQC.Rmd"}
+```
+ 
+## Trees
+
+```{r Tree-QC, child="ForestVegTreeQC.Rmd"}
+```
+
+
+## Saplings
+
+```{r Sapling-QC, child="ForestVegSaplingQC.Rmd"}
+```
+
+
+## Shrubs
+
+```{r Shrub-QC, child="ForestVegShrubQC.Rmd"}
+```
+
+
+## Vines
+
+```{r Vine-QC, child="ForestVegVineQC.Rmd"}
+```
+
+
+## Quadrats
+
+```{r Quad-QC, child="ForestVegQuadsQC.Rmd"}
+```
+
+
+## Seedlings
+
+```{r Seedling-QC, child="ForestVegSeedlingQC.Rmd"}
+```
+
+## Herbs
+
+```{r Herb-QC, child="ForestVegHerbQC.Rmd"}
+```
+
+## Change over time
+
+
+### Seedlings
+
+Seedling number / height/ species - need to determine if these are consistent enough between samples for QC or not
+
+
+### Herbs
+
+- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
+ to use as QC? What about species lists? Need to check data.
+

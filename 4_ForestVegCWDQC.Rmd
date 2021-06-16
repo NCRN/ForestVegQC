@@ -93,6 +93,26 @@ CWD_Bad_Diameter<-QCCWD %>% filter(Diameter<7.5 | Diameter > 150 ) %>% select(Un
 #4.13.0
 CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Hollow)
 
+#4.14.0
+CWD_Bad_Tag<-QCCWD %>%  
+   filter(!is.na(Tag),!Tag %in% c(QCTrees %>% pull(Tag), QCSaplings %>% pull(Tag))) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag, Latin_Name)
+   
+CWD_Relocated_Tag<-QCCWD %>% 
+  filter(!is.na(Tag)) %>% 
+  left_join( bind_rows(QCTrees %>% select(Plot_Name,Tag), QCSaplings %>% select(Plot_Name,Tag)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
+  rowwise() %>% 
+  filter(!Plot_Name_CWD %in% Plot_Name_Trees) %>% 
+ select(Unit_Code, Plot_Name=Plot_Name_CWD, Tree_Plot=Plot_Name_Trees, Sample_Year, 
+        Transect_Azimuth, Tag=Tag, Latin_Name)
+
+#4.15.0
+CWD_Renamed_Tag<-QCCWD %>% 
+   filter(!is.na(Tag)) %>% 
+   left_join( bind_rows(QCTrees %>% select(Tag, Latin_Name), QCSaplings %>% select(Tag,Latin_Name)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
+   rowwise() %>% 
+   filter(!Latin_Name_CWD %in% Latin_Name_Trees) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag=Tag, Latin_Name=Latin_Name_CWD, Tree_Latin_Name=Latin_Name_Trees)
 
 ```
 
@@ -189,6 +209,9 @@ if(nrow(CWD_Missing_TSN)==0) cat("All pieces of CWD have a TSN.<br>") else {
 if(nrow(CWD_No_Name)==0) cat("All pieces of CWD have a species ID.<br>") else {
    errorText("Pieces of CWD with no species name:"); NiceTable(CWD_No_Name)}
 
+if(nrow(CWD_Renamed_Tag)==0) cat("All CWD and trees with the smame tag have the same Latin name. <br>") else {
+   errorText("CWD and trees with the same tag but different Latin names:"); NiceTable(CWD_Renamed_Tag)}
+
 ```
 
 
@@ -213,9 +236,21 @@ if(nrow(CWD_Bad_Diameter)==0) cat("All pieces of CWD checked have a typical diam
 
 ```{r CWD_hollow, echo=FALSE, hold=FALSE, results="asis"}
 
-if(nrow(CWD_Bad_Hollow)==0) cat("All pieces of CWD checked ane entry for Hollow is valid.<br>") else {
+if(nrow(CWD_Bad_Hollow)==0) cat("All pieces of CWD checked entry for Hollow is valid.<br>") else {
    errorText("Pieces of CWD with an invalid entry for Hollow:"); NiceTable(CWD_Bad_Hollow)}
 
 ```
 
+---
 
+### Tags
+
+```{r CWD_Tag, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Tag)==0) cat("All CWD tags were once on trees or saplings. <br>") else {
+   errorText("Pieces of CWD with a tag that was never used for a tree or sapling:"); NiceTable(CWD_Bad_Tag)}
+
+if(nrow(CWD_Relocated_Tag)==0) cat("All CWD and Tree with the same tag are from the same plot. <br>") else {
+   errorText("Pieces of CWD and trees with the same tag but are from differnet plots:"); NiceTable(CWD_Relocated_Tag)}
+
+```

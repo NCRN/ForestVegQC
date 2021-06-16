@@ -106,8 +106,6 @@ h1, h2, h3 {
 #### CWD
 - Need a mechanism to check if Latin names are reasonable
 
-- Need to export tree tags to make sure they correspond to a local tree/ sapling
-
 #### Trees
 - Need  a mechanism to check if Latin names are reasonable
 

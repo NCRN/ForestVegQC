@@ -47,6 +47,7 @@ QCEvents<-getEvents(NCRN, years = QCYears)
 QCPlotFloor<-read.csv(paste0(DataDir,"/Plot_Floor.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
 QCCWD<-getPlants(NCRN, "cwd", years=QCYears)
 QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all")
+QCTags<-read.csv(paste0(DataDir,"/Tag_History.csv"), stringsAsFactors = F)
 QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)
 QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F)
 QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F)
@@ -200,7 +201,7 @@ Bad or Suspicious Status Changes
  
 ## Trees
 
-```{r Tree-QC, child="ForestVegTreeQC.Rmd"}
+```{r Tree-QC, child="5_ForestVegTreeQC.Rmd"}
 ```
 
 

@@ -10,6 +10,111 @@ output: html_document
 TotTrees<-nrow(QCTrees) #Total Number of tree records checked
 TotStems<-nrow(QCStems) #Total number of stem records checked
 
+## Units
+
+#5.1.0
+Trees_Bad_Unit<-QCTrees %>% 
+   filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+  Trees_Bad_Unit_Group<-QCTrees %>% 
+     filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                              "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+     select(Unit_Code, Unit_Group, Plot_Name,Sample_Year, Tag, Latin_Name)
+  
+  Trees_Mismatch_Unit_Group<-QCTrees %>% 
+     filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+               Unit_Code=="CATO" & Unit_Group !="CATO"|
+               Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+               Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+               Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+               Unit_Code=="MANA" & Unit_Group !="MANA" |
+               Unit_Code=="MONO" & Unit_Group !="MONO" |
+               Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+               Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+               Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+               Unit_Code=="WOTR" & Unit_Group!="WOTR"
+            ) %>% 
+     select(Plot_Name, Unit_Code, Unit_Group, Sample_Year, Tag, Latin_Name)
+ 
+#5.2.0
+ Trees_No_Plot_Name<-QCTrees %>% 
+    filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+    select(Unit_Code, Plot_Name,Sample_Year, Tag, Latin_Name)
+  
+## Panel Frame Cycle  
+ 
+#5.3.0
+Trees_Bad_Panel<-QCTrees %>%
+   filter(!Panel %in% 1:4) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Panel,Tag, Latin_Name)
+ 
+#5.4.0
+Trees_Bad_Frame<-QCTrees %>%
+    filter(!Frame %in% c("Park","Region")) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Frame,Tag, Latin_Name)
+  
+#5.5.0
+Trees_Bad_Cycle<-QCTrees %>% 
+    filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+           !(Cycle==2 & Sample_Year %in% 2010:2013) &
+           !(Cycle==3 & Sample_Year %in% 2014:2017) &
+           !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+    select(Unit_Code,Plot_Name, Sample_Year, Cycle,Tag, Latin_Name)
+
+## Dates
+
+#5.6.0
+Trees_Bad_Date<-QCTrees %>% 
+    filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Date, Tag, Latin_Name)
+ 
+#5.7.0
+Trees_Bad_Year<-QCTrees %>% 
+  filter(Sample_Year != year(ymd(Date))) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year,Date, Tag, Latin_Name)
+
+## Tree Tag
+
+# 5.8.0
+Trees_Bad_Tag<-QCTrees %>% filter(!Tag %in% 1:30000) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Trees_Duplicate_Tag<- QCTrees %>% group_by(Cycle,Tag) %>% 
+  summarize(Count=n()) %>% filter(Count!=1)
+
+ 
+## Tree Location
+ #5.9.0
+
+Trees_Bad_Location<-QCTrees %>% 
+  filter( ( is.na(Distance) | Distance==""|Distance<0 | Distance>15) |
+            (is.na(Azimuth) | Azimuth=="" | Azimuth<1 | Azimuth >360 )) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Distance, Azimuth)
+
+
+## Latin Name
+
+# 5.10.0
+Trees_No_Name<-QCTrees %>% filter(Latin_Name=="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Trees_Many_Names<-QCTrees %>% group_by(Tag) %>% 
+  filter(n_distinct(Latin_Name)!=1)  %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+
+## TSN
+
+# 5.11.0
+Trees_No_TSN<-QCTrees %>% filter(is.na(TSN) | TSN=="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
+
+Trees_Many_TSN<-QCTrees %>% group_by(Tag) %>% 
+ filter(n_distinct(TSN)!=1)  %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
+
+
 
 ## Tree Status
 
@@ -17,17 +122,6 @@ TotStems<-nrow(QCStems) #Total number of stem records checked
 Trees_Bad_Status<-QCTrees %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
 
-## Latin Name
-
-# 5.2.0
-Trees_No_Name<-QCTrees %>% filter(Latin_Name=="") %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
-
-## Tree Tag
-
-# 5.3.0
-Trees_Bad_Tag<-QCTrees %>% filter(is.na(Tag) | Tag < 1 | Tag>30000) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
 ## Crown class
 
@@ -195,6 +289,7 @@ Trees_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=
 ### Multi-Year Checks
 
 Repeat_Trees<-QCTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+
 
 #Status  Change 
 
@@ -506,6 +601,107 @@ Trees_Change_Conditon_Number<-if(length(Repeat_Trees>0)){
 #### **Trees Checked:** `r TotTrees` ####
 #### **Stems Checked:** `r TotStems` ####
 
+### Unit Codes
+
+```{r Tree_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Trees_Bad_Unit)==0) cat("All trees have a recognized Unit Code.<br>") else {
+   cat("<span style='color:red;'> Trees with a missing or unrecongized Unit Code.</span><br>"); NiceTable(Trees_Bad_Unit)}
+
+if(nrow(Trees_Bad_Unit_Group)==0) cat("All trees have a recognized Unit Group.<br>") else {
+   cat("<span style='color:red;'> Trees with a missing or unrecongized Unit Group.</span><br>"); NiceTable(Trees_Bad_Unit_Group)}
+ 
+ if(nrow(Trees_Mismatch_Unit_Group)==0) cat("All trees have Unit Group that is consistent with their Unit Code.<br>") else {
+    cat("<span style='color:red;'> Trees with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(Trees_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r Tree_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Trees_No_Plot_Name)==0) cat("All trees have a Plot Name.<br>") else {
+   errortext("Trees with a missing Plot Name:"); NiceTable(Trees_No_Plot_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r Tree_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Tree Panel Data**<br>")
+if(nrow(Trees_Bad_Panel)==0) cat("Each tree has a panel code from 1 to 4.<br>") else {
+errorText("Trees without a panel code from 1-4:"); NiceTable(Trees_Bad_Panel)}
+ 
+cat("<br>**Tree Frame Data**<br>")
+if(nrow(Trees_Bad_Frame)==0) cat("Each tree has a frame that is either Region or Park.<br>") else {
+errorText("Trees without a frame of either Region or Park:"); NiceTable(Trees_Bad_Frame)}
+  
+cat("<br>**Tree Cycle Data**<br>")
+  if(nrow(Trees_Bad_Cycle)==0) cat("Each Tree is from a cycle that matches its event year <br>") else {
+  errorText("Trees without a cycle or with a cycle that does not match its event year:"); NiceTable(Trees_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r Tree_Dates, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Trees_Bad_Date)==0) cat("All tree dates match an event date.<br>") else {
+    errorText("Trees whose date does not match an event date:"); NiceTable(Trees_Bad_Date)}
+ 
+ if(nrow(Trees_Bad_Year)==0) cat("All tree dates and sample years are consistent.<br>") else {
+    errorText("Trees whose date does not match its sample year:"); NiceTable(Trees_Bad_Year)}
+
+```
+
+---
+
+### Tree Tag
+
+```{r Tree_Tag, echo=FALSE, hold=FALSE, results="asis"}
+ if(nrow(Trees_Bad_Tag)==0) cat("All tree records have a valid tag.<br>") else {
+    errorText("Tree records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Trees_Bad_Tag)}
+
+if(nrow(Trees_Duplicate_Tag)==0) cat("No tags are duplicated in a single visit.<br>") else {
+    errorText("Trees with duplicate tag records:"); NiceTable(Trees_Duplicate_Tag)}
+
+```
+
+---
+
+### Tree Location
+
+```{r Tree_Location, echo=FALSE, hold=FALSE, results="asis"}
+ if(nrow(Trees_Bad_Location)==0) cat("All tree have a distance between 0 and 15m and a azimuth between 1 and 360 .<br>") else {
+    errorText("Tree distance not between 1 and 15 m or a azimuth not between 1 and 360:"); NiceTable(Trees_Bad_Location)}
+```
+
+---
+
+### Species ID
+
+```{r Tree_Species, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ if(nrow(Trees_No_Name)==0) cat("All tree records checked have a species ID.<br>") else {
+    errorText("Trees with no species name:"); NiceTable(Trees_No_Name)}
+
+ if(nrow(Trees_Many_Names)==0) cat("All trees have only one species ID.<br>") else {
+    errorText("Trees with multiple species names:"); NiceTable(Trees_Many_Names)}
+
+ if(nrow(Trees_No_TSN)==0) cat("All tree records checked have a TSN.<br>") else {
+    errorText("Trees with no TSN:"); NiceTable(Trees_No_TSN)}
+
+ if(nrow(Trees_Many_TSN)==0) cat("All trees have only one TSN.<br>") else {
+    errorText("Trees with multiple TSB:"); NiceTable(Trees_Many_TSN)}
+
+```
+
+---
+
 ###  Tree Status
 ```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
 
@@ -516,27 +712,6 @@ if(nrow(Trees_Bad_Status)==0) cat("All tree records checked have a valid status.
 
 ---
 
-### Species ID
-
-```{r Tree_Species, echo=FALSE, hold=FALSE, results="asis"}
- 
- if(nrow(Trees_No_Name)==0) cat("All tree records checked have a species ID.<br>") else {
-    errorText("Tree records with no species name:"); NiceTable(Trees_No_Name)}
-
-```
-
-
----
-
-### Tree Tag
-
-```{r Tree_Tag, echo=FALSE, hold=FALSE, results="asis"}
- if(nrow(Trees_Bad_Tag)==0) cat("All tree records have a valid tag.<br>") else {
-    errorText("Tree records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Trees_Bad_Tag)}
-
-```
-
----
 
 ### Tree Crown
 
@@ -629,10 +804,9 @@ cat("<br>**Living Redundant Foliage Condition**<br>")
   if(nrow(Trees_Redundant_Foliage)==0) cat("No foliage conditions were repeated.<br>") else {
      errorText("Tree records with repeated foliage conditions:"); NiceTable(Trees_Redundant_Foliage)}
 
-
-#cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
-#  if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
-#     errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
+# cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
+#   if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
+#    errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
 ```
 
 ---

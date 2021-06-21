@@ -128,7 +128,7 @@ if(nrow(CWD_Bad_Unit)==0) cat("All CWD have a recognized Unit Code.<br>") else {
     cat("<span style='color:red;'> CWD with a missing or unrecongized Unit Group.</span><br>"); NiceTable(CWD_Bad_Unit_Group)}
  
  if(nrow(CWD_Mismatch_Unit_Group)==0) cat("All CWD have Unit Group that is consistent with their Unit Code.<br>") else {
-    cat("<span style='color:red;'> CWD with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(Plots_Mismatch_Unit_Group)}
+    cat("<span style='color:red;'> CWD with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(CWD_Mismatch_Unit_Group)}
 
 ```
 

@@ -115,12 +115,100 @@ Trees_Many_TSN<-QCTrees %>% group_by(Tag) %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
 
 
+## Number of Stems
+
+#5.12.0
+Trees_No_Stem_Count<-QCTrees %>% filter(is.na(Stems)| Stems == "") %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Stems)
+
+Trees_Live_Many_Stems<-QCTrees %>% filter(Status %in% Live_Status& (Stems<1 | Stems >5)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Stems)
+  
+Trees_Standing_Dead_Many_Stems<-QCTrees %>% filter(Status %in% c("Dead Standing","Dead Leaning", "Dead - Human Action") & (Stems<1 | Stems >5)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Stems)
+
+Trees_Wrongly_Have_Stems<-QCTrees %>% 
+  filter(Status %in% c("Dead","Dead - Too Small", "Dead Fallen", "Dead Missing", Missing_Status, Other_Status) & (Stems!=0)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Stems)
+
+
+## Total Basal Area
+
+#5.13.0
+Trees_No_BA<-QCTrees %>% 
+  filter(is.na(SumDeadBasalArea_cm2)|is.na(SumDeadBasalArea_cm2)| SumLiveBasalArea_cm2<0 | SumDeadBasalArea_cm2<0) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, SumLiveBasalArea_cm2, SumDeadBasalArea_cm2)
+
+Trees_Live_Small_BA<-QCTrees %>% filter(Status %in% Live_Status, SumLiveBasalArea_cm2<round(25*pi,1) ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)
+
+Trees_Dead_Small_BA<-QCTrees %>% 
+  filter(Status %in% c("Dead Standing","Dead Leaning", "Dead - Human Action"), SumDeadBasalArea_cm2 <round(25*pi,1) ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
+
+Trees_DeadBA_Too_Small <-QCTrees %>% 
+  filter(SumDeadBasalArea_cm2 <round(25*pi,1) & SumDeadBasalArea_cm2!=0 ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
+
+Trees_BA_Stems_Mistmatch <-QCTrees %>% 
+  filter( (Stems==0 & (SumDeadBasalArea_cm2 + SumLiveBasalArea_cm2>0) )|
+            (Stems>0 & (SumDeadBasalArea_cm2 + SumLiveBasalArea_cm2==0) )) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2, SumDeadBasalArea_cm2)
+
+
+## Tree DBH
+
+#5.14.0
+Trees_Bad_DBH_Check <-QCTrees %>% filter( (Sample_Year<2018 & DBH_Check) | 
+      (Sample_Year>2017 & DBH_Check & 
+          Status %in% c(Missing_Status, "Dead Fallen", "Dead Missing", "Dead - Too Small", Other_Status))) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH_Check)
+
+# 5.15.0
+Trees_Live_Bad_DBH<-QCTrees %>% filter(Status %in% Live_Status & (
+   (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 10 | is.na(Equiv_Dead_DBH_cm) | ( Equiv_Dead_DBH_cm>0 & Equiv_Dead_DBH_cm < 10)) ))  %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
+
+Trees_Dead_Bad_DBH<-QCTrees %>% filter(Status %in% c("Dead Leaning", "Dead Standing", "Dead - Human Action") & (
+   (is.na(Equiv_Dead_DBH_cm) | Equiv_Dead_DBH_cm < 10 | is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm>=10 |
+      ( Equiv_Live_DBH_cm >0 & Equiv_Live_DBH_cm < 1)) ))  %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
+
+Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Status, 
+    "Dead",  "Dead - Too Small", "Dead Fallen", "Dead Missing") & (
+   (is.na(Equiv_Dead_DBH_cm) |is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm!=0 |
+       Equiv_Dead_DBH_cm !=0 )) )  %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
+
+
+
+
+
+
+
+#5.10.0
+Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+#5.11.0
+Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+#5.12.0
+Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
+    "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+
+
 
 ## Tree Status
 
 # 5.1.0
 Trees_Bad_Status<-QCTrees %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
+
+
 
 
 ## Crown class
@@ -136,44 +224,6 @@ Trees_Unalive_Bad_Crown<-QCTrees %>% filter(!Status %in% Live_Status & Crown_Des
 
 
 
-## DBH
-
-#5.6.0
-Trees_Bad_DBH_Check <-QCTrees %>% filter( (Sample_Year<2018 & DBH_Check) | 
-      (Sample_Year>2017 & DBH_Check & 
-          Status %in% c(Missing_Status, "Dead Fallen", "Dead Missing", "Dead - Too Small", Other_Status))) %>% 
-    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH_Check)
-
-# 5.7.0
-Trees_Live_Bad_DBH<-QCTrees %>% filter(Status %in% Live_Status & (
-   (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 10 | is.na(Equiv_Dead_DBH_cm) | ( Equiv_Dead_DBH_cm>0 & Equiv_Dead_DBH_cm < 10)) ))  %>% 
-   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
-
-#5.8.0
-Trees_Dead_Bad_DBH<-QCTrees %>% filter(Status %in% c("Dead Leaning", "Dead Standing") & (
-   (is.na(Equiv_Dead_DBH_cm) | Equiv_Dead_DBH_cm < 10 | is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm>=10 |
-      ( Equiv_Live_DBH_cm >0 & Equiv_Live_DBH_cm < 1)) ))  %>% 
-   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
-
-#5.9.0
-Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Status, 
-    "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing") & (
-   (is.na(Equiv_Dead_DBH_cm) |is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm!=0 |
-       Equiv_Dead_DBH_cm !=0 )) )  %>% 
-   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
-
-#5.10.0
-Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-
-#5.11.0
-Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-
-#5.12.0
-Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
-    "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
 
 
 ## Vigor
@@ -702,28 +752,45 @@ if(nrow(Trees_Duplicate_Tag)==0) cat("No tags are duplicated in a single visit.<
 
 ---
 
-###  Tree Status
-```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
+### Stem counts
 
-if(nrow(Trees_Bad_Status)==0) cat("All tree records checked have a valid status.<br>") else {
-   errorText("Tree records without a status or a status we do not use:"); NiceTable(Trees_Bad_Status)}
+```{r Tree_Stems, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Trees_No_Stem_Count)==0) cat("All tree records have a stem count.<br>") else {
+   errorText("Trees without a stem count:"); NiceTable(Trees_No_Stem_Count)}
+
+if(nrow(Trees_Live_Many_Stems)==0) cat("All live tree records have between 1 and 5 stems.<br>") else {
+   errorText("Live tress with less than 1 or more than 5 stems:"); NiceTable(Trees_Live_Many_Stems)}
+
+if(nrow(Trees_Standing_Dead_Many_Stems)==0) cat("All standing/leaning dead tree records have between 1 and 5 stems.<br>") else {
+   errorText("Standing or leaning dead trees with less than 1 or more than 5 stems:"); NiceTable(Trees_Standing_Dead_Many_Stems)}
+
+if(nrow(Trees_Wrongly_Have_Stems)==0) cat("All dead, missing and too small trees that should have no stems have no stems.<br>") else {
+   errorText("Trees that have stems but should not:"); NiceTable(Trees_Wrongly_Have_Stems)}
 
 ```
 
 ---
 
+###  Tree Basal Area
+```{r Tree_BA, echo=FALSE, hold=FALSE, results="asis"}
 
-### Tree Crown
+if(nrow(Trees_No_BA)==0) cat("All trees have live and dead basal area >=0.<br>") else {
+   errorText("Trees missing basal area or with basal area <0:"); NiceTable(Trees_No_BA)}
 
-```{r Tree_Crown, echo=FALSE, hold=FALSE, results="asis"}
- cat("<br>**Living Trees' Crown Description**<br>")
- if(nrow(Trees_Live_Bad_Crown)==0) cat("All tree records have a valid crown description.<br>") else {
-    errorText("Living Tree records with a mising crown description or one we do not use:"); NiceTable(Trees_Live_Bad_Crown)}
+if(nrow(Trees_Live_Small_BA)==0) cat("All living trees have at least a live basal area consistent with a 10cm stem.<br>") else {
+   errorText("Living trees whose live basal area is too small:"); NiceTable(Trees_Live_Small_BA)}
 
-cat("<br>**Non-Living Trees' Crown Description**<br>")
- if(nrow(Trees_Unalive_Bad_Crown)==0) cat("All tree records checked and no non-living trees have a crown description.<br>") else { 
-    errorText("Non-living tree records with a crown description:"); NiceTable(Trees_Unalive_Bad_Crown)}
+if(nrow(Trees_Dead_Small_BA)==0) cat("All dead trees have at least a dead basal area consistent with a 10cm stem.<br>") else {
+   errorText("Dead trees whose dead basal area is too small:"); NiceTable(Trees_Dead_Small_BA)}
+
+if(nrow(Trees_DeadBA_Too_Small)==0) cat("No trees have a dead BA > 0 and less than that of a 10cm stem.<br>") else {
+   errorText("Dead trees whose dead basal area is >0m, but too small for a 10 cm stem:"); NiceTable(Trees_DeadBA_Too_Small)}
+
+if(nrow(Trees_BA_Stems_Mistmatch)==0) cat("No trees have a stems with no BA or BA with no stems.<br>") else {
+   errorText("Trees with inconsistent BA and stems:"); NiceTable(Trees_BA_Stems_Mistmatch)}
 ```
+
 
 ---
 
@@ -767,6 +834,32 @@ cat("<br>**Stem DBH Wrongly Recorded**<br>")
     errorText("Tree stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Tree_Stems_Other_Bad_DBH)}
 
 ```
+
+---
+
+###  Tree Status
+```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Trees_Bad_Status)==0) cat("All tree records checked have a valid status.<br>") else {
+   errorText("Tree records without a status or a status we do not use:"); NiceTable(Trees_Bad_Status)}
+
+```
+
+---
+
+
+### Tree Crown
+
+```{r Tree_Crown, echo=FALSE, hold=FALSE, results="asis"}
+ cat("<br>**Living Trees' Crown Description**<br>")
+ if(nrow(Trees_Live_Bad_Crown)==0) cat("All tree records have a valid crown description.<br>") else {
+    errorText("Living Tree records with a mising crown description or one we do not use:"); NiceTable(Trees_Live_Bad_Crown)}
+
+cat("<br>**Non-Living Trees' Crown Description**<br>")
+ if(nrow(Trees_Unalive_Bad_Crown)==0) cat("All tree records checked and no non-living trees have a crown description.<br>") else { 
+    errorText("Non-living tree records with a crown description:"); NiceTable(Trees_Unalive_Bad_Crown)}
+```
+
 
 ---
 

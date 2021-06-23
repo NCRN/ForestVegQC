@@ -180,60 +180,57 @@ Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Stat
        Equiv_Dead_DBH_cm !=0 )) )  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
-
-
-
-
-
-
-#5.10.0
-Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-
-#5.11.0
-Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-
-#5.12.0
-Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
-    "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
-  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-
-
-
-
 ## Tree Status
 
-# 5.1.0
+# 5.16.0
 Trees_Bad_Status<-QCTrees %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
 
-
-
-
 ## Crown class
 
-# 5.4.0
-Trees_Live_Bad_Crown<-QCTrees %>% filter(Status %in% Live_Status & (Crown_Description=="" | !Crown_Description %in% 
+# 5.17.0
+Trees_Live_Bad_Crown<-QCTrees %>% filter(Status %in% Live_Status & (!Crown_Description %in% 
    c("Co-dominant", "Dominant", "Edge Tree", "Intermediate", "Light Gap Exploiter", "Open-grown", "Overtopped" ))) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
 
-# 5.5.0
 Trees_Unalive_Bad_Crown<-QCTrees %>% filter(!Status %in% Live_Status & Crown_Description!="") %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Description)
 
 
+#5.18.0
+Trees_Live_Bad_Crown_Class<-QCTrees %>% filter(Status %in% Live_Status, !Crown_Class %in% 1:7 ) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Class)
 
+Trees_Unalive_Bad_Crown_Class<-QCTrees %>% filter(!Status %in% Live_Status & !is.na(Crown_Class)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Class)
 
+#5.19.0
+Trees_Mismatch_Crown_Class<-QCTrees %>% 
+  filter( (Crown_Class==1 & Crown_Description!="Open-grown") |
+          (Crown_Class==2 & Crown_Description!="Dominant") |
+          (Crown_Class==3 & Crown_Description!="Co-dominant") |
+          (Crown_Class==4 & Crown_Description!="Intermediate") |
+          (Crown_Class==5 & Crown_Description!="Overtopped") |
+          (Crown_Class==6 & Crown_Description!="Light Gap Exploiter") |
+          (Crown_Class==7 & Crown_Description!="Edge Tree") |
+          (is.na(Crown_Class) & Crown_Description !="")
+          ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Crown_Class, Crown_Description)
 
 ## Vigor
 
-#5.13.0
-# Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
-#       ( (Sample_Year<2017 & VigorClass!="") | (Sample_Year >=2017 & VigorClass=="")  | 
-#           (Sample_Year >=2017 & !VigorClass %in% Vigor_Options)  |is.na(VigorClass)) ) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
-# 
+#5.20.0
+Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
+         ( (Sample_Year<2017 & !is.na(TreeVigor)) | (Sample_Year >=2017 & is.na(TreeVigor))  | 
+            (Sample_Year >=2017 & !TreeVigor %in% 0:5))) %>% 
+     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor)
+
+
+ # Trees_Live_Bad_Vigor<-QCTrees %>% filter(Status %in% Live_Status & 
+ #       ( (Sample_Year<2017 & VigorClass!="") | (Sample_Year >=2017 & VigorClass=="")  | 
+ #           (Sample_Year >=2017 & !VigorClass %in% Vigor_Options)  |is.na(VigorClass)) ) %>% 
+ #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
+ 
 #4.14.0
 # Trees_Unalive_Bad_Vigor<-QCTrees %>% filter(!Status %in% Live_Status, !VigorClass %in% "") %>% 
 #    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, TreeVigor, VigorClass)
@@ -818,25 +815,6 @@ if(nrow(Trees_Other_Bad_DBH)==0) cat("No tree records have a DBH when they shoul
 ---
 
 
-### Stem Diameter
-
-```{r Tree_Stem_Diameter, echo=FALSE, hold=FALSE, results="asis"}
-cat("<br>**Living Stem DBH Incorrect**<br>")
- if(nrow(Tree_Stems_Live_Bad_DBH)==0) cat("No live tree stems have an invlid DBH.<br>") else { 
-    errorText("Live tree stem records with a missing DBH or a DBH <1 cm:"); NiceTable(Tree_Stems_Live_Bad_DBH)}
-
-cat("<br>**Dead Stem DBH Incorrect**<br>")
- if(nrow(Tree_Stems_Dead_Bad_DBH)==0) cat("No dead tree stems have an invlid DBH.<br>") else { 
-    errorText("Dead tree stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Tree_Stems_Dead_Bad_DBH)}
-
-cat("<br>**Stem DBH Wrongly Recorded**<br>") 
- if(nrow(Tree_Stems_Other_Bad_DBH)==0) cat("Mo tree stems have a DBH when they should not.<br>") else { 
-    errorText("Tree stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Tree_Stems_Other_Bad_DBH)}
-
-```
-
----
-
 ###  Tree Status
 ```{r Tree_Status, echo=FALSE, hold=FALSE, results="asis"}
 
@@ -858,6 +836,19 @@ if(nrow(Trees_Bad_Status)==0) cat("All tree records checked have a valid status.
 cat("<br>**Non-Living Trees' Crown Description**<br>")
  if(nrow(Trees_Unalive_Bad_Crown)==0) cat("All tree records checked and no non-living trees have a crown description.<br>") else { 
     errorText("Non-living tree records with a crown description:"); NiceTable(Trees_Unalive_Bad_Crown)}
+
+ cat("<br>**Living Trees' Crown Class**<br>")
+ if(nrow(Trees_Live_Bad_Crown_Class)==0) cat("All live tree records have a valid crown class.<br>") else {
+    errorText("Living Tree records with a mising crown class or one we do not use:"); NiceTable(Trees_Live_Bad_Crown_Class)}
+ 
+ cat("<br>**Non-Living Trees' Crown Class**<br>")
+ if(nrow(Trees_Unalive_Bad_Crown_Class)==0) cat("All tree records checked and no non-living trees have a crown class.<br>") else { 
+    errorText("Non-living tree records with a crown class:"); NiceTable(Trees_Unalive_Bad_Crown_Class)}
+ 
+  cat("<br>**Crown Class & Description**<br>")
+ if(nrow(Trees_Mismatch_Crown_Class)==0) cat("All tree records checked and crown classes and descriptions are consistent.<br>") else { 
+    errorText("Trees with inconsistent crowns and crown classes:"); NiceTable(Trees_Mismatch_Crown_Class)}
+
 ```
 
 
@@ -867,12 +858,10 @@ cat("<br>**Non-Living Trees' Crown Description**<br>")
 
 ```{r Tree_vigor, echo=FALSE, hold=FALSE, results="asis"}
  
-cat("<br>** Disabled for 2020 data as this is not exported**<br>")
-
-# cat("<br>**Living Tree Vigor Invalid**<br>")
-#  if(nrow(Trees_Live_Bad_Vigor)==0) cat("All live trees have a valid vigor.<br>") else {
-#     errorText("Living tree records with a vigor other than 0-5:"); NiceTable(Trees_Live_Bad_Vigor)}
-# 
+ cat("<br>**Living Tree Vigor Invalid**<br>")
+  if(nrow(Trees_Live_Bad_Vigor)==0) cat("All live trees have a valid vigor.<br>") else {
+     errorText("Living tree records with a vigor other than 0-5:"); NiceTable(Trees_Live_Bad_Vigor)}
+ 
 # cat("<br>**Non-Living Trees with Vigor**<br>")
 #  if(nrow(Trees_Unalive_Bad_Vigor)==0) cat("No non-living trees have a vigor.<br>") else {
 #     errorText("Non-living tree records with a vigor:"); NiceTable(Trees_Unalive_Bad_Vigor)}

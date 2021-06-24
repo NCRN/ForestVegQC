@@ -112,11 +112,7 @@ h1, h2, h3 {
 
 - Need a way to check that tree tag is not retired
 
-- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living trees and dead trees with EAB have conditions checked, but not checked in other cases.
-
 - Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - is that desireable? This is not true of Shrubs
-
-- Need to export distance and azimuth to verify these are credible and check for sapling accidentaly recoreded as a tree.
 
 
 #### Saplings

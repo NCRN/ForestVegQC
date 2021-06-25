@@ -117,7 +117,6 @@ h1, h2, h3 {
 
 #### Saplings
 - Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
-Bad or Suspicious Status Changes
 
 - Need  a mechanism to check if Latin names are reasonable
 
@@ -130,8 +129,6 @@ Bad or Suspicious Status Changes
 - In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
 
 - In Vines export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
-
-- Microplot # is not exported (60, 180, 300)
 
 - Dead shrubs with no "habit" are exported as saplings
 
@@ -203,7 +200,7 @@ Bad or Suspicious Status Changes
 
 ## Saplings
 
-```{r Sapling-QC, child="ForestVegSaplingQC.Rmd"}
+```{r Sapling-QC, child="6_ForestVegSaplingQC.Rmd"}
 ```
 
 

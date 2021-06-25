@@ -222,31 +222,31 @@ if(nrow(Plots_Inconsistent_County)==0) cat("All plots' counties are consistent w
 ```{r plot_panel, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Panel**<br>")
 if(nrow(Plots_Bad_Panel)==0) cat("All plots have a Panel between 1 and 4.<br>") else {
-   cat("<span style='color:red;'> Plots without a Panel between 1 and 4.</span><br>"); NiceTable(Plots_Bad_Panel)}
+   errorText("Plots without a Panel between 1 and 4:"); NiceTable(Plots_Bad_Panel)}
 ```
 
 ```{r plot_frame, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Frame**<br>")
 if(nrow(Plots_Bad_Frame)==0) cat("All plots have a frame of either Park or Region.<br>") else {
-   cat("<span style='color:red;'> Plots without a frame of Park of Region.</span><br>"); NiceTable(Plots_Bad_Frame)}
+   errorText("Plots without a frame of Park of Region:"); NiceTable(Plots_Bad_Frame)}
 ```
 
 ```{r plot_bad_GRTS, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot GRTS Order**<br>")
 if(nrow(Plots_Bad_GRTS)==0) cat("All plots have a valid GRTS order.<br>") else {
-   cat("<span style='color:red;'> Plots without a valid GRTS order.</span><br>"); NiceTable(Plots_Bad_GRTS)}
+   errorText("Plots without a valid GRTS order:"); NiceTable(Plots_Bad_GRTS)}
 ```
 
 ```{r plot_duplicated_GRTS, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plots with a duplicated GRTS order**<br>")
 if(nrow(Plots_Duplicated_GRTS)==0) cat("All plots have a unique GRTS order.<br>") else {
-   cat("<span style='color:red;'> Plots without a duplicated GRTS order.</span><br>"); NiceTable(Plots_Duplicated_GRTS)}
+   errorText("Plots with a duplicated GRTS order:"); NiceTable(Plots_Duplicated_GRTS)}
 ```
 
 ```{r plot_location_status, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Location Status**<br>")
 if(nrow(Plots_Bad_Location_Status)==0) cat("All plots have a location status of Active or Retired.<br>") else {
-   cat("<span style='color:red;'> Plots with a location status other that Active or Retired.</span><br>"); NiceTable(Plots_Bad_Location_Status)}
+   errorText("Plots with a location status other that Active or Retired:"); NiceTable(Plots_Bad_Location_Status)}
 ```
 
 ---
@@ -256,30 +256,29 @@ if(nrow(Plots_Bad_Location_Status)==0) cat("All plots have a location status of 
 ```{r plot_event_count, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Event Count**<br>")
 if(nrow(Plots_Bad_Event_Count)==0) cat("All plots have an Event Count between 1 and 4.<br>") else {
-   cat("<span style='color:red;'> Plots without an Event Count between 1 and 4.</span><br>"); NiceTable(Plots_Bad_Event_Count)}
+   errorText("Plots without an Event Count between 1 and 4:"); NiceTable(Plots_Bad_Event_Count)}
 ```
 
 ```{r plot_event_earliest, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Earliest Event**<br>")
 if(nrow(Plots_Bad_Event_Earliest)==0) cat("All plots have an earliest event between May and October and between 2006 to 2017.<br>") else {
-   cat("<span style='color:red;'> Plots without an an earliest event between May and October and between 2006 to 2017.</span><br>"); NiceTable(Plots_Bad_Event_Earliest)}
+   errorText("Plots without an an earliest event between May and October and between 2006 to 2017:"); NiceTable(Plots_Bad_Event_Earliest)}
 ```
 
 ```{r plot_event_latest, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Latest Event**<br>")
 if(nrow(Plots_Bad_Event_Latest)==0) cat("All plots have a latest event between April and October and between 2007 to 2021.<br>") else {
-   cat("<span style='color:red;'> Plots without an a latest event between April and October and between 2007 to 2027.</span><br>"); NiceTable(Plots_Bad_Event_Latest)}
+   errorText("Plots without an a latest event between April and October and between 2007 to 2027:"); NiceTable(Plots_Bad_Event_Latest)}
 ```
 
 ```{r plot_instal_date, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Install Date**<br>")
 if(nrow(Plots_Bad_Install_Date)==0) cat("All plots have an install date duing a valid month between 2006 to 2017.<br>") else {
-   cat("<span style='color:red;'> Plots without an install date during a valid month between 2006 to 2017.</span><br>"); NiceTable(Plots_Bad_Install_Date)}
+   errorText("Plots without an install date during a valid month between 2006 to 2017:"); NiceTable(Plots_Bad_Install_Date)}
 ```
 
 ```{r plot_dates_wrong, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Date Order**<br>")
 if(nrow(Plots_Wrong_Order)==0) cat("All plots have an install date before their first event which is before the latest event .<br>") else {
-   cat("<span style='color:red;'> Plots whose install, first event and latest event dates are out of order.</span><br>");
-   NiceTable(Plots_Wrong_Order)}
+   errorText("Plots whose install, first event and latest event dates are out of order:");   NiceTable(Plots_Wrong_Order)}
 ```

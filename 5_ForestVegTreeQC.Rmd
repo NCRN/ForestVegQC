@@ -8,7 +8,6 @@ output: html_document
 
 ```{r tree_setup, include=F}
 TotTrees<-nrow(QCTrees) #Total Number of tree records checked
-TotStems<-nrow(QCStems) #Total number of stem records checked
 
 ## Units
 
@@ -497,7 +496,7 @@ Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
 ```
 
 #### **Trees Checked:** `r TotTrees` ####
-#### **Stems Checked:** `r TotStems` ####
+
 
 ### Unit Codes
 

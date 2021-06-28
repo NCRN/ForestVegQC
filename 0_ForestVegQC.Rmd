@@ -116,22 +116,15 @@ h1, h2, h3 {
 
 
 #### Saplings
-- Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
+- Around 1680 saplings and shrubs not currently exported due to not having habit filled in. Many are removed from study and would not be exported
 
-- Need  a mechanism to check if Latin names are reasonable
+- Need a mechanism to check if Latin names are reasonable
 
-- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living saplings and dead saplings with EAB have conditions checked from 2015? on, but not checked in other cases.
-
-- Equivalent diameter is not exported for dead stems of saplings (this will typcially = 0)
-
-- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
-
-- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
-
-- In Vines export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+- Equivalent diameter and Sum basal area is not exported for dead stems of saplings (this will typcially = 0
 
 - Dead shrubs with no "habit" are exported as saplings
 
+#### Stems
 - Dead stems not exported
 
 #### Shrubs
@@ -142,7 +135,6 @@ Bad or Suspicious Status Changes
 
 - Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
 
-
 - In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
 
 - In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
@@ -151,10 +143,18 @@ Bad or Suspicious Status Changes
 
 - Microplot # is not exported (60, 180, 300)
 
+#### Conditions
+- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+#### Foliage
+- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+
 #### Vines
 - Need  a mechanism to check if Latin names are reasonable
 
 -  A way to distinguish between tree, sapling and shrub tags
+
 
 #### Quads
 - Need to export table that matches years with panels so we can verify the correct quads were sampled.

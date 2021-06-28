@@ -135,7 +135,7 @@ Trees_Wrongly_Have_Stems<-QCTrees %>%
 
 #5.13.0
 Trees_No_BA<-QCTrees %>% 
-  filter(is.na(SumDeadBasalArea_cm2)|is.na(SumDeadBasalArea_cm2)| SumLiveBasalArea_cm2<0 | SumDeadBasalArea_cm2<0) %>% 
+  filter(is.na(SumLiveBasalArea_cm2)|is.na(SumDeadBasalArea_cm2)| SumLiveBasalArea_cm2<0 | SumDeadBasalArea_cm2<0) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, SumLiveBasalArea_cm2, SumDeadBasalArea_cm2)
 
 Trees_Live_Small_BA<-QCTrees %>% filter(Status %in% Live_Status, SumLiveBasalArea_cm2<round(25*pi,1) ) %>% 
@@ -147,6 +147,14 @@ Trees_Dead_Small_BA<-QCTrees %>%
 
 Trees_DeadBA_Too_Small <-QCTrees %>% 
   filter(SumDeadBasalArea_cm2 <round(25*pi,1) & SumDeadBasalArea_cm2!=0 ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
+
+Trees_NonLiving_Live_BA  <-QCTrees %>%  
+  filter(Status %in% c(Missing_Status, Other_Status, Dead_Status) & SumLiveBasalArea_cm2>0) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)
+
+Trees_Other_Dead_BA<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Status, 
+    "Dead",  "Dead - Too Small", "Dead Fallen", "Dead Missing") & SumDeadBasalArea_cm2>0) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
 
 Trees_BA_Stems_Mistmatch <-QCTrees %>% 
@@ -502,13 +510,13 @@ Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
 
 ```{r Tree_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Trees_Bad_Unit)==0) cat("All trees have a recognized Unit Code.<br>") else {
-   cat("<span style='color:red;'> Trees with a missing or unrecongized Unit Code.</span><br>"); NiceTable(Trees_Bad_Unit)}
+   errortext("Trees with a missing or unrecongized Unit Code:"); NiceTable(Trees_Bad_Unit)}
 
 if(nrow(Trees_Bad_Unit_Group)==0) cat("All trees have a recognized Unit Group.<br>") else {
-   cat("<span style='color:red;'> Trees with a missing or unrecongized Unit Group.</span><br>"); NiceTable(Trees_Bad_Unit_Group)}
+   errortext("Trees with a missing or unrecongized Unit Group:"); NiceTable(Trees_Bad_Unit_Group)}
  
- if(nrow(Trees_Mismatch_Unit_Group)==0) cat("All trees have Unit Group that is consistent with their Unit Code.<br>") else {
-    cat("<span style='color:red;'> Trees with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(Trees_Mismatch_Unit_Group)}
+if(nrow(Trees_Mismatch_Unit_Group)==0) cat("All trees have Unit Group that is consistent with their Unit Code.<br>") else {
+    errortext("Trees with a Unit Group that is inconsistent with their Unit Code:");NiceTable(Trees_Mismatch_Unit_Group)}
 
 ```
 
@@ -634,7 +642,13 @@ if(nrow(Trees_Dead_Small_BA)==0) cat("All dead trees have at least a dead basal 
 if(nrow(Trees_DeadBA_Too_Small)==0) cat("No trees have a dead BA > 0 and less than that of a 10cm stem.<br>") else {
    errorText("Dead trees whose dead basal area is >0m, but too small for a 10 cm stem:"); NiceTable(Trees_DeadBA_Too_Small)}
 
-if(nrow(Trees_BA_Stems_Mistmatch)==0) cat("No trees have a stems with no BA or BA with no stems.<br>") else {
+if(nrow(Trees_NonLiving_Live_BA)==0) cat("No non-living trees have a live BA > 0.<br>") else {
+   errorText("Non-living trees whose live basal area is >0m:"); NiceTable(Trees_NonLiving_Live_BA)}
+
+if(nrow(Trees_Other_Dead_BA)==0) cat("No trees have a dead BA when they should not.<br>") else {
+   errorText("Trees with a dead BA >0 that should be 0:"); NiceTable(Trees_Other_Dead_BA)}
+
+if(nrow(Trees_BA_Stems_Mistmatch)==0) cat("No trees have stems with no BA or BA with no stems.<br>") else {
    errorText("Trees with inconsistent BA and stems:"); NiceTable(Trees_BA_Stems_Mistmatch)}
 ```
 

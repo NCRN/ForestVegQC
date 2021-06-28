@@ -122,13 +122,13 @@ CWD_Renamed_Tag<-QCCWD %>%
 
 ```{r CWD_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(CWD_Bad_Unit)==0) cat("All CWD have a recognized Unit Code.<br>") else {
-   cat("<span style='color:red;'> CWD with a missing or unrecongized Unit Code.</span><br>"); NiceTable(CWD_Bad_Unit)}
+   errortext("CWD with a missing or unrecongized Unit Code:"); NiceTable(CWD_Bad_Unit)}
 
  if(nrow(CWD_Bad_Unit_Group)==0) cat("All CWD have a recognized Unit Group.<br>") else {
-    cat("<span style='color:red;'> CWD with a missing or unrecongized Unit Group.</span><br>"); NiceTable(CWD_Bad_Unit_Group)}
+    errortext("CWD with a missing or unrecongized Unit Group:"); NiceTable(CWD_Bad_Unit_Group)}
  
  if(nrow(CWD_Mismatch_Unit_Group)==0) cat("All CWD have Unit Group that is consistent with their Unit Code.<br>") else {
-    cat("<span style='color:red;'> CWD with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(CWD_Mismatch_Unit_Group)}
+    errortext("CWD with a Unit Group that is inconsistent with their Unit Code:");NiceTable(CWD_Mismatch_Unit_Group)}
 
 ```
 
@@ -138,7 +138,7 @@ if(nrow(CWD_Bad_Unit)==0) cat("All CWD have a recognized Unit Code.<br>") else {
 
 ```{r CWD_plot_names, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(CWD_No_Plot_Name)==0) cat("All CWD have a Plot Name.<br>") else {
-   cat("<span style='color:red;'> CWD with a missing Plot Name.</span><br>"); NiceTable(CWD_No_Plot_Name)}
+   errortext("CWD with a missing Plot Name:"); NiceTable(CWD_No_Plot_Name)}
 
 ```
 
@@ -222,7 +222,7 @@ if(nrow(CWD_Renamed_Tag)==0) cat("All CWD and trees with the smame tag have the 
 ```{r CWD_Diameter, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Missing Diameter**<br>")
 if(nrow(CWD_No_Diameter)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a diameter.  \n")) else {
-   cat("Pieces of CWD with no diameter:  \n"); NiceTable(CWD_No_Diameter)}
+   errortext("Pieces of CWD with no diameter:  \n"); NiceTable(CWD_No_Diameter)}
 
 cat("<br>**Diameter too small or too large**<br>")
 if(nrow(CWD_Bad_Diameter)==0) cat("All pieces of CWD checked have a typical diameter.<br>") else {

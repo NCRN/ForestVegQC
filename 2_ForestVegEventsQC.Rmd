@@ -228,10 +228,10 @@ errorText("Events without a recognized unit code:"); NiceTable(Events_Bad_Unit)}
 
 cat("<br>**Missing or Incorrect Event Unit Group**<br>")
 if(nrow(Events_Bad_Unit_Group)==0) cat("All events have a recognized Unit Group.<br>") else {
-   cat("<span style='color:red;'> Events with a missing or unrecongized Unit Group.</span><br>"); NiceTable(Events_Bad_Unit_Group)}
+errortext("Events with a missing or unrecongized Unit Group:"); NiceTable(Events_Bad_Unit_Group)}
 
 if(nrow(Events_Mismatch_Unit_Group)==0) cat("All events have Unit Group that is consistent with their Unit Code.<br>") else {
-   cat("<span style='color:red;'> Events with a Unit Group that is inconsistent with their Unit Code.</span><br>");NiceTable(Events_Mismatch_Unit_Group)}
+errortext("Events with a Unit Group that is inconsistent with their Unit Code:");NiceTable(Events_Mismatch_Unit_Group)}
 
 ```
 

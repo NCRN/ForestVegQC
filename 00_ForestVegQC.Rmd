@@ -171,66 +171,71 @@ Bad or Suspicious Status Changes
 
 - Need to export Herb browsable and browse data
 
-## Plots
+<!-- ## Plots -->
 
-```{r Plot-QC, child="1_ForestVegPlotsQC.Rmd"}
+<!-- ```{r Plot-QC, child="01_ForestVegPlotsQC.Rmd"} -->
+<!-- ``` -->
+
+
+<!-- ## Events -->
+
+<!-- ```{r Event-QC, child="02_ForestVegEventsQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## Plot Floor -->
+
+<!-- ```{r Plot_Floor-QC, child="03_ForestVegPlotFloorQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## CWD -->
+
+<!-- ```{r CWD-QC, child="04_ForestVegCWDQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## Trees -->
+
+<!-- ```{r Tree-QC, child="05_ForestVegTreeQC.Rmd"} -->
+<!-- ``` -->
+
+
+<!-- ## Saplings -->
+
+<!-- ```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"} -->
+<!-- ``` -->
+
+## Stems
+
+```{r Stem-QC, child="07_ForestVegStemQC.Rmd"}
 ```
 
 
-## Events
+<!-- ## Shrubs -->
 
-```{r Event-QC, child="2_ForestVegEventsQC.Rmd"}
-```
- 
-## Plot Floor
-
-```{r Plot_Floor-QC, child="3_ForestVegPlotFloorQC.Rmd"}
-```
-
-## CWD 
-
-```{r CWD-QC, child="4_ForestVegCWDQC.Rmd"}
-```
- 
-## Trees
-
-```{r Tree-QC, child="5_ForestVegTreeQC.Rmd"}
-```
+<!-- ```{r Shrub-QC, child="ForestVegShrubQC.Rmd"} -->
+<!-- ``` -->
 
 
-## Saplings
+<!-- ## Vines -->
 
-```{r Sapling-QC, child="6_ForestVegSaplingQC.Rmd"}
-```
-
-
-## Shrubs
-
-```{r Shrub-QC, child="ForestVegShrubQC.Rmd"}
-```
+<!-- ```{r Vine-QC, child="ForestVegVineQC.Rmd"} -->
+<!-- ``` -->
 
 
-## Vines
+<!-- ## Quadrats -->
 
-```{r Vine-QC, child="ForestVegVineQC.Rmd"}
-```
-
-
-## Quadrats
-
-```{r Quad-QC, child="ForestVegQuadsQC.Rmd"}
-```
+<!-- ```{r Quad-QC, child="ForestVegQuadsQC.Rmd"} -->
+<!-- ``` -->
 
 
-## Seedlings
+<!-- ## Seedlings -->
 
-```{r Seedling-QC, child="ForestVegSeedlingQC.Rmd"}
-```
+<!-- ```{r Seedling-QC, child="ForestVegSeedlingQC.Rmd"} -->
+<!-- ``` -->
 
-## Herbs
+<!-- ## Herbs -->
 
-```{r Herb-QC, child="ForestVegHerbQC.Rmd"}
-```
+<!-- ```{r Herb-QC, child="ForestVegHerbQC.Rmd"} -->
+<!-- ``` -->
 
 ## Change over time
 

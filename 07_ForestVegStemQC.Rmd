@@ -133,54 +133,83 @@ Stems_Saplings_Wrong_TSN<-QCStems %>%
   filter(TSN!=Sapling_TSN) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, TSN, Sapling_TSN)
 
-# Stem Number
-#7.9.0
+## Stem Number
+
+#7.110
 
 Stems_Trees_Wrong_Number<-QCStems %>% 
   filter(Class=="Tree") %>% 
   group_by(Plot_Name,Sample_Year, Latin_Name, Class, Tag) %>% 
   summarise(Stems_Found=n()) %>% 
-  left_join(QCTrees %>% select(Plot_Name, Sample_Year,Tag,Stems_Expected=Stems)) %>% 
+  full_join(QCTrees %>% select(Plot_Name, Sample_Year,Tag,Stems_Expected=Stems)) %>% 
+  filter(Stems_Found!=Stems_Expected)
+
+Stems_Saplings_Wrong_Number<-QCStems %>% 
+  filter(Class=="Sapling") %>% 
+  group_by(Plot_Name,Sample_Year, Latin_Name, Class, Tag) %>% 
+  summarise(Stems_Found=n()) %>% 
+  full_join(QCSaplings %>% select(Plot_Name, Sample_Year,Tag,Stems_Expected=StemsLive)) %>% 
   filter(Stems_Found!=Stems_Expected)
 
 
+## Stem DBH
 
-# 
-# ## Stem DBH
-# #5.10.0
-# Tree_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-# 
-# #5.11.0
-# Tree_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-# 
-# #5.12.0
-# Tree_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
-#     "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-# 
-# 
-# 
-# 
-#  
-#  # 6.11.0
-#  Sapling_Stems_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Sapling", (is.na(DBH) | DBH<1 |DBH >=10)) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-# 
-#  #6.12.0
-#  Sapling_Stems_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F, Class=="Sapling", (is.na(DBH) | DBH<10)) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-#  
-#  #6.13.0
-#   Sapling_Stems_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Sapling", Status %in% c(Missing_Status, Other_Status, 
-#      "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
-# 
-# 
-# # 5.16.0
-# Trees_Bad_Status<-QCTrees %>% filter(is.na(Status) | !Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
+
+#7.12.0
+Stems_Trees_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Tree", (is.na(DBH) | DBH<1)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+Stems_Trees_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F,  Class=="Tree", (is.na(DBH) | DBH<10)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+ 
+Stems_Trees_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree", Status %in% c(Missing_Status, Other_Status,
+   "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>%
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+#7.13.0
+Stems_Saplings_Live_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==T, Class=="Sapling", (is.na(DBH) | DBH<1 |DBH >=10)) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+Stems_Saplings_Dead_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Live==F, Class=="Sapling", (is.na(DBH) | DBH<10)) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+  
+Stems_Saplings_Other_Bad_DBH<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Sapling", Status %in% c(Missing_Status, Other_Status, 
+      "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing")) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH, Live )
+
+## Live
+
+#7.14.0
+
+Stems_Bad_Live<-QCStems %>% filter(Sample_Year %in% QCYears, !Live %in% c(0,1) ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Live )
+  
+## Habit
+
+#7.15.0
+
+Stems_Bad_Habit<-QCStems %>% filter(Sample_Year %in% QCYears, !Habit %in% "Tree") %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Habit )
+
+## Class
+
+#7.16.0
+
+Stems_Bad_Class<-QCStems %>% filter(Sample_Year %in% QCYears, !Class %in% c("Tree", "Sapling")) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Class )
+
+## Matching Data
+
+#7.17.0
+
+Stems_Trees_Mismatched<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Tree") %>% 
+  anti_join(QCTrees %>% select(Plot_Name, Sample_Year,Tag, Latin_Name,Status)) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Class )
+
+Stems_Saplings_Mismatched<-QCStems %>% filter(Sample_Year %in% QCYears, Class=="Sapling") %>% 
+  anti_join(QCSaplings %>% select(Plot_Name, Sample_Year,Tag, Latin_Name,Status)) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Class )
+  
 ```
 
 #### **Stems Checked:** `r TotStems` ####
@@ -290,7 +319,10 @@ if(nrow(Stems_Saplings_No_Tree)==0) cat("All saplings stem tags match a valid sa
 
 ```{r Stem_Nubmber, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Stems_Trees_Wrong_Number)==0) cat("Number of tree stems exported matches data in tree records .<br>") else {
-   errorText("Mismatches between number of stem reocrds and number of stems exprecte from tree records:"); NiceTable(Stems_Trees_Wrong_Number)}
+   errorText("Mismatches between number of stem reocrds and number of stems exprected from tree records:"); NiceTable(Stems_Trees_Wrong_Number)}
+
+if(nrow(Stems_Saplings_Wrong_Number)==0) cat("Number of sapling stems exported matches data in sapling records .<br>") else {
+   errorText("Mismatches between number of stem reocrds and number of stems exprected from sapling records:"); NiceTable(Stems_Saplings_Wrong_Number)}
 
 ```
 
@@ -299,17 +331,17 @@ if(nrow(Stems_Trees_Wrong_Number)==0) cat("Number of tree stems exported matches
 ### Stem Diameter
 
 ```{r Tree_Stem_Diameter, echo=FALSE, hold=FALSE, results="asis"}
-# cat("<br>**Living Stem DBH Incorrect**<br>")
-#  if(nrow(Tree_Stems_Live_Bad_DBH)==0) cat("No live tree stems have an invlid DBH.<br>") else { 
-#     errorText("Live tree stem records with a missing DBH or a DBH <1 cm:"); NiceTable(Tree_Stems_Live_Bad_DBH)}
-# 
-# cat("<br>**Dead Stem DBH Incorrect**<br>")
-#  if(nrow(Tree_Stems_Dead_Bad_DBH)==0) cat("No dead tree stems have an invlid DBH.<br>") else { 
-#     errorText("Dead tree stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Tree_Stems_Dead_Bad_DBH)}
-# 
-# cat("<br>**Stem DBH Wrongly Recorded**<br>") 
-#  if(nrow(Tree_Stems_Other_Bad_DBH)==0) cat("Mo tree stems have a DBH when they should not.<br>") else { 
-#     errorText("Tree stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Tree_Stems_Other_Bad_DBH)}
+cat("<br>**Living Tree Stem DBH Incorrect**<br>")
+ if(nrow(Stems_Trees_Live_Bad_DBH)==0) cat("No live tree stems have an invlid DBH.<br>") else { 
+   errorText("Live tree stem records with a missing DBH or a DBH <1 cm:"); NiceTable(Stems_Trees_Live_Bad_DBH)}
+ 
+cat("<br>**Dead Tree Stem DBH Incorrect**<br>")
+if(nrow(Stems_Trees_Dead_Bad_DBH)==0) cat("No dead tree stems have an invlid DBH.<br>") else { 
+   errorText("Dead tree stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Stems_Trees_Dead_Bad_DBH)}
+ 
+cat("<br>**Tree Stem DBH Wrongly Recorded**<br>") 
+if(nrow(Stems_Trees_Other_Bad_DBH)==0) cat("Mo tree stems have a DBH when they should not.<br>") else { 
+   errorText("Tree stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Stems_Trees_Other_Bad_DBH)}
 
 ```
 
@@ -319,16 +351,68 @@ if(nrow(Stems_Trees_Wrong_Number)==0) cat("Number of tree stems exported matches
 
 ```{r Sapling_Stem_Diameter, echo=FALSE, hold=FALSE, results="asis"}
 
-# cat("<br>**Living Stem DBH Incorrect**<br>")
-#   if(nrow(Sapling_Stems_Live_Bad_DBH)==0) cat("No live sapling stems have an invlid DBH.<br>") else { 
-#      errorText("Live sapling stem records with a missing DBH,  DBH <1 cm or DBH >0 10cm:"); NiceTable(Sapling_Stems_Live_Bad_DBH)}
-#   
-# cat("<br>**Dead Stem DBH Incorrect**<br>")
-#   if(nrow(Sapling_Stems_Dead_Bad_DBH)==0) cat("No dead sapling stems have an invlid DBH.<br>") else { 
-#      errorText("Dead sapling stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Sapling_Stems_Dead_Bad_DBH)}
-#   
-# cat("<br>**Stem DBH Wrongly Recorded**<br>") 
-#   if(nrow(Sapling_Stems_Other_Bad_DBH)==0) cat("No sapling stems have a DBH when they should not.<br>") else { 
-#      errorText("Sapling stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Sapling_Stems_Other_Bad_DBH)}
+cat("<br>**Living Sapling Stem DBH Incorrect**<br>")
+   if(nrow(Stems_Saplings_Live_Bad_DBH)==0) cat("No live sapling stems have an invlid DBH.<br>") else { 
+      errorText("Live sapling stem records with a missing DBH, DBH <1 cm or DBH >0 10cm:"); NiceTable(Stems_Saplings_Live_Bad_DBH)}
+   
+cat("<br>**Dead Sapling Stem DBH Incorrect**<br>")
+ if(nrow(Stems_Saplings_Dead_Bad_DBH)==0) cat("No dead sapling stems have an invlid DBH.<br>") else { 
+    errorText("Dead sapling stem records with a missing DBH or a DBH <10 cm:"); NiceTable(Stems_Saplings_Dead_Bad_DBH)}
+   
+cat("<br>**Sapling Stem DBH Wrongly Recorded**<br>") 
+ if(nrow(Stems_Saplings_Other_Bad_DBH)==0) cat("No sapling stems have a DBH when they should not.<br>") else { 
+    errorText("Sapling stem records with a DBH on a tree that should not have any DBH:"); NiceTable(Stems_Saplings_Other_Bad_DBH)}
 
 ```
+
+---
+
+### Stem Live Code
+
+```{r Stem_Live, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Stems with an Invalid Live/Dead Code**<br>")
+   if(nrow(Stems_Bad_Live)==0) cat("No stems have an invalid live / dead code.<br>") else { 
+      errorText("Stems with a Live code other than 1 or 0:"); NiceTable(Stems_Bad_Live)}
+
+```
+
+---
+
+### Stem Habit
+
+```{r Stem_Habit, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Stems with an Invalid Habit**<br>")
+   if(nrow(Stems_Bad_Habit)==0) cat("No stems have an invalid habit.<br>") else { 
+      errorText("Stems with a habit that is not tree:"); NiceTable(Stems_Bad_Habit)}
+
+```
+
+---
+
+### Stem Class
+
+```{r Stem_Class, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Stems with an Invalid Class**<br>")
+   if(nrow(Stems_Bad_Class)==0) cat("No stems have an invalid class.<br>") else { 
+      errorText("Stems with a class that is not tree or sapling:"); NiceTable(Stems_Bad_Class)}
+
+```
+
+---
+
+### Data Mismacth
+
+```{r Stem_Mismatch, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Tree Stems Mismatch**<br>")
+   if(nrow(Stems_Trees_Mismatched)==0) cat("All tree stems match their tree record.<br>") else { 
+      errorText("Tree stems that don't match their tree record:"); NiceTable(Stems_Trees_Mismatched)}
+
+cat("<br>**Sapling Stems Mismatch**<br>")
+   if(nrow(Stems_Saplings_Mismatched)==0) cat("All sapling stems match their sapling record.<br>") else { 
+      errorText("Sapling stems that don't match their sapling record:"); NiceTable(Stems_Saplings_Mismatched)}
+```
+

@@ -246,7 +246,7 @@ if(nrow(Stems_No_Plot_Name)==0) cat("All stems have a Plot Name.<br>") else {
 
 cat("<br>**Stem Panel Data**<br>")
 if(nrow(Stems_Bad_Panel)==0) cat("Each stem has a panel code from 1 to 4.<br>") else {
-  errorText("Stems without a panel code from 1-4:"); NiceTable(Stens_Bad_Panel)}
+  errorText("Stems without a panel code from 1-4:"); NiceTable(Stems_Bad_Panel)}
   
 cat("<br>**Stem Frame Data**<br>")
 if(nrow(Stems_Bad_Frame)==0) cat("Each stem has a frame that is either Region or Park.<br>") else {
@@ -293,7 +293,7 @@ if(nrow(Stems_Saplings_No_Tree)==0) cat("All saplings stem tags match a valid sa
 
 ```{r Stem_Species, echo=FALSE, hold=FALSE, results="asis"}
  
- if(nrow(Stems_No_Name)==0) cat("All stemss have a species ID.<br>") else {
+ if(nrow(Stems_No_Name)==0) cat("All stems have a species ID.<br>") else {
      errorText("Stems with no species name:"); NiceTable(Stems_No_Name)}
 
  if(nrow(Stems_Trees_Wrong_Name)==0) cat("All tree stems have the same Latin name as their correspoding tree record.<br>") else {

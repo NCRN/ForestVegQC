@@ -203,16 +203,21 @@ Bad or Suspicious Status Changes
 <!-- ```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"} -->
 <!-- ``` -->
 
-## Stems
+<!-- ## Stems -->
 
-```{r Stem-QC, child="07_ForestVegStemQC.Rmd"}
-```
+<!-- ```{r Stem-QC, child="07_ForestVegStemQC.Rmd"} -->
+<!-- ``` -->
 
 
 <!-- ## Shrubs -->
 
-<!-- ```{r Shrub-QC, child="ForestVegShrubQC.Rmd"} -->
+<!-- ```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"} -->
 <!-- ``` -->
+
+## Conditions
+
+```{r Condition-QC, child="09_ForestVegConditionsQC.Rmd"}
+```
 
 
 <!-- ## Vines -->

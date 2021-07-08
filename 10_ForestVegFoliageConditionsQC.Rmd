@@ -75,81 +75,74 @@ Foliage_Bad_Year<-QCFoliage %>%
  filter(Sample_Year != year(ymd(Date))) %>% 
  select(Unit_Code, Plot_Name, Sample_Year,Date, Tag, Latin_Name)
 
-# ## Condition Record Tags
-#  
-# # 9.8.0
-# Conditions_Bad_Tag<-QCConditions %>% filter(!Tag %in% 1:30000) %>%
-#  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
-#  
-# Conditions_No_Plant<-QCConditions %>% anti_join(
-#   bind_rows(QCTrees %>% select(Tag, Sample_Year),
-#             QCSaplings %>% select(Tag, Sample_Year),
-#             QCShrubs %>% select(Tag, Sample_Year))
-#   ) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
-# 
-# ## Latin Name
-# 
-# # 9.9.0
-# Condtions_No_Name<-QCConditions %>% filter(Latin_Name=="") %>%
-#  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
-# 
-# Conditions_Wrong_Name<-QCConditions %>% anti_join(
-#   bind_rows(QCTrees %>% select(Tag, Sample_Year, Latin_Name),
-#             QCSaplings %>% select(Tag, Sample_Year, Latin_Name),
-#             QCShrubs %>% select(Tag, Sample_Year, Latin_Name))
-#   ) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
-# 
-# ## TSN
-# 
-# # 9.10.0
-# Conditions_No_TSN <-QCConditions %>% filter(is.na(TSN) | TSN=="") %>%
-#  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
-# 
-# Conditions_Wrong_TSN<-QCConditions %>% anti_join(
-#   bind_rows(QCTrees %>% select(Tag, Sample_Year, TSN),
-#             QCSaplings %>% select(Tag, Sample_Year, TSN),
-#             QCShrubs %>% select(Tag, Sample_Year, TSN))
-#   ) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
+## Foliage Record Tags
+  
+# 10.8.0
+Foliage_Bad_Tag<-QCFoliage %>% filter(!Tag %in% 1:30000) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
-## Foliage
+Foliage_No_Plant<-QCFoliage %>% anti_join(QCWoodies) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
-# #5.15.0
-# Trees_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
-#               !Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other") )) %>% 
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
-#   
-# #5.16.0
-# Trees_Bad_Foliage_Percent<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Percent_Afflicted) | 
-#                             Percent_Afflicted<1 |Percent_Afflicted>100)) %>% 
-#     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
-# 
-# #5.17.0
-# Trees_Redundant_Foliage<-QCFoliage %>% filter(Sample_Year  %in% QCYears) %>% 
-#   group_by(Tag, Sample_Year) %>% filter(n()!=n_distinct(Condition_Description)) %>%
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
+## Latin Name
 
-#5.18.0
-#Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
-#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
+# 10.9.0
+Foliage_No_Name<-QCFoliage %>% filter(Latin_Name=="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
-## Foliage
+Foliage_Wrong_Name<-QCFoliage %>% anti_join(QCWoodies) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
-#6.16.0
-# Saplings_Bad_Foliage_Condition<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Condition_Description) | 
-#               !Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other") )) %>% 
-#   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
-#   
-# 
-# Trees_Bad_Foliage_Percent<-QCFoliage %>% filter(Sample_Year  %in% QCYears & (is.na(Percent_Afflicted) | 
-#                             Percent_Afflicted<1 |Percent_Afflicted>100)) %>% 
-#     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
-# 
-# Trees_Unalive_Foliage<- QCFoliage %>% filter(Sample_Year %in% QCYears & !Status %in% Live_Status ) %>% 
-#     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
+## TSN
 
+# 10.10.0
+Foliage_No_TSN <-QCFoliage %>% filter(is.na(TSN) | TSN=="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
+
+Foliage_Wrong_TSN<-QCFoliage %>% anti_join(QCWoodies) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
+
+## Condition and Description
+
+# 10.11.0
+Foliage_Bad_Condition<-QCFoliage %>% 
+  filter(!Condition %in% c("C", "H", "N", "O", "S", "W")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
+
+#10.12.0
+Foliage_Bad_Condition_Description<-QCFoliage %>% 
+  filter(!Condition_Description %in% c("Chlorosis","Holes","Necrosis","Small leaves","Wilting","Other")) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description)
+ 
+#10.13.0
+Foliage_Redundant_Condition_Description<-QCFoliage %>%  
+ group_by(Tag, Sample_Year, Condition_Description) %>% filter(n()!=n_distinct(Condition_Description)) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
+
+#10.14.0
+Foliage_Mismatch_Condition<-QCFoliage %>% 
+    filter( (Condition=="C" & Condition_Description !="Chlorosis")|
+            (Condition=="H" & Condition_Description !="Holes")|
+            (Condition=="N" & Condition_Description != "Necrosis")|
+            (Condition=="O" & Condition_Description !="Other") |
+            (Condition=="S" & Condition_Description !="Small leaves")|
+            (Condition=="W" & Condition_Description != "Wilting")
+           ) %>% 
+    select(Plot_Name, Sample_Year, Tag, Latin_Name, Condition, Condition_Description)
+
+
+#10.15.0
+Foliage_Unalive<- QCFoliage %>% 
+  inner_join( QCWoodies %>% filter(Status %in% c(Dead_Status, Missing_Status, Other_Status ))) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition_Description, Percent_Afflicted)
+
+
+## Percent Afflicted
+
+#10.16.0
+Foliage_Bad_Percent<-QCFoliage %>% 
+  filter( is.na(Percent_Afflicted) | Percent_Afflicted<1 |Percent_Afflicted>100) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition_Description, Percent_Afflicted)
 
 
 ```
@@ -218,13 +211,11 @@ errorText("Foliage records whose date does not match its sample year:"); NiceTab
 ### Tag
 
 ```{r Foliage_Tag, echo=FALSE, hold=FALSE, results="asis"}
-# if(nrow(Conditions_Bad_Tag)==0) cat("All condition records have a valid tag.<br>") else {
-#   errorText("Condition records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Conditions_Bad_Tag)}
-#  
-# if(nrow(Conditions_No_Plant)==0) cat("All condition records are matched with a tree, sapling or shrub record.<br>") else {
-#     errorText("Condition records without a matching tree, sapling or shrub:"); NiceTable(Conditions_No_Plant)}
- 
+if(nrow(Foliage_Bad_Tag)==0) cat("All foliage records have a valid tag.<br>") else {
+ errorText("Foliage records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Foliage_Bad_Tag)}
 
+if(nrow(Foliage_No_Plant)==0) cat("All foliage records are matched with a tree, sapling or shrub record.<br>") else {
+   errorText("Foliage records without a matching tree, sapling or shrub:"); NiceTable(Foliage_No_Plant)}
 
 ```
 
@@ -234,42 +225,49 @@ errorText("Foliage records whose date does not match its sample year:"); NiceTab
 
 ```{r Foliage_Species, echo=FALSE, hold=FALSE, results="asis"}
  
-# if(nrow(Condtions_No_Name)==0) cat("All condition records have a species ID.<br>") else {
-#      errorText("Condition records with no species name:"); NiceTable(Conditions_No_Name)}
-#   
-# if(nrow(Conditions_Wrong_Name)==0) cat("All condition records Latin names match their tree, sapling or shrub record.<br>") else {
-#     errorText("Condition records whose Latin names don't match their tree, sapling or shrub:"); NiceTable(Conditions_Wrong_Name)}
-# 
-# if(nrow(Conditions_No_TSN)==0) cat("All condition records have a TSN.<br>") else {
-#      errorText("Condition records with no TSN:"); NiceTable(Conditions_No_TSN)}
-# 
-# if(nrow(Conditions_Wrong_TSN)==0) cat("All condition records TSN's match their tree, sapling or shrub record.<br>") else {
-#     errorText("Condition records whose TSN's don't match their tree, sapling or shrub:"); NiceTable(Conditions_Wrong_TSN)}
-
-```
-
----
-
-
-### Tree Foliage
-
-```{r Plant_Foliage, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Foliage_No_Name)==0) cat("All foliage records have a species ID.<br>") else {
+    errorText("Foliage records with no species name:"); NiceTable(Foliage_No_Name)}
+   
+if(nrow(Foliage_Wrong_Name)==0) cat("All foliage records Latin names match their tree, sapling or shrub record.<br>") else {
+   errorText("Foliage records whose Latin names don't match their tree, sapling or shrub:"); NiceTable(Foliage_Wrong_Name)}
  
-# cat("<br>**Living Tree Foliage Conditions**<br>")
-#   if(nrow(Trees_Bad_Foliage_Condition)==0) cat("All live tree foliage conditions are valid. <br>") else {
-#      errorText("Living tree records with invalid foliage conditions:"); NiceTable(Trees_Bad_Foliage_Condition)}
-#   
-# cat("<br>**Living Tree Foliage Percent**<br>")
-#   if(nrow(Trees_Bad_Foliage_Condition)==0) cat("All foliage percents on live trees are valid.<br>") else {
-#      errorText("Living tree records with invalid foliage percents:"); NiceTable(Trees_Bad_Foliage_Percent)}
-# 
-# cat("<br>**Living Redundant Foliage Condition**<br>")
-#   if(nrow(Trees_Redundant_Foliage)==0) cat("No foliage conditions were repeated.<br>") else {
-#      errorText("Tree records with repeated foliage conditions:"); NiceTable(Trees_Redundant_Foliage)}
+if(nrow(Foliage_No_TSN)==0) cat("All foliage records have a TSN.<br>") else {
+    errorText("Foliage records with no TSN:"); NiceTable(Foliage_No_TSN)}
 
-# cat("<br>**Non-Living Tree Foliage Conditions**<br>")  
-#   if(nrow(Trees_Unalive_Foliage)==0) cat("No non-living trees have foliage condiditons.<br>") else {
-#    errorText("Non-living tree records with foliage conditions:"); NiceTable(Trees_Unalive_Foliage)}
+if(nrow(Foliage_Wrong_TSN)==0) cat("All foliage records TSN's match their tree, sapling or shrub record.<br>") else {
+   errorText("Foliage records whose TSN's don't match their tree, sapling or shrub:"); NiceTable(Foliage_Wrong_TSN)}
+
 ```
 
 ---
+
+### Foliage Conditions
+
+```{r Foliage_Conditions, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Foliage_Bad_Condition)==0) cat("All foliage records' conditions are valid. <br>") else {
+  errorText("Foliage records with invalid foliage conditions:"); NiceTable(Foliage_Bad_Condition)}
+   
+if(nrow(Foliage_Bad_Condition_Description)==0) cat("All foliage records' condition descritpions are valid. <br>") else {
+      errorText("Foliage records with invalid condition descriptions:"); NiceTable(Foliage_Bad_Condition_Description)}
+
+if(nrow(Foliage_Redundant_Condition_Description)==0) cat("No foliage conditons are repeated on a single tree, sapling or shurb. <br>") else {
+      errorText("Trees, saplings and shrus with repeated foliage conditions:"); NiceTable(Foliage_Redundant_Condition_Description)}
+
+if(nrow(Foliage_Mismatch_Condition)==0) cat("All foliage condtion codes and condition descriptions are consistent. <br>") else {
+      errorText("Foliage records with inconsistent condition codes and condition descriptions:"); NiceTable(Foliage_Mismatch_Condition)}
+
+if(nrow(Foliage_Unalive)==0) cat("No non-living trees, saplings or shrubs have foliage condiditons.<br>") else {
+  errorText("Non-living trees, saplings or shrubs with foliage conditions:"); NiceTable(Foliage_Unalive)}
+```
+
+---
+
+### Precent Afflicted
+
+```{r Foliage_Percent, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Foliage_Bad_Percent)==0) cat("All foliage percents on live trees are valid.<br>") else {
+    errorText("Foliage  records with invalid foliage percents:"); NiceTable(Foliage_Bad_Percent)}
+
+```

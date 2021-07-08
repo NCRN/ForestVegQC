@@ -80,11 +80,7 @@ Conditions_Bad_Year<-QCConditions %>%
 Conditions_Bad_Tag<-QCConditions %>% filter(!Tag %in% 1:30000) %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
  
-Conditions_No_Plant<-QCConditions %>% anti_join(
-  bind_rows(QCTrees %>% select(Tag, Sample_Year),
-            QCSaplings %>% select(Tag, Sample_Year),
-            QCShrubs %>% select(Tag, Sample_Year))
-  ) %>% 
+Conditions_No_Plant<-QCConditions %>% anti_join(QCWoodies) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 ## Latin Name
@@ -93,11 +89,7 @@ Conditions_No_Plant<-QCConditions %>% anti_join(
 Condtions_No_Name<-QCConditions %>% filter(Latin_Name=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
-Conditions_Wrong_Name<-QCConditions %>% anti_join(
-  bind_rows(QCTrees %>% select(Tag, Sample_Year, Latin_Name),
-            QCSaplings %>% select(Tag, Sample_Year, Latin_Name),
-            QCShrubs %>% select(Tag, Sample_Year, Latin_Name))
-  ) %>% 
+Conditions_Wrong_Name<-QCConditions %>% anti_join(QCWoodies) %>%  
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 ## TSN
@@ -106,11 +98,7 @@ Conditions_Wrong_Name<-QCConditions %>% anti_join(
 Conditions_No_TSN <-QCConditions %>% filter(is.na(TSN) | TSN=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
 
-Conditions_Wrong_TSN<-QCConditions %>% anti_join(
-  bind_rows(QCTrees %>% select(Tag, Sample_Year, TSN),
-            QCSaplings %>% select(Tag, Sample_Year, TSN),
-            QCShrubs %>% select(Tag, Sample_Year, TSN))
-  ) %>% 
+Conditions_Wrong_TSN<-QCConditions %>% anti_join(QCWoodies) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
 
 ## Status
@@ -119,11 +107,7 @@ Conditions_Wrong_TSN<-QCConditions %>% anti_join(
 Conditions_No_Status <- QCConditions %>% filter(is.na(Status) | Status=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
-Conditions_Wrong_Status<-QCConditions %>% anti_join(
-  bind_rows(QCTrees %>% select(Tag, Sample_Year, Status),
-            QCSaplings %>% select(Tag, Sample_Year, Status),
-            QCShrubs %>% select(Tag, Sample_Year, Status))
-  ) %>% 
+Conditions_Wrong_Status<-QCConditions %>% anti_join(QCWoodies) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
  
 
@@ -131,7 +115,7 @@ Conditions_Wrong_Status<-QCConditions %>% anti_join(
 
 #9.12.0
 
-Conditions_Missing <- QCConditions %>% filter(is.na(Status) | Status=="") %>%
+Conditions_Missing <- QCConditions %>% filter(is.na(Condition) | Condition=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
         
 Plants_Live_Bad_Tree_Condition<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &

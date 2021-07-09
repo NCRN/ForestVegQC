@@ -478,7 +478,7 @@ errorText("Saplings without a cycle or with a cycle that does not match its even
 ```{r Sapling_Dates, echo=FALSE, hold=FALSE, results="asis"}
 
 if(nrow(Saplings_Bad_Date)==0) cat("All sapling dates match an event date.<br>") else {
-  errorText("Saplings whose date does not match an event date:"); NiceTable(Sapling_Bad_Date)}
+  errorText("Saplings whose date does not match an event date:"); NiceTable(Saplings_Bad_Date)}
  
 if(nrow(Saplings_Bad_Year)==0) cat("All sapling dates and sample years are consistent.<br>") else {
   errorText("Saplings whose date does not match its sample year:"); NiceTable(Saplings_Bad_Year)}

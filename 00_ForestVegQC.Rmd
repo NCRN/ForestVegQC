@@ -155,6 +155,7 @@ Bad or Suspicious Status Changes
 #### Foliage
 - In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
 
+- Foliage does not have status, habit or class exported which would help in QC
 
 #### Vines
 - Need  a mechanism to check if Latin names are reasonable
@@ -177,42 +178,42 @@ Bad or Suspicious Status Changes
 
 - Need to export Herb browsable and browse data
 
-## Plots
+<!-- ## Plots -->
 
-```{r Plot-QC, child="01_ForestVegPlotsQC.Rmd"}
-```
-
-
-## Events
-
-```{r Event-QC, child="02_ForestVegEventsQC.Rmd"}
-```
-
-## Plot Floor
-
-```{r Plot_Floor-QC, child="03_ForestVegPlotFloorQC.Rmd"}
-```
-
-## CWD
-
-```{r CWD-QC, child="04_ForestVegCWDQC.Rmd"}
-```
-
-## Trees
-
-```{r Tree-QC, child="05_ForestVegTreeQC.Rmd"}
-```
+<!-- ```{r Plot-QC, child="01_ForestVegPlotsQC.Rmd"} -->
+<!-- ``` -->
 
 
-## Saplings
+<!-- ## Events -->
 
-```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"}
-```
+<!-- ```{r Event-QC, child="02_ForestVegEventsQC.Rmd"} -->
+<!-- ``` -->
 
-## Stems
+<!-- ## Plot Floor -->
 
-```{r Stem-QC, child="07_ForestVegStemQC.Rmd"}
-```
+<!-- ```{r Plot_Floor-QC, child="03_ForestVegPlotFloorQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## CWD -->
+
+<!-- ```{r CWD-QC, child="04_ForestVegCWDQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## Trees -->
+
+<!-- ```{r Tree-QC, child="05_ForestVegTreeQC.Rmd"} -->
+<!-- ``` -->
+
+
+<!-- ## Saplings -->
+
+<!-- ```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## Stems -->
+
+<!-- ```{r Stem-QC, child="07_ForestVegStemQC.Rmd"} -->
+<!-- ``` -->
 
 
 ## Shrubs
@@ -220,37 +221,37 @@ Bad or Suspicious Status Changes
 ```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"}
 ```
 
-## Conditions
+<!-- ## Conditions -->
 
-```{r Condition-QC, child="09_ForestVegConditionsQC.Rmd"}
-```
+<!-- ```{r Condition-QC, child="09_ForestVegConditionsQC.Rmd"} -->
+<!-- ``` -->
 
-## Foliage
+<!-- ## Foliage -->
 
-```{r Foliage-QC, child="10_ForestVegFoliageConditionsQC.Rmd"}
-```
+<!-- ```{r Foliage-QC, child="10_ForestVegFoliageConditionsQC.Rmd"} -->
+<!-- ``` -->
 
-## Vines
+<!-- ## Vines -->
 
-```{r Vine-QC, child="ForestVegVineQC.Rmd"}
-```
-
-
-## Quadrats
-
-```{r Quad-QC, child="ForestVegQuadsQC.Rmd"}
-```
+<!-- ```{r Vine-QC, child="ForestVegVineQC.Rmd"} -->
+<!-- ``` -->
 
 
-## Seedlings
+<!-- ## Quadrats -->
 
-```{r Seedling-QC, child="ForestVegSeedlingQC.Rmd"}
-```
+<!-- ```{r Quad-QC, child="ForestVegQuadsQC.Rmd"} -->
+<!-- ``` -->
 
-## Herbs
 
-```{r Herb-QC, child="ForestVegHerbQC.Rmd"}
-```
+<!-- ## Seedlings -->
+
+<!-- ```{r Seedling-QC, child="ForestVegSeedlingQC.Rmd"} -->
+<!-- ``` -->
+
+<!-- ## Herbs -->
+
+<!-- ```{r Herb-QC, child="ForestVegHerbQC.Rmd"} -->
+<!-- ``` -->
 
 ## Change over time
 

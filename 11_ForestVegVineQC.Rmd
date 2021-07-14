@@ -1,0 +1,312 @@
+---
+title: "Forest Vegetation Vine QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r vine_setup, include=F}
+TotVines<-nrow(QCVines) #Total Number of tree records checked
+## Units
+ 
+#11.1.0
+Vines_Bad_Unit<-QCVines %>% 
+  filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name)
+
+Vines_Bad_Unit_Group<-QCVines %>% 
+   filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                            "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+   select(Unit_Code, Unit_Group, Plot_Name,Sample_Year, Host_Tag, Latin_Name)
+
+Vines_Mismatch_Unit_Group<-QCVines %>% 
+   filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+             Unit_Code=="CATO" & Unit_Group !="CATO"|
+             Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+             Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+             Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+             Unit_Code=="MANA" & Unit_Group !="MANA" |
+             Unit_Code=="MONO" & Unit_Group !="MONO" |
+             Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+             Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+             Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+             Unit_Code=="WOTR" & Unit_Group!="WOTR"
+          ) %>% 
+   select(Plot_Name, Unit_Code, Unit_Group, Sample_Year, Host_Tag, Latin_Name)
+   
+#11.2.0
+
+Vines_No_Plot_Name<-QCVines %>% 
+  filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+  select(Unit_Code, Plot_Name,Sample_Year, Host_Tag, Latin_Name)
+
+## Panel Frame Cycle  
+
+#11.3.0
+Vines_Bad_Panel<-QCVines %>%
+  filter(!Panel %in% 1:4) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Panel,Host_Tag, Latin_Name)
+ 
+#11.4.0
+Vines_Bad_Frame<-QCVines %>%
+  filter(!Frame %in% c("Park","Region")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Frame,Host_Tag, Latin_Name)
+
+#11.5.0
+Vines_Bad_Cycle<-QCVines %>% 
+  filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+      !(Cycle==2 & Sample_Year %in% 2010:2013) &
+      !(Cycle==3 & Sample_Year %in% 2014:2017) &
+      !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+  select(Unit_Code,Plot_Name, Sample_Year, Cycle,Host_Tag, Latin_Name)
+
+## Dates
+
+#11.6.0
+Vines_Bad_Date<-QCVines %>% 
+  filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Date, Host_Tag, Latin_Name)
+
+#11.7.0
+Vines_Bad_Year<-QCVines %>% 
+  filter(Sample_Year != year(ymd(Date))) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year,Date, Host_Tag, Latin_Name)
+ 
+## Vine Record Tags
+ 
+# 11.8.0
+Vines_Bad_Tag<-QCVines %>% filter(!Host_Tag %in% 1:30000) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name, Host_Latin_Name)
+
+Vines_No_Plant<-QCVines %>% anti_join(QCWoodies, by=c("Host_Tag"="Tag") ) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name, Host_Latin_Name, Condition)
+
+## Latin Name
+ 
+# 11.9.0
+Vines_No_Name<-QCVines %>% filter(Latin_Name=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name)
+
+## TSN
+ 
+# 11.10.0
+Vines_No_TSN <-QCVines %>% filter(is.na(TSN) | TSN=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name, TSN)
+
+## Host Latin Name
+
+#11.12.0
+Vines_No_Host_Name<-QCVines %>% filter(Host_Latin_Name=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name)
+
+Vines_Wrong_Host_Name<-QCVines %>% anti_join(QCWoodies, by=c("Host_Tag"="Tag")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name, Host_Latin_Name)
+ 
+# 11.13.0
+Vines_Redundant<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
+ group_by(Host_Tag, Sample_Year, Latin_Name) %>%  filter(n()!=n_distinct(Latin_Name)) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
+
+# #11.14.0
+# #Vines_Anachronistic<-QCVines %>% filter(Sample_Year %in% QCYears, Tag_Status=="Sapling", Sample_Year<2014) %>% 
+# #  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
+#  
+# 
+
+#11.15.0
+Vines_Bad_Host_Status<-QCVines %>% filter(Sample_Year %in% QCYears, !Host_Status %in% Live_Status) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
+
+#11.16.0
+Vines_Bad_Condition<-QCVines %>% filter(Sample_Year %in% QCYears, !Condition %in% c("", "Vines in the crown")) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
+
+Vines_Crown_Inconsistent<-QCVines %>% filter(Sample_Year %in% QCYears,Condition=="Vines in the crown") %>% 
+  select(Unit_Code, Plot_Name, Tag=Host_Tag, Sample_Year, Condition) %>%
+  anti_join(QCConditions %>% select(Unit_Code,Plot_Name, Tag, Sample_Year, Condition))
+
+#11.17.0
+Vines_Bad_Exotic<-QCVines %>% filter(Sample_Year %in% QCYears, !Exotic %in% c(1,0)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name,Exotic)
+
+
+# ### Multi-Year Checks
+ 
+#11.18.0
+
+# Challenge - makes sure trees with no vines are included!
+Vine_Number<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
+  group_by(Host_Tag,Sample_Year) %>% summarize(Vine_Total=n()) %>% 
+  select(Host_Tag, Sample_Year,Vine_Total)
+
+Vines_Number_Changes<-left_join(QCWoodies , Vine_Number,  by=c("Sample_Year"="Sample_Year", "Tag"="Host_Tag")) %>%
+   #filter(Status %in% Live_Status) %>% 
+   mutate(Vine_Total=ifelse(is.na(Vine_Total),0, Vine_Total)) %>% 
+   group_by(Tag) %>% 
+   filter(length(unique(Vine_Total))!=1) %>% ungroup %>% arrange(Cycle) %>% 
+   pivot_wider(id_cols=c(Tag, Latin_Name), names_from=Cycle, names_prefix="Cycle ",   values_from=Vine_Total) %>% 
+   arrange(Tag)
+ 
+```
+
+
+
+#### **Vines Checked:** `r TotVines` ####
+
+### Unit Codes
+
+```{r Vine_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+ if(nrow(Vines_Bad_Unit)==0) cat("All vine records have a recognized Unit Code.<br>") else {
+    errortext("Vine records with a missing or unrecongized Unit Code:"); NiceTable(Vines_Bad_Unit)}
+ 
+ if(nrow(Vines_Bad_Unit_Group)==0) cat("All vine records have a recognized Unit Group.<br>") else {
+    errortext("Vine records with a missing or unrecongized Unit Group:"); NiceTable(Vines_Bad_Unit_Group)}
+  
+ if(nrow(Vines_Mismatch_Unit_Group)==0) cat("All vine records have Unit Group that is consistent with their Unit Code.<br>") else {
+     errortext("Vine records with a Unit Group that is inconsistent with their Unit Code:");NiceTable(Vines_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r Vine_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Vines_No_Plot_Name)==0) cat("All vine records have a Plot Name.<br>") else {
+errortext("Vine records with a missing Plot Name:"); NiceTable(Vines_No_Plot_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r Vine_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Panel Data**<br>")
+if(nrow(Vines_Bad_Panel)==0) cat("Each vine record has a panel code from 1 to 4.<br>") else {
+errorText("Vine records without a panel code from 1-4:"); NiceTable(Vines_Bad_Panel)}
+
+cat("<br>**Frame Data**<br>")
+if(nrow(Vines_Bad_Frame)==0) cat("Each vine record has a frame that is either Region or Park.<br>") else {
+errorText("Vine records without a frame of either Region or Park:"); NiceTable(Vines_Bad_Frame)}
+
+cat("<br>**Cycle Data**<br>")
+if(nrow(Vines_Bad_Cycle)==0) cat("Each vines record is from a cycle that matches its event year.<br>") else {
+errorText("Vines records without a cycle or with a cycle that does not match its event year:"); NiceTable(Vines_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r Vine_Dates, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Vines_Bad_Date)==0) cat("All vine record dates match an event date.<br>") else {
+errorText("Vine records whose date does not match an event date:"); NiceTable(Vines_Bad_Date)}
+
+if(nrow(Vines_Bad_Year)==0) cat("All vine record dates and sample years are consistent.<br>") else {
+errorText("Vine records whose date does not match its sample year:"); NiceTable(Vines_Bad_Year)}
+
+```
+
+---
+
+### Host Tag
+
+```{r Vine_Tag, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Vines_Bad_Tag)==0) cat("All vine records have a valid host tag.<br>") else {
+  errorText("Vine records with no host tag or a host tag <1 or >30,000 tag:"); NiceTable(Vines_Bad_Tag)}
+ 
+if(nrow(Vines_No_Plant)==0) cat("All vine records are matched with a tree, sapling or shrub record.<br>") else {
+  errorText("Vine records without a matching tree, sapling or shrub:"); NiceTable(Vines_No_Plant)}
+
+```
+
+---
+
+### Species ID
+
+```{r Vine_Species, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Vines_No_Name)==0) cat("All vine records have a species ID.<br>") else {
+   errorText("Vine records with no species name:"); NiceTable(Vines_No_Name)}
+
+if(nrow(Vines_No_TSN)==0) cat("All vine records have a TSN.<br>") else {
+   errorText("Vine records with no TSN:"); NiceTable(Vines_No_TSN)}
+
+```
+
+---
+
+
+### Host Latin Name
+
+```{r vine_host_name, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Vines_No_Host_Name)==0) cat("All vine records have a host Latin name.<br>") else {
+  errorText("Vine records without a host Latin name:"); NiceTable(Vines_No_Host_Name)}
+
+  
+if(nrow(Vines_Wrong_Host_Name)==0) cat("All vine records host Latin names match their tree, sapling or shrub record.<br>") else {
+  errorText("Vine records whose host Latin names don't match their tree, sapling or shrub:"); NiceTable(Vines_Wrong_Host_Name)}
+
+
+```
+
+---
+
+### Redundant Vines
+
+```{r Vine_Redundant, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Redundant)==0) cat("No vines are listed twice for the same host during the same event.<br>") else {
+    errorText("Vine species listed twice from the same host during a single event.:"); NiceTable(Vines_Redundant)}
+
+```
+
+---
+
+### Host Status
+
+```{r Vine_Host_Status, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Bad_Host_Status)==0) cat("All vine records are on a living host.<br>") else {
+    errorText("Vine records from a non-living host:"); NiceTable(Vines_Bad_Host_Status)}
+
+```
+
+---
+
+### Host Condition
+
+```{r Vine_Host_Condition, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Bad_Condition)==0) cat("All vine records have either Vines in the crown or blank as a condition.<br>") else {
+    errorText("Vine records with an invalid condition:"); NiceTable(Vines_Bad_Condition)}
+
+ if(nrow(Vines_Crown_Inconsistent)==0) cat("Vine that are recorded as in the crown match conditions export.<br>") else {
+    errorText("Trees where the vine and conditinos export distagee about vines in the crown:"); NiceTable(Vines_Crown_Inconsistent)}
+```
+
+### Vine Nativity
+
+```{r Vine_Nativity, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Vines_Bad_Exotic)==0) cat("All vine records have either an exotic status of 0 or 1.<br>") else {
+    errorText("Vine records with an invalid exotic statsu :"); NiceTable(Vines_Bad_Exotic)}
+
+```
+
+
+### **Change Over Time**
+
+### Trees that Gained or Lost Vines
+
+```{r Vine_Number_Change, echo=FALSE, hold=FALSE, results="asis"}
+ 
+  if(nrow(Vines_Number_Changes)==0) cat("No trees, saplings or shrubs gained or lost vines.<br>") else {
+   errorText("Trees, saplings and shrubs that gained or lost vines:"); NiceTable(Vines_Number_Changes)}
+
+```

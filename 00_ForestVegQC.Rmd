@@ -212,10 +212,10 @@ h1, h2, h3 {
 <!-- ``` -->
 
 
-## Shrubs
+<!-- ## Shrubs -->
 
-```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"}
-```
+<!-- ```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"} -->
+<!-- ``` -->
 
 <!-- ## Conditions -->
 
@@ -227,10 +227,10 @@ h1, h2, h3 {
 <!-- ```{r Foliage-QC, child="10_ForestVegFoliageConditionsQC.Rmd"} -->
 <!-- ``` -->
 
-<!-- ## Vines -->
+## Vines
 
-<!-- ```{r Vine-QC, child="ForestVegVineQC.Rmd"} -->
-<!-- ``` -->
+```{r Vine-QC, child="11_ForestVegVineQC.Rmd"}
+```
 
 
 <!-- ## Quadrats -->

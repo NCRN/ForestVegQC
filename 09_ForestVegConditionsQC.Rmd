@@ -149,7 +149,7 @@ Plants_Unalive_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) &
 
 #9.16.0
 Plants_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=="Vines in the crown")%>% 
- anti_join(QCVines %>% select(Plot_Name,Sample_Year,Tag=Host_Tag)) %>% 
+ anti_join(QCVines %>% filter(Condition=="Vines in the crown") %>%  select(Plot_Name,Sample_Year,Tag=Host_Tag)) %>% 
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Status,  Condition)
 
 ## Tree Pests
@@ -449,7 +449,7 @@ if(nrow(Plants_Unalive_Conditions)==0) cat("No non-living platns have conditions
  errorText("Non-living plant records with a condition:"); NiceTable(Plants_Unalive_Conditions)}
  
 cat("<br>**Vines in the Crown vs. Vines**<br>")
-if(nrow(Plants_Bad_Vines)==0) cat("All tree, sapling ans shrub records with vines in the crown had vine species recorded.<br>") else { 
+if(nrow(Plants_Bad_Vines)==0) cat("All tree, sapling ans shrub records with vines in the crown had vine species recorded in the crown.<br>") else { 
  errorText("Tree, sapling or shrub records with vines in the crown but no corresponding vine record:"); NiceTable(Plants_Bad_Vines)}
 ```
 

@@ -46,49 +46,44 @@ Quads_Bad_Name<-QCQuads %>% filter(!Quadrat_Number %in% c("60", "180", "300", "1
                                                           "360-3m", "360-8m", "360-13m")) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number)
 
-
-
-##                    CHECK THIS !!!!!!!!!!!! DOES NOT TAKE YEAR INTO ACCOUNT
-Repeat_Quads<-QCQuads %>% group_by(Plot_Name, Quadrat_Number) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% 
-  select(Plot_Name, Quadrat_Number) %>% ungroup
-
-#9.2.0
-
-
-#9.3.0
 Quads_Sampled<-QCEvents %>% left_join(QCQuads, by=c("Plot_Name"="Plot_Name", "Event_Year"="Sample_Year")) %>% group_by (Plot_Name, Event_Year) %>% summarize(Quads_Sampled=length(na.omit(Quadrat_Number)), Unique_Quads=length(unique(na.omit(Quadrat_Number)))) %>% 
   filter(Quads_Sampled!=12 | Unique_Quads !=12)
-# ## Panel Frame Cycle  
-# 
-# #11.3.0
-# Vines_Bad_Panel<-QCVines %>%
-#   filter(!Panel %in% 1:4) %>% 
-#   select(Unit_Code, Plot_Name, Sample_Year, Panel,Host_Tag, Latin_Name)
-#  
-# #11.4.0
-# Vines_Bad_Frame<-QCVines %>%
-#   filter(!Frame %in% c("Park","Region")) %>% 
-#   select(Unit_Code, Plot_Name, Sample_Year, Frame,Host_Tag, Latin_Name)
-# 
-# #11.5.0
-# Vines_Bad_Cycle<-QCVines %>% 
-#   filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
-#       !(Cycle==2 & Sample_Year %in% 2010:2013) &
-#       !(Cycle==3 & Sample_Year %in% 2014:2017) &
-#       !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
-#   select(Unit_Code,Plot_Name, Sample_Year, Cycle,Host_Tag, Latin_Name)
-# 
-# ## Dates
-# 
-# #11.6.0
-# Vines_Bad_Date<-QCVines %>% 
-#   filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
-#   select(Unit_Code, Plot_Name, Sample_Year, Date, Host_Tag, Latin_Name)
-# 
-# #11.7.0
-# Vines_Bad_Year<-QCVines %>% 
-#   filter(Sample_Year != year(ymd(Date))) %>% 
-#   select(Unit_Code, Plot_Name, Sample_Year,Date, Host_Tag, Latin_Name)
+
+
+Repeat_Quads<-QCQuads %>% group_by(Plot_Name, Quadrat_Number, Sample_Year) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% 
+  select(Plot_Name, Quadrat_Number, Sample_Year) %>% ungroup
+
+## Panel Frame Cycle  
+ 
+#12.4.0
+Quads_Bad_Panel<-QCQuads%>%
+ filter(!Panel %in% 1:4) %>% 
+ select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Panel)
+  
+#12.5.0
+Quads_Bad_Frame<-QCQuads %>%
+ filter(!Frame %in% c("Park","Region")) %>% 
+ select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Frame)
+
+#12.6.0
+Quads_Bad_Cycle<-QCQuads %>% 
+ filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+     !(Cycle==2 & Sample_Year %in% 2010:2013) &
+     !(Cycle==3 & Sample_Year %in% 2014:2017) &
+     !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+ select(Unit_Code,Plot_Name, Quadrat_Number,  Sample_Year, Cycle)
+
+## Dates
+
+#12.7.0
+Quads_Bad_Date<-QCQuads %>% 
+ filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+ select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Date)
+
+#12.8.0
+Quads_Bad_Year<-QCQuads %>% 
+ filter(Sample_Year != year(ymd(Date))) %>% 
+ select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year,Date)
 
  
 
@@ -237,8 +232,9 @@ cat("<br>**Quadrats Sampled**<br>")
   if(nrow(Quads_Sampled)==0) cat("All plots have exactly 12 different quadrats sampled. <br>") else {
      errorText("Plots with more or less than 12 quadrats sampled:"); NiceTable(Quads_Sampled)}
 
-
-
+cat("<br>**Quadrats Repeated**<br>") 
+  if(nrow(Repeat_Quads)==0) cat("No quadrats were sampled twice in the same year. <br>") else {
+     errorText("Quads that were sampled more than once in a single year:"); NiceTable(Repeat_Quads)}
 ```
 
 ---
@@ -247,17 +243,17 @@ cat("<br>**Quadrats Sampled**<br>")
 
 ```{r Quad_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
 
-# cat("<br>**Panel Data**<br>")
-# if(nrow(Vines_Bad_Panel)==0) cat("Each vine record has a panel code from 1 to 4.<br>") else {
-# errorText("Vine records without a panel code from 1-4:"); NiceTable(Vines_Bad_Panel)}
-# 
-# cat("<br>**Frame Data**<br>")
-# if(nrow(Vines_Bad_Frame)==0) cat("Each vine record has a frame that is either Region or Park.<br>") else {
-# errorText("Vine records without a frame of either Region or Park:"); NiceTable(Vines_Bad_Frame)}
-# 
-# cat("<br>**Cycle Data**<br>")
-# if(nrow(Vines_Bad_Cycle)==0) cat("Each vines record is from a cycle that matches its event year.<br>") else {
-# errorText("Vines records without a cycle or with a cycle that does not match its event year:"); NiceTable(Vines_Bad_Cycle)}
+cat("<br>**Panel Data**<br>")
+if(nrow(Quads_Bad_Panel)==0) cat("Each quad record has a panel code from 1 to 4.<br>") else {
+errorText("Quad records without a panel code from 1-4:"); NiceTable(Quads_Bad_Panel)}
+ 
+cat("<br>**Frame Data**<br>")
+if(nrow(Quads_Bad_Frame)==0) cat("Each quad record has a frame that is either Region or Park.<br>") else {
+errorText("Quad records without a frame of either Region or Park:"); NiceTable(Quads_Bad_Frame)}
+
+cat("<br>**Cycle Data**<br>")
+if(nrow(Quads_Bad_Cycle)==0) cat("Each quad record is from a cycle that matches its event year.<br>") else {
+errorText("Quad records without a cycle or with a cycle that does not match its event year:"); NiceTable(Quad_Bad_Cycle)}
 
 ```
 
@@ -266,11 +262,11 @@ cat("<br>**Quadrats Sampled**<br>")
 ###  Dates
 ```{r Quad_Dates, echo=FALSE, hold=FALSE, results="asis"}
 
-# if(nrow(Vines_Bad_Date)==0) cat("All vine record dates match an event date.<br>") else {
-# errorText("Vine records whose date does not match an event date:"); NiceTable(Vines_Bad_Date)}
-# 
-# if(nrow(Vines_Bad_Year)==0) cat("All vine record dates and sample years are consistent.<br>") else {
-# errorText("Vine records whose date does not match its sample year:"); NiceTable(Vines_Bad_Year)}
+if(nrow(Quads_Bad_Date)==0) cat("All quad record dates match an event date.<br>") else {
+errorText("Quad records whose date does not match an event date:"); NiceTable(Quads_Bad_Date)}
+ 
+if(nrow(Quads_Bad_Year)==0) cat("All quad record dates and sample years are consistent.<br>") else {
+errorText("Quad records whose date does not match its sample year:"); NiceTable(Quads_Bad_Year)}
 
 ```
 

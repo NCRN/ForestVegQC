@@ -100,8 +100,15 @@ h1, h2, h3 {
 #### All
 - Flags are not exported from the database and are not considered during QC.
 
-#### Plots
 - Sub-unit codes need to be revisited
+
+- Need a mechanism to check if Latin names are reasonable
+
+- Need a way to check about tags being retired
+
+- Need to export Class and Habit for all relevant tables (Foliage in particular)
+
+#### Plots
 
 - Retired date for retired plots not currently recorded and should be revisited.
 
@@ -110,29 +117,12 @@ h1, h2, h3 {
 
 - Need to consider if and how to handle Invasive, rare and plot maintenance checks before they were part of interface.
 
-#### CWD
-- Need a mechanism to check if Latin names are reasonable
-
-#### Trees
-- Need  a mechanism to check if Latin names are reasonable
-
-- Need a way to check that tree tag is not retired
-
-- Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - eliminate. This is not true of Shrubs
-
-- Export habit and Class fields
-
-
 #### Saplings
 - Around 1680 saplings and shrubs not currently exported due to not having habit filled in. Many are removed from study and would not be exported
-
-- Need a mechanism to check if Latin names are reasonable
 
 - Equivalent diameter and Sum basal area is not exported for dead stems of saplings (this will typcially = 0
 
 - Dead shrubs with no "habit" are exported as saplings
-
-- Need to export class
 
 #### Stems
 - Dead stems not exported
@@ -144,33 +134,17 @@ h1, h2, h3 {
 
 - Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
 
-- Need to export habit and class fields
-
 #### Conditions
+
+- Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - eliminate. This is not true of Shrubs
+
 - In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
-
-#### Foliage
-- In Foliage_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
-
-- Foliage does not have status, habit or class exported which would help in QC
-
-#### Vines
-- Need  a mechanism to check if Latin names are reasonable
-
--  A way to distinguish between tree, sapling and shrub tags
 
 #### Quads
 - Need to export table that matches years with panels so we can verify the correct quads were sampled.
 
-#### Seedlings
-- Need  a mechanism to check if Latin names are reasonable
-
-- Need to export table that matches years with panels so we can verify the correct plots/quads were sampled.
 
 #### Herbs
-- Need  a mechanism to check if Latin names are reasonable
-
-- Need to export table that matches years with panels so we can verify the correct plots/quads were sampled.
 
 - Need to export Herb browsable and browse data
 

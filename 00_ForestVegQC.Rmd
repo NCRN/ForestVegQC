@@ -207,16 +207,16 @@ h1, h2, h3 {
 <!-- ``` -->
 
 
-## Quadrats
+<!-- ## Quadrats -->
 
-```{r Quad-QC, child="12_ForestVegQuadsQC.Rmd"}
-```
-
-
-<!-- ## Seedlings -->
-
-<!-- ```{r Seedling-QC, child="ForestVegSeedlingQC.Rmd"} -->
+<!-- ```{r Quad-QC, child="12_ForestVegQuadsQC.Rmd"} -->
 <!-- ``` -->
+
+
+## Seedlings
+
+```{r Seedling-QC, child="13_ForestVegSeedlingQC.Rmd"}
+```
 
 <!-- ## Herbs -->
 

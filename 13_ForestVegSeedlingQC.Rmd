@@ -1,0 +1,250 @@
+---
+title: "Forest Vegetation Seedling QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r seeding_setup, include=F}
+TotSeeds<-nrow(QCSeedlings) #Total Number of tree records checked
+
+
+# #13.1.0
+Seedlings_Bad_Unit<-QCSeedlings %>% 
+  filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height)
+ 
+Seedlings_Bad_Unit_Group<-QCSeedlings %>% 
+   filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                            "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+   select(Unit_Code, Unit_Group, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height)
+ 
+Seedlings_Mismatch_Unit_Group<-QCSeedlings %>% 
+ filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+           Unit_Code=="CATO" & Unit_Group !="CATO"|
+           Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+           Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+           Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+           Unit_Code=="MANA" & Unit_Group !="MANA" |
+           Unit_Code=="MONO" & Unit_Group !="MONO" |
+           Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+           Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+           Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+           Unit_Code=="WOTR" & Unit_Group!="WOTR"
+        ) %>% 
+ select(Plot_Name, Unit_Code, Unit_Group, Quadrat_Number, Sample_Year, Latin_Name, Height)
+ 
+#13.2.0
+ 
+Seedlings_No_Plot_Name<-QCSeedlings %>% 
+  filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height)
+
+#13.3.0
+Seedings_Bad_Name<-QCSeedlings %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
+                                                         "360-3m", "360-8m", "360-13m")) %>% 
+ select(Plot_Name, Sample_Year, Quadrat_Number, Latin_Name, Height)
+
+# ## Panel Frame Cycle  
+  
+#13.4.0
+Seedlings_Bad_Panel<-QCSeedlings%>%
+  filter(!Panel %in% 1:4) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height, Panel)
+ 
+#13.5.0
+Seedlings_Bad_Frame<-QCSeedlings%>%
+  filter(!Frame %in% c("Park","Region")) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year,Latin_Name, Height, Frame)
+
+#13.6.0
+Seedlings_Bad_Cycle<-QCSeedlings %>% 
+filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+    !(Cycle==2 & Sample_Year %in% 2010:2013) &
+    !(Cycle==3 & Sample_Year %in% 2014:2017) &
+    !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+select(Unit_Code,Plot_Name, Quadrat_Number,  Sample_Year, Latin_Name, Height, Cycle)
+
+## Dates
+ 
+#13.7.0
+Seedlings_Bad_Date<-QCSeedlings %>% 
+  filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height, Date)
+
+#13.8.0
+Seedlings_Bad_Year<-QCSeedlings %>% 
+  filter(Sample_Year != year(ymd(Date))) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height, Date)
+
+
+## Latin Name
+
+#13.9.0
+Seedlings_Bad_Name<-QCSeedlings %>% filter(is.na(Latin_Name) | Latin_Name == "")
+
+#13.10.0
+Seedlings_Bad_Height<-QCSeedlings %>% filter(is.na(Height) | Height=="" | Height<15 | Height>220) %>%
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Height)
+
+## Seedling Browsable and Browse
+ 
+#13.11.0
+Seedlings_Bad_Browsable<-QCSeedlings %>% filter(!Browsable %in% c("Yes","No", "unk") ) %>%
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+
+
+Seedlings_Anachronistic_Browsable<-QCSeedlings %>% filter(Sample_Year<2012 & Browsable != "unk" ) %>%
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+
+Seedlings_Unknown_Browsable <- QCSeedlings %>% filter(Sample_Year >=2012, Browsable == "unk") %>%
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+
+#13.12.0
+Seedlings_Bad_Browsed<-QCSeedlings %>% filter(!Browsed %in% c("Yes","No", "unk") ) %>%
+     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+
+Seedlings_Anachronistic_Browsed<-QCSeedlings %>% filter(Sample_Year<2012 & Browsed != "unk" ) %>%
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+ 
+Seedlings_Unknown_Browsed <- QCSeedlings %>% filter(Sample_Year >=2012, Browsed == "unk") %>%
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+
+#13.13.0
+Seedlings_Illogical_Browse <- QCSeedlings %>% filter(Browsed =="Yes", Browsable == "No") %>%
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Browsable, Browsed)
+ 
+```
+
+
+#### **Seedlings Checked:** `r TotSeeds` ####
+
+
+### Unit Codes
+
+```{r Seedling_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+  if(nrow(Seedlings_Bad_Unit)==0) cat("All seedling records have a recognized Unit Code.<br>") else {
+     errortext("Seedling records with a missing or unrecongized Unit Code:"); NiceTable(Seedlings_Bad_Unit)}
+  
+ if(nrow(Seedlings_Bad_Unit_Group)==0) cat("All seedling records have a recognized Unit Group.<br>") else {
+    errortext("Seedling records with a missing or unrecongized Unit Group:"); NiceTable(Seedlings_Bad_Unit_Group)}
+  
+ if(nrow(Seedlings_Mismatch_Unit_Group)==0) cat("All seedling records have Unit Group that is consistent with their Unit Code.<br>") else {
+     errortext("Seedling_records with a Unit Group that is inconsistent with their Unit Code:"); NiceTable(Seedling_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r Seedling_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Seedlings_No_Plot_Name)==0) cat("All seedling records have a Plot Name.<br>") else {
+errortext("Seedling records with a missing Plot Name:"); NiceTable(Seedlings_No_Plot_Name)}
+
+```
+
+---
+
+###  Quadrats Sampled
+```{r Seedling_Sampled, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Seedling Names**<br>") 
+if(nrow(Seedlings_Bad_Name )==0) cat("All records have a valid quadrat name.<br>") else {
+    errorText("Records without a valid quadrat name:"); NiceTable(Seedlings_Bad_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r Seedling_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Panel Data**<br>")
+if(nrow(Seedlings_Bad_Panel)==0) cat("Each seedling record has a panel code from 1 to 4.<br>") else {
+errorText("Seedling records without a panel code from 1-4:"); NiceTable(Seedlings_Bad_Panel)}
+
+cat("<br>**Frame Data**<br>")
+if(nrow(Seedlings_Bad_Frame)==0) cat("Each seedling record has a frame that is either Region or Park.<br>") else {
+errorText("Seedling records without a frame of either Region or Park:"); NiceTable(Seedling_Bad_Frame)}
+
+cat("<br>**Cycle Data**<br>")
+if(nrow(Seedlings_Bad_Cycle)==0) cat("Each seedling record is from a cycle that matches its event year.<br>") else {
+errorText("Seedling records without a cycle or with a cycle that does not match its event year:"); NiceTable(Seedlings_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r Seelding_Dates, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Seedlings_Bad_Date)==0) cat("All seedling record dates match an event date.<br>") else {
+errorText("Seedling records whose date does not match an event date:"); NiceTable(Seedlings_Bad_Date)}
+
+if(nrow(Seedlings_Bad_Year)==0) cat("All seedling record dates and sample years are consistent.<br>") else {
+errorText("Seedling records whose date does not match its sample year:"); NiceTable(Seedlings_Bad_Year)}
+
+```
+
+---
+
+### Latin Name
+
+```{r seedling_name, echo=FALSE, hold=FALSE, results="asis"}
+
+  if(nrow(Seedlings_Bad_Name)==0) cat("All seedling records have a Latin name.<br>") else {
+     errorText("Seedling records without a Latin name:"); NiceTable(Seedlings_Bad_Name)}
+
+```
+
+---
+
+### Seedling Height
+```{r Seedling_Height, echo=FALSE, hold=FALSE, results="asis"}
+
+ if(nrow(Seedlings_Bad_Height)==0) cat("All seedling records have a hegiht between 15 and 220 cm.<br>") else {
+    errorText("Seedling records without a height between 15 and 220:"); NiceTable(Seedlings_Bad_Height)}
+
+```
+
+---
+
+### Seedling Browse
+
+```{r Seedling_Browse, echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Seedling Browsable Status Invalid**<br>") 
+  if(nrow(Seedlings_Bad_Browsable)==0) cat("All seedlings have a valid browsable status.<br>") else {
+     errorText("Seedling records with a browsable status other than Yes, No, or unk:"); NiceTable(Seedlings_Bad_Browsable)}
+  
+cat("<br>**Seedlings Anachronistic Browsable Status**<br>") 
+   if(nrow(Seedlings_Anachronistic_Browsable)==0) cat("No seedling records have a browsable status before 2012.<br>") else {
+      errorText("Seedling records with a browsable status before 2012:"); NiceTable(Seedlings_Anachronistic_Browsable)}
+
+cat("<br>**Seedlings with unknown Browsable Status**<br>")
+    if(nrow(Seedlings_Unknown_Browsable)==0) cat("No seedings have a browsable status of 'unk' after 2011.<br>") else {
+       errorText("Seedling records with a browsable status 'unk' after 2011:"); NiceTable(Seedlings_Unknown_Browsable)}
+
+cat("<br>**Seedlings Browsed Status Invalid**<br>") 
+   if(nrow(Seedlings_Bad_Browsed)==0) cat("All seedlings saplings have a valid browsed status.<br>") else {
+      errorText("Seedling records with a browsed status other than unk, Yes, or No:"); NiceTable(Seedlings_Bad_Browsed)}
+    
+cat("<br>**Seedlings Anachronistic Browsed Status**<br>") 
+   if(nrow(Seedlings_Anachronistic_Browsed)==0) cat("No seedling records have a browsed status before 2012.<br>") else {
+      errorText("Seedling records with a browsed status before 2012:"); NiceTable(Seedlings_Anachronistic_Browsed)}
+
+cat("<br>**Seedlings with unknown Browsed Status**<br>")
+    if(nrow(Seedlings_Unknown_Browsed)==0) cat("No seedings have a browsed status of 'unk' after 2011.<br>") else {
+       errorText("Seedling records with a browsed status 'unk' after 2011:"); NiceTable(Seedlings_Unknown_Browsed)}
+ 
+cat("<br>**Seedlings with Illogical Browsing**<br>")
+    if(nrow(Seedlings_Illogical_Browse)==0) cat("No seedings have contradictory browsable and browsed status.<br>") else {
+       errorText("Seedling records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Seedlings_Illogical_Browse)}
+
+```
+
+
+

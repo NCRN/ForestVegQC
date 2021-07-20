@@ -359,11 +359,25 @@ cat("<br>**Quadrats Fern Change > 15%**<br>")
 if(nrow(Quads_Percent_Ferns_Changed)==0) cat("No records with an unusal change in Fern Cover.<br>") else {
    errorText("Events with a Fern Cover change of more than 15% between visits."); NiceTable(Quads_Percent_Ferns_Changed)}
 
+<<<<<<< HEAD
 
 cat("<br>**Possible Confusion between Grasses and Sedges **<br>") 
 if(nrow(Grass_Sedge_Switched)==0) cat("No records showed potential confusion between grasses and sedges.<br>") else {
    errorText("Records that indicate a possible confusion between grasses and sedges"); NiceTable(Grass_Sedge_Switched)}
 
 ```
+=======
+
+cat("<br>**Possible Confusion between Grasses and Sedges **<br>") 
+if(nrow(Grass_Sedge_Switched)==0) cat("No records showed potential confusion between grasses and sedges.<br>") else {
+   errorText("Records that indicate a possible confusion between grasses and sedges"); NiceTable(Grass_Sedge_Switched)}
+
+```
+
+
+
+
+---
+>>>>>>> 1ba63d6423566d61fa708e43643d0c618e93105e
 
 

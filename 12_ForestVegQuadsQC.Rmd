@@ -50,8 +50,8 @@ Quads_Sampled<-QCEvents %>% left_join(QCQuads, by=c("Plot_Name"="Plot_Name", "Ev
   filter(Quads_Sampled!=12 | Unique_Quads !=12)
 
 
-Repeat_Quads<-QCQuads %>% group_by(Plot_Name, Quadrat_Number, Sample_Year) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% 
-  select(Plot_Name, Quadrat_Number, Sample_Year) %>% ungroup
+Duplicate_Quads<-QCQuads %>% group_by(Plot_Name, Quadrat_Number, Sample_Year) %>% summarize(Records=n()) %>% filter(Records>1) %>% 
+  select(Plot_Name, Quadrat_Number, Sample_Year, Records) %>% ungroup
 
 ## Panel Frame Cycle  
  
@@ -86,57 +86,61 @@ Quads_Bad_Year<-QCQuads %>%
  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year,Date)
 
  
-
-#9.4.0
+#12.9.0
 Quads_Percent_Trees<-QCQuads %>% filter(Percent_Trees<0 | Percent_Trees>100 | Percent_Trees=="" | is.na(Percent_Trees)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Trees)
 
-#9.5.0
+#12.10.0
 Quads_Percent_Bryophytes<-QCQuads %>% filter(Percent_Bryophytes<0 | Percent_Bryophytes>100 | Percent_Bryophytes=="" | is.na(Percent_Bryophytes)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Bryophytes)
 
-#9.6.0
+#12.11.0
 Quads_Percent_Rock<-QCQuads %>% filter(Percent_Rock<0 | Percent_Rock>100 | Percent_Rock=="" | is.na(Percent_Rock)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Rock)
 
-#9.7.0
+#12.12.0
 Quads_Percent_CWD<-QCQuads %>% filter(Percent_Coarse_Woody_Debris<0 | Percent_Coarse_Woody_Debris>100 | Percent_Coarse_Woody_Debris=="" |
                                         is.na(Percent_Coarse_Woody_Debris)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Coarse_Woody_Debris)
 
-#9.8.0
-Quads_Percent_FWD<-QCQuads %>% filter(Percent_Fine_Woody_Debris<0 | Percent_Fine_Woody_Debris>100 | Percent_Fine_Woody_Debris=="" | 
+#12.13.0
+Quads_Percent_FWD<-QCQuads %>% filter(Sample_Year>=2013, Percent_Fine_Woody_Debris<0 | Percent_Fine_Woody_Debris>100 | Percent_Fine_Woody_Debris=="" | 
                                         is.na(Percent_Fine_Woody_Debris)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Fine_Woody_Debris)
 
-#9.9.0
+#12.14.0
 Quads_Percent_Other<-QCQuads %>% filter(Percent_Other<0 | Percent_Other>100 | Percent_Other=="" | is.na(Percent_Other)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Other)
 
-#9.10.0
+#12.15.0
 Quads_Percent_Grasses<-QCQuads %>% filter(Percent_Grasses<0 | Percent_Grasses>100 | Percent_Grasses=="" | is.na(Percent_Grasses)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Grasses)
 
-#9.11.0
+#12.16.0
 Quads_Percent_Sedges<-QCQuads %>% filter(Percent_Sedges<0 | Percent_Sedges>100 | Percent_Sedges=="" | is.na(Percent_Sedges)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Sedges)
 
-#9.12.0
+#12.17.0
 Quads_Percent_Herbs<-QCQuads %>% filter(Percent_Herbs<0 | Percent_Herbs>100 | Percent_Herbs=="" | is.na(Percent_Herbs)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Herbs)
 
-#9.13.0
+#12.18.0
 Quads_Percent_Ferns<-QCQuads %>% filter(Percent_Ferns<0 | Percent_Ferns>100 | Percent_Ferns=="" | is.na(Percent_Ferns)) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Percent_Ferns)
 
-#9.14.0
+#12.19.0
 Quads_Percent_Overload<-QCQuads %>% 
   mutate(Total= Percent_Trees + Percent_Rock + Percent_Coarse_Woody_Debris + Percent_Fine_Woody_Debris + Percent_Other) %>%
   filter(Total > 100) %>% 
   select(Plot_Name, Sample_Year, Quadrat_Number, Tree=Percent_Trees, Rock=Percent_Rock, CWD=Percent_Coarse_Woody_Debris,
          FWD=Percent_Fine_Woody_Debris,Other= Percent_Other, Total) 
 
-#9.15.0
+## Change over Time
+
+Repeat_Quads<-QCQuads %>%  group_by(Plot_Name, Quadrat_Number) %>% summarize(Records=n()) %>% filter(Records>1) 
+
+
+#12.20.0
 Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Trees) %>% 
@@ -147,7 +151,7 @@ Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
   
-#9.16.0
+#12.21.0
 Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Rock) %>% 
@@ -158,7 +162,7 @@ Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
 
-#9.17.0
+#12.22.0
 Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Bryophytes) %>% 
@@ -169,17 +173,7 @@ Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
 
-# Quads_Percent_Herbs_Changed <-if(nrow(Repeat_Quads>0)){
-#   Repeat_Quads %>% left_join(QCQuads) %>% 
-#     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Herbs) %>% 
-#     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
-#     mutate(Start_Year=min(Sample_Year), Herb_Change=abs(as.numeric(Percent_Herbs)-lead(as.numeric(Percent_Herbs)))) %>% 
-#     filter(any(Herb_Change>15)) %>% 
-#    pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Herbs, 
-#                names_from = Cycle, names_sort = TRUE)
-#   } else data.frame()
-
-#9.18.0
+#12.23.0
 Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
   Repeat_Quads %>% left_join(QCQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Ferns) %>% 
@@ -189,6 +183,27 @@ Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
    pivot_wider(id_cols=c(Plot_Name, Quadrat_Number, Start_Year), names_prefix = "Cycle ", values_from = Percent_Ferns, 
                names_from = Cycle, names_sort = TRUE)
   } else data.frame()
+
+#12.24.0
+
+# Look to see if difference between years from Grass to sedge is greater than that from grass to grass, and similar for sedges
+
+Grass_Sedge_Switched <-if(nrow(Repeat_Quads>0)){
+  QCQuads %>% semi_join(Repeat_Quads) %>% 
+    select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Grasses, Percent_Sedges) %>% 
+    group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
+    mutate(Start_Year=min(Sample_Year), 
+           Grass_Grass=abs(as.numeric(Percent_Grasses)-lead(as.numeric(Percent_Grasses))),
+           Sedge_Sedge=abs(as.numeric(Percent_Sedges)-lead(as.numeric(Percent_Sedges))),
+           Grass_Sedge=abs(as.numeric(Percent_Grasses)-lead(as.numeric(Percent_Sedges))),
+           Sedge_Grass=abs(as.numeric(Percent_Sedges)-lead(as.numeric(Percent_Grasses)))
+           ) %>% 
+    filter(any(abs(Grass_Grass - Grass_Sedge>5) & abs(Sedge_Sedge - Sedge_Grass>5))) %>% 
+    rename(Grass=Percent_Grasses, Sedge=Percent_Sedges, Quadrat=Quadrat_Number) %>% 
+   pivot_wider(id_cols=c(Plot_Name, Quadrat, Start_Year), values_from = c(Grass,Sedge), 
+               names_from = Cycle, names_sort = TRUE)
+  } else data.frame()
+
 
 ```
 
@@ -233,8 +248,8 @@ cat("<br>**Quadrats Sampled**<br>")
      errorText("Plots with more or less than 12 quadrats sampled:"); NiceTable(Quads_Sampled)}
 
 cat("<br>**Quadrats Repeated**<br>") 
-  if(nrow(Repeat_Quads)==0) cat("No quadrats were sampled twice in the same year. <br>") else {
-     errorText("Quads that were sampled more than once in a single year:"); NiceTable(Repeat_Quads)}
+  if(nrow(Duplicate_Quads)==0) cat("No quadrats were sampled twice in the same year. <br>") else {
+     errorText("Quads that were sampled more than once in a single year:"); NiceTable(Duplicate_Quads)}
 ```
 
 ---
@@ -344,8 +359,11 @@ cat("<br>**Quadrats Fern Change > 15%**<br>")
 if(nrow(Quads_Percent_Ferns_Changed)==0) cat("No records with an unusal change in Fern Cover.<br>") else {
    errorText("Events with a Fern Cover change of more than 15% between visits."); NiceTable(Quads_Percent_Ferns_Changed)}
 
-```
 
----
+cat("<br>**Possible Confusion between Grasses and Sedges **<br>") 
+if(nrow(Grass_Sedge_Switched)==0) cat("No records showed potential confusion between grasses and sedges.<br>") else {
+   errorText("Records that indicate a possible confusion between grasses and sedges"); NiceTable(Grass_Sedge_Switched)}
+
+```
 
 

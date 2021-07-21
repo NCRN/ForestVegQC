@@ -194,7 +194,7 @@ Plants_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest 
 
 #9.21.0
 Plants_Lose_ExpRoots<- if(length(Repeat_Woodies)>0){    
- QCWoodies %>% left_join(QCConditions %>% filter(Condition=="Exposed roots") %>%  
+ QCAllWoodies %>% left_join(QCAllConditions %>% filter(Condition=="Exposed roots") %>%  
                            select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
@@ -207,8 +207,8 @@ Plants_Lose_ExpRoots<- if(length(Repeat_Woodies)>0){
 
 #9.22.0
 Plants_Lose_Hollow<- if(length(Repeat_Woodies>0)){
-   QCWoodies %>%  
-    left_join(QCConditions %>% filter(Condition=="Hollow") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+   QCAllWoodies %>%  
+    left_join(QCAllConditions %>% filter(Condition=="Hollow") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
    filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    filter(any (Condition=="Hollow" & (lead(Condition, order_by = Sample_Year) != "Hollow") & 
@@ -220,8 +220,8 @@ Plants_Lose_Hollow<- if(length(Repeat_Woodies>0)){
   
 #9.23.0
 Plants_Lose_Vine_Crown<- if(length(Repeat_Woodies>0)){
- QCWoodies %>% 
-   left_join(QCConditions %>% filter(Condition=="Vines in the crown") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>%
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Vines in the crown") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>%
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Vines in the crown" & (lead(Condition, order_by = Sample_Year) != "Vines in the crown") & 
@@ -233,8 +233,8 @@ Plants_Lose_Vine_Crown<- if(length(Repeat_Woodies>0)){
 
 #9.24.0
 Plants_Lose_Vine_Stress<- if(length(Repeat_Woodies>0)){
- QCWoodies %>%
-   left_join(QCConditions %>% filter(Condition=="Vine stress") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ QCAllWoodies %>%
+   left_join(QCAllConditions %>% filter(Condition=="Vine stress") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Vine stress" & (lead(Condition, order_by = Sample_Year) != "Vine stress") & 
@@ -248,8 +248,8 @@ Plants_Lose_Vine_Stress<- if(length(Repeat_Woodies>0)){
 
 #9.25.0
 Plants_Lose_EAB<- if(length(Repeat_Woodies>0)){
- QCWoodies %>% 
-   left_join(QCConditions %>% filter(Condition=="Emerald ash borer") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Emerald ash borer") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Emerald ash borer" & (lead(Condition, order_by = Sample_Year) != "Emerald ash borer")  )) %>% 
@@ -260,8 +260,8 @@ Plants_Lose_EAB<- if(length(Repeat_Woodies>0)){
 
 #9.26.0
 Plants_Lose_Anthracnose<- if(length(Repeat_Woodies>0)){
- QCWoodies %>% 
-   left_join(QCConditions %>% filter(Condition=="Dogwood anthracnose") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Dogwood anthracnose") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Dogwood anthracnose" & (lead(Condition, order_by = Sample_Year) != "Dogwood anthracnose") & 
@@ -273,8 +273,8 @@ Plants_Lose_Anthracnose<- if(length(Repeat_Woodies>0)){
 
 #9.27.0
 Plants_Lose_Scale <-if(length(Repeat_Woodies>0)){
- QCWoodies %>% 
-   left_join(QCConditions %>% filter(Condition=="Hemlock Scale") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Hemlock Scale") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Hemlock Scale" & (lead(Condition, order_by = Sample_Year) != "Hemlock Scale") & 
@@ -286,8 +286,8 @@ Plants_Lose_Scale <-if(length(Repeat_Woodies>0)){
 
 #9.28.0
 Plants_Lose_Adelgid <-if(length(Repeat_Woodies>0)){
- QCWoodies %>% 
-   left_join(QCConditions %>% filter(Condition=="Hemlock wooly adelgid") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Hemlock wooly adelgid") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Hemlock wooly adelgid" & (lead(Condition, order_by = Sample_Year) != "Hemlock wooly adelgid") & 
@@ -301,9 +301,9 @@ Plants_Lose_Adelgid <-if(length(Repeat_Woodies>0)){
 ## Condtions and Pests
 #9.29.0
 Plants_Change_Conditon_Number<-if(length(Repeat_Woodies>0)){
-QCWoodies %>%
+QCAllWoodies %>%
    filter(Tag %in% Repeat_Woodies) %>% 
-   left_join( QCConditions %>% select(Tag, Sample_Year, Condition) %>% filter(Condition !="") %>% group_by(Tag, Sample_Year) %>% 
+   left_join( QCAllConditions %>% select(Tag, Sample_Year, Condition) %>% filter(Condition !="") %>% group_by(Tag, Sample_Year) %>% 
                 summarise(Condition_Total=n()), by=c("Tag","Sample_Year")) %>% mutate(Condition_Total = replace_na(Condition_Total ,0)) %>% 
    arrange(Tag, Sample_Year) %>% group_by(Tag) %>% 
    filter(any( Condition_Total!=lead(Condition_Total, order_by = Sample_Year)& lead(Status, order_by = Sample_Year)%in% Live_Status )) %>% 

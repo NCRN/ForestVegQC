@@ -301,13 +301,13 @@ Saplings_Unalive_VineCheck<-QCSaplings %>%
   
  ### Multi-Year Checks
  
-Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+Repeat_Saplings<-QCAllSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
  
 ## Sapling Diameter Change
 
 # 6.25.0
  Saplings_Live_Large_DBH_change <-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
      mutate(Start_Year=min(Sample_Year)) %>% 
    filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
@@ -320,9 +320,9 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
 
 #6.26.0
   Saplings_Start_Too_Large <-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% 
+    QCAllSaplings %>% 
    #This next line excludes any tree tag present the first time a plot was sampled
-   filter(!Tag %in% (semi_join(QCSaplings, QCEvents %>% group_by(Plot_Name) %>% filter(rank(Event_Year)==1)) %>% pull (Tag)),
+   filter(!Tag %in% (semi_join(QCAllSaplings, QCAllEvents %>% group_by(Plot_Name) %>% filter(rank(Event_Year)==1)) %>% pull (Tag)),
       Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   mutate(Start_Year=min(Sample_Year)) %>%
@@ -337,7 +337,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
 
 #6.27.0
  Saplings_Start_Wrong<-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    filter(any(Sample_Year==min(Sample_Year) & (Status  %in% c(Missing_Status, Other_Status, Dead_Status)) | 
             (Status %in% Dead_Status & Sample_Year < 2010 )) ) %>% 
@@ -347,7 +347,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
                  names_prefix = "Cycle ", values_from = Status)} else data.frame()
  #6.28.0
  Saplings_Dead_Plus<-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    filter(any(Sample_Year!=max(Sample_Year) & Status %in% Dead_Status)) %>% 
    mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -358,7 +358,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
              
 #6.29.0  
  Saplings_Levitated<-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    filter(any(Status =="Alive Fallen" & lead(Status, order_by=Sample_Year) %in% c("Alive Broken", "Alive Leaning", 
             "Alive Standing","Dead Leaning", "Dead Standing"))) %>% 
@@ -369,7 +369,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
  
  #6.30.0
  Saplings_Found_Alive<-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Live_Status) )) %>% 
    mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -379,7 +379,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
  
  #6.31.0
  Saplings_Downgraded_Persisting <-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    filter(any( (Status =="Downgraded to Non-Sampled") & (lead(Status, order_by=Sample_Year) %in% 
                             c(Live_Status, Dead_Status, Other_Status, Missing_Status)) )) %>% 
@@ -390,7 +390,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
 
 #6.32.0
  Saplings_Triple_Missing <-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
    mutate(Start_Year=min(Sample_Year)) %>%
    filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Missing_Status)
@@ -404,7 +404,7 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
  
 #6.33.0
  Saplings_Vigor_Jump <-if(length(Repeat_Saplings>0)){
-   QCSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   mutate(Start_Year=min(Sample_Year)) %>%
    filter(any( 
@@ -417,12 +417,6 @@ Repeat_Saplings<-QCSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% fil
                 values_from = VigorClass, names_from = Cycle ) } else data.frame()
 
 ```
-
-
-- Condition checks  other status should not be checked (not sure how EAB works), but only once we started doing this for saplings
-- Tree foliage condiditons only on living saplings, percent between 1 and 100, condiition should be one of the choices and only once we started with this
-- tree conditions only on live trees, except for EAB on dead. never on missing. should be from list that was current. and only once we started with this
-- if condition is vines in crown, should have 1 or more vines on it. and only once we stated with this
 
 
 #### **Saplings Checked:** `r TotSaplings` ####

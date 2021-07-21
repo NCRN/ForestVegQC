@@ -313,14 +313,14 @@ Trees_Unalive_Foliage_Check<-QCTrees %>%
 
 ### Multi-Year Checks
 
-Repeat_Trees<-QCTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+Repeat_Trees<-QCAllTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
 
 
 ## Tree Diameter Change
 
 # 5.25.0
 Trees_Live_Large_DBH_change <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
           abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>% 
@@ -331,7 +331,7 @@ Trees_Live_Large_DBH_change <-if(length(Repeat_Trees>0)){
 
 # 5.26.0
 Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Status %in% Dead_Status & Stems > 0 &
         lead(Status, order_by = Sample_Year) %in% Dead_Status & lead(Stems, order_by = Sample_Year) > 0 &
@@ -343,9 +343,9 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
 
 # 5.27.0
  Trees_Start_Too_Large <-if(length(Repeat_Trees>0)){
-  QCTrees %>% 
+  QCAllTrees %>% 
   #This next line excludes any tree tag present the first time a plot was sampled
-  filter(!Tag %in% (semi_join(QCTrees, QCEvents %>% group_by(Plot_Name) %>% filter(rank(Event_Year)==1)) %>% pull (Tag)),
+  filter(!Tag %in% (semi_join(QCAllTrees, QCAllEvents %>% group_by(Plot_Name) %>% filter(rank(Event_Year)==1)) %>% pull (Tag)),
      Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Status %in% Live_Status &  Equiv_Live_DBH_cm >13 & is.na(lag(Equiv_Live_DBH_cm, order_by = Sample_Year) ))) %>% 
@@ -359,7 +359,7 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
 
 #5.28.0
 Trees_Start_Wrong<-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Sample_Year==min(Sample_Year) & (Status  %in% c(Missing_Status, Other_Status, "Dead Fallen")) | 
            (Status %in% Dead_Status & Sample_Year < 2010 )) ) %>% 
@@ -370,7 +370,7 @@ Trees_Start_Wrong<-if(length(Repeat_Trees>0)){
 
 #5.29.0
 Trees_Dead_Fallen_Plus<-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Sample_Year!=max(Sample_Year) & Status=="Dead Fallen")) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -380,7 +380,7 @@ Trees_Dead_Fallen_Plus<-if(length(Repeat_Trees>0)){
 
 #5.30.0
 Trees_Reanimated<-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Status %in% Dead_Status & lead(Status, order_by=Sample_Year) %in% c(Live_Status, Other_Status, Missing_Status ))) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -390,7 +390,7 @@ Trees_Reanimated<-if(length(Repeat_Trees>0)){
   
 #5.31.0
 Trees_Levitated<-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any(Status =="Alive Fallen" & lead(Status, order_by=Sample_Year) %in% c("Alive Broken", "Alive Leaning", "Alive Standing",
                                                            "Dead Leaning", "Dead Standing"))) %>% 
@@ -401,7 +401,7 @@ Trees_Levitated<-if(length(Repeat_Trees>0)){
 
 #5.32.0
 Trees_Found_Alive<-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Live_Status) )) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -411,7 +411,7 @@ Trees_Found_Alive<-if(length(Repeat_Trees>0)){
 
 #5.33.0
 Trees_Downgraded_Fallen <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( (Status =="Downgraded to Non-Sampled") & (lead(Status, order_by=Sample_Year) == "Dead Fallen") )) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -421,7 +421,7 @@ Trees_Downgraded_Fallen <-if(length(Repeat_Trees>0)){
 
 #5.34.0
 Trees_Downgraded_Missing <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( (Status =="Downgraded to Non-Sampled") & (lead(Status, order_by=Sample_Year) %in% Missing_Status) )) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
@@ -431,7 +431,7 @@ Trees_Downgraded_Missing <-if(length(Repeat_Trees>0)){
 
 #5.35.0
 Trees_Triple_Missing <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% mutate(Start_Year=min(Sample_Year)) %>% 
   filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Missing_Status)
               & (lead(Status,n=2, order_by=Sample_Year) %in% Missing_Status))) %>% 
@@ -444,7 +444,7 @@ Trees_Triple_Missing <-if(length(Repeat_Trees>0)){
 
 #5.36.0
 Trees_Open_Grown_Change <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( Crown_Description =="Open-grown" & (lead(Status, order_by = Sample_Year) %in% Live_Status & 
                                             lead(Crown_Description, order_by=Sample_Year) != "Open-grown")))  %>% 
@@ -454,7 +454,7 @@ Trees_Open_Grown_Change <-if(length(Repeat_Trees>0)){
                values_from = Crown_Description, names_from = Cycle ) } else data.frame()
 #5.37.0
 Trees_Dom_to_Less <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( Crown_Description %in% c("Dominant", "Co-dominant") & (lead(Status, order_by = Sample_Year) %in% Live_Status & 
                      !lead(Crown_Description, order_by=Sample_Year) %in%  c("Dominant", "Co-dominant"))))  %>% 
@@ -465,7 +465,7 @@ Trees_Dom_to_Less <-if(length(Repeat_Trees>0)){
 
 #5.38.0
 Trees_IntOver_to_Other <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( Crown_Description %in% c("Intermediate", "Overtopped") & (lead(Status, order_by = Sample_Year) %in% Live_Status & 
                      lead(Crown_Description, order_by=Sample_Year) %in%  c("Edge Tree", "Open-grown"))))  %>% 
@@ -476,7 +476,7 @@ Trees_IntOver_to_Other <-if(length(Repeat_Trees>0)){
 
 #5.39.0
 Trees_EdgeGap_to_Open <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( Crown_Description %in% c("Light Gap Exploiter", "Edge Tree") & 
       (lead(Status, order_by = Sample_Year) %in% Live_Status & lead(Crown_Description, order_by=Sample_Year) =="Open-grown")))%>% 
@@ -490,7 +490,7 @@ Trees_EdgeGap_to_Open <-if(length(Repeat_Trees>0)){
 
 #5.40.0
 Trees_Vigor_Jump <-if(length(Repeat_Trees>0)){
-  QCTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+  QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
   group_by(Tag) %>% mutate(Start_Year=min(Sample_Year)) %>% arrange(Tag, Sample_Year) %>% 
   filter(any( 
     (TreeVigorClass =="Moderate Decline" & lead(Status, order_by=Sample_Year) == "Healthy") |
@@ -849,7 +849,7 @@ cat("<br>**Trees that stop being Open Grown**<br>")
 
 cat("<br>**Trees that are no longer Dom / Co-dom**<br>")
  if(nrow(Trees_Dom_to_Less)==0) cat("No tree has dropped from dominant/co-dominant status.<br>") else {
-   errorText("Trees that have chagned from dominant/co-dominant status:"); NiceTable(Trees_Dom_to_Less)}
+   errorText("Trees that have changed from dominant/co-dominant status:"); NiceTable(Trees_Dom_to_Less)}
 
 cat("<br>**Trees that went from Intermediate/Overtopped to Edge or Open Grown**<br>")
  if(nrow(Trees_IntOver_to_Other)==0) cat("No tree has gone from Intermeidate/Overtoped to Edge or Open Grown.<br>") else {

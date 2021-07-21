@@ -403,7 +403,7 @@ cat("<br>**Stems with an Invalid Class**<br>")
 
 ---
 
-### Data Mismacth
+### Data Mismatch
 
 ```{r Stem_Mismatch, echo=FALSE, hold=FALSE, results="asis"}
 

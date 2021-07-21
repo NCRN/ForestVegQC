@@ -11,10 +11,10 @@ output: html_document
 
 TotPlotFloor<-nrow(QCEvents) #Total number of plots being checked
 
-Repeat_Plot_Floor<-QCEvents %>% group_by(Plot_Name) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% pull(Plot_Name)
+Repeat_Plot_Floor<-QCAllEvents %>% group_by(Plot_Name) %>% summarize(Visits=n()) %>% filter(Visits>1) %>% pull(Plot_Name)
 
 # The 2013 version is needed for deer impact as this was not measured pre 2013
-Repeat_Plot_Floor_Post_2013<-QCEvents %>% filter(Event_Year>=2013) %>%  group_by(Plot_Name) %>% 
+Repeat_Plot_Floor_Post_2013<-QCAllEvents %>% filter(Event_Year>=2013) %>%  group_by(Plot_Name) %>% 
   summarize(Visits=n()) %>% filter(Visits>1) %>% pull(Plot_Name)
 
 #3.1.0
@@ -49,9 +49,12 @@ Events_Missing_Deer <- QCEvents %>% filter(Event_Year>=2013 & Deer_Impact==-1) %
 Events_Low_Deer<- QCEvents %>% filter(Event_Year>=2013 & Deer_Impact %in% c(1,2)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Deer_Impact, DeerImpactDescription)
 
+
+## Change Over Time
+
 #3.5.0
 Plot_Rock_Change<-if(length(Repeat_Plot_Floor>0)){
-  QCEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  QCAllEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
   select(Plot_Name, Cycle, Sample_Year, Rock_Cover) %>% 
   mutate(Rock_Cover=factor(Rock_Cover, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
   group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
@@ -61,7 +64,7 @@ Plot_Rock_Change<-if(length(Repeat_Plot_Floor>0)){
 
 #3.6.0
 Plot_Bare_Soil_Change<-if(length(Repeat_Plot_Floor>0)){
-  QCEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  QCAllEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
   select(Plot_Name, Cycle, Sample_Year, Bare_Soil_Cover) %>% 
   mutate(Bare_Soil_Cover=factor(Bare_Soil_Cover, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
   group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
@@ -71,7 +74,7 @@ Plot_Bare_Soil_Change<-if(length(Repeat_Plot_Floor>0)){
 
 #3.7.0
 Plot_Trampled_Change<-if(length(Repeat_Plot_Floor>0)){
-  QCEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
+  QCAllEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor) %>% 
   select(Plot_Name, Cycle, Sample_Year, Trampled) %>% 
   mutate(Trampled=factor(Trampled, levels=c("<1","1-5","5-25","25-50","50-75","75-100"),ordered=T)) %>% 
   group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
@@ -81,7 +84,7 @@ Plot_Trampled_Change<-if(length(Repeat_Plot_Floor>0)){
 
 #3.8.0
 Plot_Deer_Change<-if(length(Repeat_Plot_Floor_Post_2013>0)){
-  QCEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor_Post_2013, Event_Year>=2013) %>% 
+  QCAllEvents %>% filter(Plot_Name %in% Repeat_Plot_Floor_Post_2013, Event_Year>=2013) %>% 
   select(Plot_Name, Cycle, Sample_Year, Deer_Impact) %>% 
   group_by(Plot_Name) %>% arrange(Plot_Name, Sample_Year) %>% 
   mutate(Start_Year=min(Sample_Year), Deer_Change=abs(Deer_Impact-lead(Deer_Impact))) %>% 

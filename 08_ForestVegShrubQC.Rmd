@@ -193,13 +193,13 @@ Shrubs_Bad_Vigor_Class<-QCShrubs %>% filter( (SaplingVigor==0 & !is.na(VigorClas
  
 ### Multi-Year Checks
 
- Repeat_Shrubs<-QCShrubs %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+Repeat_Shrubs<-QCAllShrubs %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
 
 ##Status  Change 
 
 #8.19.0
  Shrubs_Start_Wrong<-if(length(Repeat_Shrubs>0)){
-   QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
+   QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
    filter(any(Sample_Year==min(Sample_Year) & (Status  %in% c(Missing_Status, Other_Status, Dead_Status)) |
           (Status %in% Dead_Status & Sample_Year < 2010 )) ) %>%
@@ -210,7 +210,7 @@ Shrubs_Bad_Vigor_Class<-QCShrubs %>% filter( (SaplingVigor==0 & !is.na(VigorClas
  
 # 8.20.0
  Shrubs_Dead_Plus<-if(length(Repeat_Shrubs>0)){
-    QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%  
+    QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%  
     group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
     filter(any(Sample_Year!=max(Sample_Year) & Status %in% Dead_Status)) %>%
     mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
@@ -222,7 +222,7 @@ Shrubs_Bad_Vigor_Class<-QCShrubs %>% filter( (SaplingVigor==0 & !is.na(VigorClas
  
 #8.21.0
 Shrubs_Levitated<-if(length(Repeat_Shrubs>0)){
-  QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
+  QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
   filter(any(Status =="Alive Fallen" & lead(Status, order_by=Sample_Year) %in% c("Alive Broken", "Alive Leaning",
            "Alive Standing","Dead Leaning", "Dead Standing"))) %>%
@@ -233,7 +233,7 @@ Shrubs_Levitated<-if(length(Repeat_Shrubs>0)){
 
 #8.22.0
 Shrubs_Found_Alive<-if(length(Repeat_Shrubs>0)){
-  QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
+  QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
   filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Live_Status) )) %>%
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
@@ -243,7 +243,7 @@ Shrubs_Found_Alive<-if(length(Repeat_Shrubs>0)){
 
 #8.23.0
 Shrubs_Downgraded_Persisting <-if(length(Repeat_Shrubs>0)){
-  QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
+  QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
   filter(any( (Status =="Downgraded to Non-Sampled") & (lead(Status, order_by=Sample_Year) %in%
                            c(Live_Status, Dead_Status, Other_Status, Missing_Status)) )) %>%
@@ -254,7 +254,7 @@ Shrubs_Downgraded_Persisting <-if(length(Repeat_Shrubs>0)){
 
 #8.24.0
  Shrubs_Triple_Missing <-if(length(Repeat_Shrubs>0)){
-   QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
+   QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
    mutate(Start_Year=min(Sample_Year)) %>%
    filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Missing_Status)
@@ -268,7 +268,7 @@ Shrubs_Downgraded_Persisting <-if(length(Repeat_Shrubs>0)){
 
 #8.25.0
  Shrubs_Vigor_Jump <-if(length(Repeat_Shrubs>0)){
-   QCShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
+   QCAllShrubs %>% filter(Tag %in% Repeat_Shrubs) %>%
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>%
   mutate(Start_Year=min(Sample_Year)) %>%
    filter(any(
@@ -282,8 +282,6 @@ Shrubs_Downgraded_Persisting <-if(length(Repeat_Shrubs>0)){
 
 
 ```
-
-- how do we check removed from study?
 
 
 #### **Shrubs Checked:** `r TotShrubs` ####

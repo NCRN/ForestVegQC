@@ -150,7 +150,7 @@ errortext("Seedling records with a missing Plot Name:"); NiceTable(Seedlings_No_
 ###  Quadrats Sampled
 ```{r Seedling_Sampled, echo=FALSE, hold=FALSE, results="asis"}
 
-cat("<br>**Seedling Names**<br>") 
+cat("<br>**Quadrat Names**<br>") 
 if(nrow(Seedlings_Bad_Name )==0) cat("All records have a valid quadrat name.<br>") else {
     errorText("Records without a valid quadrat name:"); NiceTable(Seedlings_Bad_Name)}
 
@@ -168,7 +168,7 @@ errorText("Seedling records without a panel code from 1-4:"); NiceTable(Seedling
 
 cat("<br>**Frame Data**<br>")
 if(nrow(Seedlings_Bad_Frame)==0) cat("Each seedling record has a frame that is either Region or Park.<br>") else {
-errorText("Seedling records without a frame of either Region or Park:"); NiceTable(Seedling_Bad_Frame)}
+errorText("Seedling records without a frame of either Region or Park:"); NiceTable(Seedlings_Bad_Frame)}
 
 cat("<br>**Cycle Data**<br>")
 if(nrow(Seedlings_Bad_Cycle)==0) cat("Each seedling record is from a cycle that matches its event year.<br>") else {

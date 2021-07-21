@@ -1,0 +1,349 @@
+---
+title: "Forest Vegetation Herbaceous Plant QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r herb_setup, include=F}
+TotHerbs<-nrow(QCHerbs) #Total Number of tree records checked
+
+## Unit Codes
+
+#14.1.0
+Herbs_Bad_Unit<-QCHerbs %>% 
+   filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+  
+Herbs_Bad_Unit_Group<-QCHerbs %>% 
+  filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                           "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+  select(Unit_Code, Unit_Group, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+Herbs_Mismatch_Unit_Group<-QCHerbs %>% 
+    filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+            Unit_Code=="CATO" & Unit_Group !="CATO"|
+            Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+            Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+            Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+            Unit_Code=="MANA" & Unit_Group !="MANA" |
+            Unit_Code=="MONO" & Unit_Group !="MONO" |
+            Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+            Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+            Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+            Unit_Code=="WOTR" & Unit_Group!="WOTR"
+         ) %>% 
+  select(Plot_Name, Unit_Code, Unit_Group, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+## Plots and Quadrats
+
+#14.2.0
+  
+Herbs_No_Plot_Name<-QCHerbs %>% 
+  filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+ 
+#14.3.0
+Herbs_Bad_Name<-QCHerbs %>% filter(!Quadrat_Number %in% c("60", "180", "300", "120-3m", "120-8m", "120-13m", "240-3m", "240-8m", "240-13m",
+                                                          "360-3m", "360-8m", "360-13m")) %>% 
+ select(Plot_Name, Sample_Year, Quadrat_Number, Latin_Name, Percent_Cover)
+ 
+## Panel Frame Cycle  
+   
+#14.4.0
+Herbs_Bad_Panel<-QCHerbs %>%
+ filter(!Panel %in% 1:4) %>% 
+ select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover, Panel)
+  
+#14.5.0
+Herbs_Bad_Frame<-QCHerbs %>%
+ filter(!Frame %in% c("Park","Region")) %>% 
+ select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year,Latin_Name, Percent_Cover, Frame)
+
+#14.6.0
+Herbs_Bad_Cycle<-QCHerbs %>% 
+  filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+     !(Cycle==2 & Sample_Year %in% 2010:2013) &
+     !(Cycle==3 & Sample_Year %in% 2014:2017) &
+     !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+  select(Unit_Code,Plot_Name, Quadrat_Number,  Sample_Year, Latin_Name, Percent_Cover, Cycle)
+ 
+## Dates
+
+#14.7.0
+Herbs_Bad_Date<-QCHerbs %>% 
+  filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover, Date)
+ 
+#14.8.0
+Herbs_Bad_Year<-QCHerbs %>% 
+   filter(Sample_Year != year(ymd(Date))) %>% 
+   select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year,Latin_Name, Percent_Cover, Date)
+ 
+ 
+## Latin Name
+ 
+#14.9.0
+
+Herbs_Bad_Name<-QCHerbs %>% filter(is.na(Latin_Name) | Latin_Name == "") %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+Herbs_Wrong_Species<-QCHerbs %>% filter(!Latin_Name %in% c("Akebia quinata", "Alliaria petiolata","Ampelopsis brevipedunculata", "Artemisia vulgaris",
+    "Berberis thunbergii", "Celastrus orbiculatus", "Centaurea biebersteinii", "Cirsium arvense", "Clematis terniflora", "Corydalis incisa", 
+    "Duchesnea indica", "Epipactis helleborine", "Euonymus fortunei", "Gaylussacia spp.", "Glechoma hederacea", "Hedera helix", "Hemerocallis fulva",
+    "Humulus japonicus","Ilex verticillata", "Kalmia latifolia", "Lespedeza cuneata", "Liliaceae Family", "Lindera benzoin", "Lonicera japonica",
+    "Lonicera spp.", "Lysimachia nummularia", "Microstegium vimineum", "Murdannia keisak", "Oplismenus undulatifolius", "Orchid family",
+    "Perilla frutescens", "Podophyllum peltatum", "Polygonum caespitosum", "Polygonum cuspidatum", "Polygonum perfoliatum", "Polygonum persicaria",
+    "Pueraria montana", "Ranunculus ficaria", "Rosa carolina", "Rosa multiflora", "Rubus argutus", "Rubus bifrons", "Rubus discolor", 
+    "Rubus phoenicolasius", "Smilax glauca",  "Smilax rotundifolia",  "Smilax tamnoides", "Symphoricarpos orbiculatus", "Toxicodendron radicans",
+    "Urtica dioica", "Vaccinium spp.", "Vinca minor", "Wisteria floribunda", "Wisteria sinensis")
+  ) %>% 
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+ 
+Herbs_Anachronistic_Name <-QCHerbs %>% filter(
+    (Sample_Year < 2013 & Latin_Name == "Artemisia vulgaris") | (Sample_Year < 2017 & Latin_Name == "Corydalis incisa") |
+    (Sample_Year < 2017 & Latin_Name == "Epipactis helleborine") | (Sample_Year < 2013 & Latin_Name == "Humulus japonicus") |
+    (Sample_Year < 2015 & Latin_Name == "Ilex verticillata") | (Sample_Year < 2015 & Latin_Name == "Kalmia latifolia") |
+    (Sample_Year < 2015 & Latin_Name == "Lindera benzoin") | (Sample_Year < 2008 & Latin_Name == "Lysimachia nummularia") |
+    (Sample_Year < 2009 & Latin_Name == "Murdannia keisak") | (Sample_Year < 2009 & Latin_Name == "Oplismenus undulatifolius") |
+    (Sample_Year < 2008 & Latin_Name == "Orchid family") |  (Sample_Year < 2013 & Latin_Name == "Perilla frutescens") |
+    (Sample_Year < 2008 & Latin_Name == "Polygonum caespitosum") | (Sample_Year < 2008 & Latin_Name == "Polygonum persicaria") |
+    (Sample_Year < 2010 & Latin_Name == "Rosa carolina") | (Sample_Year < 2010 & Latin_Name == "Rubus argutus") |
+    (Sample_Year < 2014 & Latin_Name == "Rubus bifrons") | (Sample_Year < 2014 & Latin_Name == "Rubus discolor") |
+    (Sample_Year < 2008 & Latin_Name == "Smilax glauca") | (Sample_Year < 2008 & Latin_Name == "Smilax rotundifolia") |
+    (Sample_Year < 2008 & Latin_Name == "Smilax tamnoides") | (Sample_Year < 2010 & Latin_Name == "Symphoricarpos orbiculatus") |
+    (Sample_Year < 2017 & Latin_Name == "Urtica dioica") | (Sample_Year < 2008 & Latin_Name == "Wisteria floribunda") 
+  ) %>% 
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+Herbs_Repeat_Species<-QCHerbs %>% 
+  group_by(Plot_Name, Quadrat_Number, Sample_Year, Latin_Name) %>% 
+  mutate(Records=n()) %>% 
+  filter(Records>1) %>% 
+  select(Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+#14.10.0
+Herbs_No_TSN<-QCHerbs %>% filter(is.na(TSN) | TSN=="") %>%
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+Herbs_Repeat_TSN<-QCHerbs %>% 
+  group_by(Plot_Name, Quadrat_Number, Sample_Year, TSN) %>% 
+  mutate(Records=n()) %>% 
+  filter(Records>1) %>% 
+  select(Plot_Name, Quadrat_Number, Sample_Year, TSN, Percent_Cover)
+
+#14.11.0
+Herbs_No_Exotic<-QCHerbs %>% 
+  filter(!Exotic %in% c(1,0)) %>% 
+  select(Plot_Name, Quadrat_Number, Sample_Year, TSN, Percent_Cover, Exotic)
+
+
+Herbs_Wrong_Exotic<-QCHerbs %>% filter( (Latin_Name %in% c("Gaylussacia spp.", "Ilex verticillata", "Kalmia latifolia",  "Liliaceae Family",
+      "Lindera benzoin", "Orchid family","Podophyllum peltatum", "Rosa carolina", "Rubus argutus", "Smilax glauca",  "Smilax rotundifolia", 
+      "Smilax tamnoides", "Symphoricarpos orbiculatus", "Toxicodendron radicans", "Vaccinium spp.") & Exotic!=0) |
+      
+      (Latin_Name %in% c("Akebia quinata","Alliaria petiolata","Ampelopsis brevipedunculata", "Artemisia vulgaris", "Berberis thunbergii",
+      "Celastrus orbiculatus", "Centaurea biebersteinii", "Cirsium arvense", "Clematis terniflora", "Corydalis incisa", "Duchesnea indica", 
+       "Epipactis helleborine", "Euonymus fortunei","Glechoma hederacea", "Hedera helix",  "Hemerocallis fulva", "Humulus japonicus",
+      "Lespedeza cuneata", "Lonicera japonica","Lonicera spp.", "Lysimachia nummularia", "Microstegium vimineum", "Murdannia keisak",
+      "Oplismenus undulatifolius", "Perilla frutescens",  "Polygonum caespitosum", "Polygonum cuspidatum", "Polygonum perfoliatum",
+      "Polygonum persicaria", "Pueraria montana", "Ranunculus ficaria", "Rosa multiflora","Rubus bifrons", "Rubus discolor", 
+      "Rubus phoenicolasius","Urtica dioica", "Vinca minor", "Wisteria floribunda", "Wisteria sinensis"
+      ) & Exotic!=1)
+  ) %>% 
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover, Exotic)
+
+
+#14.12.0
+Herbs_Bad_Cover<-QCHerbs %>% filter(is.na(Percent_Cover) | Percent_Cover == "" | Percent_Cover < 1 | Percent_Cover > 100) %>% 
+  select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover)
+
+
+## Herb Browse
+ 
+# 14.13.0
+
+Herbs_Bad_Browse<-QCHerbs %>% filter(!Browse %in% c(0,1,NA) ) %>%
+      select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover, Browse)
+ 
+Herbs_Anachronistic_Browse<-QCHerbs %>% filter(Sample_Year<2015 & !is.na(Browse) ) %>%
+    select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover, Browse)
+  
+Herbs_Missing_Browse <- QCHerbs %>% filter(Sample_Year >=2015, is.na(Browse)) %>%
+     select(Unit_Code, Plot_Name, Quadrat_Number, Sample_Year, Latin_Name, Percent_Cover, Browse)
+ 
+```
+
+- browse shold be there once we started tracking post 2015
+
+
+
+#### **Undertory Plant Records Checked:** `r TotHerbs` ####
+
+
+### Unit Codes
+
+```{r herb_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+  if(nrow(Herbs_Bad_Unit)==0) cat("All understory plant records have a recognized Unit Code.<br>") else {
+     errortext("Understory records with a missing or unrecongized Unit Code:"); NiceTable(Herbs_Bad_Unit)}
+  
+ if(nrow(Herbs_Bad_Unit_Group)==0) cat("All understory plant records have a recognized Unit Group.<br>") else {
+    errortext("Understory plant records with a missing or unrecongized Unit Group:"); NiceTable(Herbs_Bad_Unit_Group)}
+  
+ if(nrow(Herbs_Mismatch_Unit_Group)==0) cat("All understory plant records have Unit Group that is consistent with their Unit Code.<br>") else {
+     errortext("Understory plant records with a Unit Group that is inconsistent with their Unit Code:"); NiceTable(Herbs_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r herb_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Herbs_No_Plot_Name)==0) cat("All understory plant records have a Plot Name.<br>") else {
+errortext("Understory plant records with a missing Plot Name:"); NiceTable(Herbs_No_Plot_Name)}
+
+```
+
+---
+
+###  Quadrats Sampled
+```{r herb_Sampled, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Quadrat Names**<br>") 
+  if(nrow(Herbs_Bad_Name )==0) cat("All records have a valid quadrat name.<br>") else {
+     errorText("Records without a valid quadrat name:"); NiceTable(Herbs_Bad_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r herb_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Panel Data**<br>")
+if(nrow(Herbs_Bad_Panel)==0) cat("Each understory plant record has a panel code from 1 to 4.<br>") else {
+errorText("Understory plant records without a panel code from 1-4:"); NiceTable(Herbs_Bad_Panel)}
+ 
+cat("<br>**Frame Data**<br>")
+if(nrow(Herbs_Bad_Frame)==0) cat("Each understory plant record has a frame that is either Region or Park.<br>") else {
+errorText("Understory plant records without a frame of either Region or Park:"); NiceTable(Herbs_Bad_Frame)}
+
+cat("<br>**Cycle Data**<br>")
+ if(nrow(Herbs_Bad_Cycle)==0) cat("Each understory plant record is from a cycle that matches its event year.<br>") else {
+ errorText("Understory plant records without a cycle or with a cycle that does not match its event year:"); NiceTable(Herbs_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r herb_Dates, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Herbs_Bad_Date)==0) cat("All understory plant record dates match an event date.<br>") else {
+errorText("Understory plant records whose date does not match an event date:"); NiceTable(Herbs_Bad_Date)}
+
+if(nrow(Herbs_Bad_Year)==0) cat("All understory plant record dates and sample years are consistent.<br>") else {
+  errorText("Understory plant records whose date does not match its sample year:"); NiceTable(Herbs_Bad_Year)}
+
+```
+
+---
+
+### Latin Name
+
+```{r herb_name, echo=FALSE, hold=FALSE, results="asis"}
+
+ cat("<br>**Missing Latin Name**<br>")
+  if(nrow(Herbs_Bad_Name)==0) cat("All understory plant records have a Latin name.<br>") else {
+     errorText("Understory plant records without a Latin name:"); NiceTable(Herbs_Bad_Name)}
+
+ cat("<br>**Speices not Monitored**<br>")
+  if(nrow(Herbs_Wrong_Species)==0) cat("All understory plant records are from a monitored species.<br>") else {
+     errorText("Understory plant records from a species we do not monitor:"); NiceTable(Herbs_Wrong_Species)}
+ 
+ cat("<br>**Anachronisitc Speices**<br>")
+  if(nrow(Herbs_Anachronistic_Name)==0) cat("No understory plant species were recorded before we started to monitor them.<br>") else {
+     errorText("Understory plant records from a species before we started monitroing it:"); NiceTable(Herbs_Anachronistic_Name)}
+ 
+ cat("<br>**Repeated Speices**<br>")
+  if(nrow(Herbs_Repeat_Species)==0) cat("No understory plant species were recorded twice on the same quadarat 
+                                        during a single event.<br>") else {
+     errorText("Understory plant species recored twice on a quadrat during the same event:"); NiceTable(Herbs_Repeat_Species)}
+ 
+```
+
+---
+
+### TSN
+
+```{r herb_TSN, echo=FALSE, hold=FALSE, results="asis"}
+
+ cat("<br>**Missing TSN**<br>")
+  if(nrow(Herbs_No_TSN)==0) cat("All understory plant records have a TSN.<br>") else {
+     errorText("Understory plant records without a TSN:"); NiceTable(Herbs_No_TSN)}
+
+ # cat("<br>**Speices not Monitored**<br>")
+ #  if(nrow(Herbs_Wrong_Species)==0) cat("All understory plant records are from a monitored species.<br>") else {
+ #     errorText("Understory plant records from a species we do not monitor:"); NiceTable(Herbs_Wrong_Species)}
+ # 
+ # cat("<br>**Anachronisitc Speices**<br>")
+ #  if(nrow(Herbs_Anachronistic_Name)==0) cat("No understory plant species were recorded before we started to monitor them.<br>") else {
+ #     errorText("Understory plant records from a species before we started monitroing it:"); NiceTable(Herbs_Anachronistic_Name)}
+ 
+ cat("<br>**Repeated TSN**<br>")
+  if(nrow(Herbs_Repeat_TSN)==0) cat("No understory plant TSNs were recorded twice on the same quadarat 
+                                        during a single event.<br>") else {
+  errorText("Understory plant TSNs recored twice on a quadrat during the same event:"); NiceTable(Herbs_Repeat_TSN)}
+  
+```
+
+---
+
+### Exotic Status
+
+
+```{r herb_exotic_status, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Herbs_No_Exotic )==0) cat("All understory plant records have an exotic status of 1 or 0.<br>") else {
+     errorText("Understory plant records with an exotic status other than 1 or 0:"); NiceTable(Herbs_No_Exotic)}
+
+if(nrow(Herbs_Wrong_Exotic )==0) cat("All understory plant records are correctly labeled as exotic or native.<br>") else {
+     errorText("Understory plant records with an incorrect exotic status:"); NiceTable(Herbs_Wrong_Exotic)}
+```
+
+---
+
+### Percent Cover
+
+
+```{r herb_cover, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Herbs_Bad_Cover )==0) cat("All understory plant records have a precent cover from 1 to 100%.<br>") else {
+     errorText("Understory plant records with cover not from 1 to 100%:"); NiceTable(Herbs_Bad_Cover)}
+```
+
+---
+
+### Herb Browse
+
+```{r Herb_Browse, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ cat("<br>**Understory Plant Browse Status**<br>") 
+    if(nrow(Herbs_Bad_Browse)==0) cat("All understory plant records have a valid browsed status.<br>") else {
+       errorText("Understory plant records with a browse status other than 0, 1, NA:"); NiceTable(Herbs_Bad_Browsed)}
+     
+cat("<br>**Understory Plant Anachronistic Browse Status**<br>") 
+  if(nrow(Herbs_Anachronistic_Browse)==0) cat("No understory plant records have a browse status before 2015.<br>") else {
+     errorText("Understory plant records with a browse status before 2015:"); NiceTable(Herbs_Anachronistic_Browse)}
+
+cat("<br>**Understory Plant Missing Browse Status**<br>") 
+  if(nrow(Herbs_Missing_Browse)==0) cat("No understory plant records are missing a status starting in 2015.<br>") else {
+     errorText("Understory plant records with a missing browse status during or after 2015:"); NiceTable(Herbs_Missing_Browse)}
+
+```
+
+
+

@@ -108,8 +108,11 @@ h1, h2, h3 {
 
 - Need to export Class and Habit for all relevant tables (Foliage in particular)
 
-#### Plots
+- Exotic Status is sometimes exported and sometimes not
 
+- Browsing data is inconsistent between Seedlings and Herbs
+
+#### Plots
 - Retired date for retired plots not currently recorded and should be revisited.
 
 #### Events
@@ -135,7 +138,6 @@ h1, h2, h3 {
 - Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
 
 #### Conditions
-
 - Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - eliminate. This is not true of Shrubs
 
 - In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
@@ -144,9 +146,17 @@ h1, h2, h3 {
 - Need to export table that matches years with panels so we can verify the correct quads were sampled.
 
 
-#### Herbs
+#### Seedlings
+- Seedling number / height/ species - need to determine if these are consistent enough between samples for QC or not
 
+#### Understory Plants
 - Need to export Herb browsable and browse data
+
+- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
+ to use as QC? What about species lists? Need to check data.
+
+#### Tags
+- Need to check that all tags that should be monitored are, and that none that should not be monitored are monitored
 
 <!-- ## Plots -->
 
@@ -213,26 +223,13 @@ h1, h2, h3 {
 <!-- ``` -->
 
 
-## Seedlings
+<!-- ## Seedlings -->
 
-```{r Seedling-QC, child="13_ForestVegSeedlingQC.Rmd"}
-```
-
-<!-- ## Herbs -->
-
-<!-- ```{r Herb-QC, child="ForestVegHerbQC.Rmd"} -->
+<!-- ```{r Seedling-QC, child="13_ForestVegSeedlingQC.Rmd"} -->
 <!-- ``` -->
 
-## Change over time
+## Understory Plants
 
-
-### Seedlings
-
-Seedling number / height/ species - need to determine if these are consistent enough between samples for QC or not
-
-
-### Herbs
-
-- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
- to use as QC? What about species lists? Need to check data.
+```{r Herb-QC, child="14_ForestVegHerbQC.Rmd"}
+```
 

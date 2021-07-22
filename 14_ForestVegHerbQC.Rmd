@@ -177,9 +177,6 @@ Herbs_Missing_Browse <- QCHerbs %>% filter(Sample_Year >=2015, is.na(Browse)) %>
  
 ```
 
-- browse shold be there once we started tracking post 2015
-
-
 
 #### **Undertory Plant Records Checked:** `r TotHerbs` ####
 

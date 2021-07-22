@@ -104,7 +104,7 @@ Vines_Wrong_Host_Name<-QCVines %>% anti_join(QCWoodies, by=c("Host_Tag"="Tag")) 
   select(Unit_Code, Plot_Name, Sample_Year, Host_Tag, Latin_Name, Host_Latin_Name)
  
 # 11.13.0
-Vines_Redundant<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
+Vines_Redundant<-QCVines %>% 
  group_by(Host_Tag, Sample_Year, Latin_Name) %>%  filter(n()!=n_distinct(Latin_Name)) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name)
 
@@ -115,19 +115,19 @@ Vines_Redundant<-QCVines %>% filter(Sample_Year %in% QCYears) %>%
 # 
 
 #11.15.0
-Vines_Bad_Host_Status<-QCVines %>% filter(Sample_Year %in% QCYears, !Host_Status %in% Live_Status) %>% 
+Vines_Bad_Host_Status<-QCVines %>% filter(!Host_Status %in% Live_Status) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
 
 #11.16.0
-Vines_Bad_Condition<-QCVines %>% filter(Sample_Year %in% QCYears, !Condition %in% c("", "Vines in the crown")) %>% 
+Vines_Bad_Condition<-QCVines %>% filter(!Condition %in% c("", "Vines in the crown")) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name, Host_Status)
 
-Vines_Crown_Inconsistent<-QCVines %>% filter(Sample_Year %in% QCYears,Condition=="Vines in the crown") %>% 
+Vines_Crown_Inconsistent<-QCVines %>% filter(Condition=="Vines in the crown") %>% 
   select(Unit_Code, Plot_Name, Tag=Host_Tag, Sample_Year, Condition) %>%
   anti_join(QCConditions %>% select(Unit_Code,Plot_Name, Tag, Sample_Year, Condition))
 
 #11.17.0
-Vines_Bad_Exotic<-QCVines %>% filter(Sample_Year %in% QCYears, !Exotic %in% c(1,0)) %>% 
+Vines_Bad_Exotic<-QCVines %>% filter(!Exotic %in% c(1,0)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Host_Tag, Host_Latin_Name,Exotic)
 
 
@@ -136,11 +136,11 @@ Vines_Bad_Exotic<-QCVines %>% filter(Sample_Year %in% QCYears, !Exotic %in% c(1,
 #11.18.0
 
 # Challenge - makes sure trees with no vines are included!
-Vine_Number<-QCVines %>% filter(Sample_Year %in% QCYears) %>% 
+Vine_Number<-QCAllVines %>% 
   group_by(Host_Tag,Sample_Year) %>% summarize(Vine_Total=n()) %>% 
   select(Host_Tag, Sample_Year,Vine_Total)
 
-Vines_Number_Changes<-left_join(QCWoodies , Vine_Number,  by=c("Sample_Year"="Sample_Year", "Tag"="Host_Tag")) %>%
+Vines_Number_Changes<-left_join(QCAllWoodies , Vine_Number,  by=c("Sample_Year"="Sample_Year", "Tag"="Host_Tag")) %>%
    #filter(Status %in% Live_Status) %>% 
    mutate(Vine_Total=ifelse(is.na(Vine_Total),0, Vine_Total)) %>% 
    group_by(Tag) %>% 

@@ -44,7 +44,8 @@ QCAllYears<-unique(c(QCYears, QCPastYears))
 
 
 Bad_Species<-c("Carya tomentosa", "Hicoria cordiformis", "Quercus prinus", "Robinia pseudo-acacia", "Rulac negundo", "Sassafras officinale",
-               "Polycodium stamineum", "Vaccinium atrococcum", "Vaccinium constablaei")
+               "Polycodium stamineum", "Vaccinium atrococcum", "Vaccinium constablaei",
+               "Alliaria officinalis", "Eulalia viminea","Nepeta hederacea", "Polygonum cespitosum","Rosa cathayensis","Smilax hispida")
 
 
 
@@ -75,10 +76,16 @@ QCAllConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), string
 
 QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears, !Latin_Name %in% Bad_Species)
 
-QCVines<-getPlants(NCRN,"vines",  years=QCYears )
+QCVines<-getPlants(NCRN,"vines",  years=QCYears ) %>% filter(!Latin_Name %in% Bad_Species)
+QCAllVines<-getPlants(NCRN,"vines",  years=QCAllYears ) %>% filter(!Latin_Name %in% Bad_Species)
+
 QCQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
-QCSeedlings<-rbind(getPlants(NCRN,"seedlings", years=QCYears),getPlants(NCRN,"shseedlings", years=QCYears) )
-QCHerbs<-getPlants(NCRN, "herbs", years=QCYears)
+QCAllQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCAllYears)
+
+QCSeedlings<-rbind(getPlants(NCRN,"seedlings", years=QCYears),getPlants(NCRN,"shseedlings", years=QCYears) ) %>% filter(!Latin_Name %in% Bad_Species)
+
+QCHerbs<-getPlants(NCRN, "herbs", years=QCYears) %>% filter(!Latin_Name %in% Bad_Species)
+
 
 QCWoodies<-bind_rows( QCTrees %>% select(Unit_Code,Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status),   # used for conditions, foliage, vines
                       QCSaplings %>% select(Unit_Code, Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status),
@@ -192,78 +199,78 @@ h1, h2, h3 {
 #### Tags
 - Need to check that all tags that should be monitored are, and that none that should not be monitored are monitored
 
-<!-- ## Plots -->
+## Plots
 
-<!-- ```{r Plot-QC, child="01_ForestVegPlotsQC.Rmd"} -->
-<!-- ``` -->
-
-
-<!-- ## Events -->
-
-<!-- ```{r Event-QC, child="02_ForestVegEventsQC.Rmd"} -->
-<!-- ``` -->
-
-<!-- ## Plot Floor -->
-
-<!-- ```{r Plot_Floor-QC, child="03_ForestVegPlotFloorQC.Rmd"} -->
-<!-- ``` -->
-
-<!-- ## CWD -->
-
-<!-- ```{r CWD-QC, child="04_ForestVegCWDQC.Rmd"} -->
-<!-- ``` -->
-
-<!-- ## Trees -->
-
-<!-- ```{r Tree-QC, child="05_ForestVegTreeQC.Rmd"} -->
-<!-- ``` -->
+```{r Plot-QC, child="01_ForestVegPlotsQC.Rmd"}
+```
 
 
-<!-- ## Saplings -->
+## Events
 
-<!-- ```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"} -->
-<!-- ``` -->
+```{r Event-QC, child="02_ForestVegEventsQC.Rmd"}
+```
 
-<!-- ## Stems -->
+## Plot Floor
 
-<!-- ```{r Stem-QC, child="07_ForestVegStemQC.Rmd"} -->
-<!-- ``` -->
+```{r Plot_Floor-QC, child="03_ForestVegPlotFloorQC.Rmd"}
+```
+
+## CWD
+
+```{r CWD-QC, child="04_ForestVegCWDQC.Rmd"}
+```
+
+## Trees
+
+```{r Tree-QC, child="05_ForestVegTreeQC.Rmd"}
+```
 
 
-<!-- ## Shrubs -->
+## Saplings
 
-<!-- ```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"} -->
-<!-- ``` -->
+```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"}
+```
 
-<!-- ## Conditions -->
+## Stems
 
-<!-- ```{r Condition-QC, child="09_ForestVegConditionsQC.Rmd"} -->
-<!-- ``` -->
+```{r Stem-QC, child="07_ForestVegStemQC.Rmd"}
+```
+
+
+## Shrubs
+
+```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"}
+```
+
+## Conditions
+
+```{r Condition-QC, child="09_ForestVegConditionsQC.Rmd"}
+```
 
 ## Foliage
 
 ```{r Foliage-QC, child="10_ForestVegFoliageConditionsQC.Rmd"}
 ```
 
-<!-- ## Vines -->
+## Vines
 
-<!-- ```{r Vine-QC, child="11_ForestVegVineQC.Rmd"} -->
-<!-- ``` -->
-
-
-<!-- ## Quadrats -->
-
-<!-- ```{r Quad-QC, child="12_ForestVegQuadsQC.Rmd"} -->
-<!-- ``` -->
+```{r Vine-QC, child="11_ForestVegVineQC.Rmd"}
+```
 
 
-<!-- ## Seedlings -->
+## Quadrats
 
-<!-- ```{r Seedling-QC, child="13_ForestVegSeedlingQC.Rmd"} -->
-<!-- ``` -->
+```{r Quad-QC, child="12_ForestVegQuadsQC.Rmd"}
+```
 
-<!-- ## Understory Plants -->
 
-<!-- ```{r Herb-QC, child="14_ForestVegHerbQC.Rmd"} -->
-<!-- ``` -->
+## Seedlings
+
+```{r Seedling-QC, child="13_ForestVegSeedlingQC.Rmd"}
+```
+
+## Understory Plants
+
+```{r Herb-QC, child="14_ForestVegHerbQC.Rmd"}
+```
 

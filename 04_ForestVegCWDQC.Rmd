@@ -251,6 +251,6 @@ if(nrow(CWD_Bad_Tag)==0) cat("All CWD tags were once on trees or saplings. <br>"
    errorText("Pieces of CWD with a tag that was never used for a tree or sapling:"); NiceTable(CWD_Bad_Tag)}
 
 if(nrow(CWD_Relocated_Tag)==0) cat("All CWD and Tree with the same tag are from the same plot. <br>") else {
-   errorText("Pieces of CWD and trees with the same tag but are from differnet plots:"); NiceTable(CWD_Relocated_Tag)}
+   errorText("Pieces of CWD and trees with the same tag but are from different plots:"); NiceTable(CWD_Relocated_Tag)}
 
 ```

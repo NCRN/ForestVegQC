@@ -150,7 +150,7 @@ Trees_DeadBA_Too_Small <-QCTrees %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
 
 Trees_NonLiving_Live_BA  <-QCTrees %>%  
-  filter(Status %in% c(Missing_Status, Other_Status, Dead_Status) & SumLiveBasalArea_cm2>0) %>% 
+  filter(Status %in% c(Missing_Status, Other_Status,"Dead Fallen", "Dead Missing") & SumLiveBasalArea_cm2>0) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)
 
 Trees_Other_Dead_BA<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Status, 

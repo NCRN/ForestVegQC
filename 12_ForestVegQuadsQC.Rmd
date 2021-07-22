@@ -137,12 +137,12 @@ Quads_Percent_Overload<-QCQuads %>%
 
 ## Change over Time
 
-Repeat_Quads<-QCQuads %>%  group_by(Plot_Name, Quadrat_Number) %>% summarize(Records=n()) %>% filter(Records>1) 
+Repeat_Quads<-QCAllQuads %>%  group_by(Plot_Name, Quadrat_Number) %>% summarize(Records=n()) %>% filter(Records>1) 
 
 
 #12.20.0
 Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
-  Repeat_Quads %>% left_join(QCQuads) %>% 
+  Repeat_Quads %>% left_join(QCAllQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Trees) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
     mutate(Start_Year=min(Sample_Year), Tree_Change=abs(as.numeric(Percent_Trees)-lead(as.numeric(Percent_Trees)))) %>% 
@@ -153,7 +153,7 @@ Quads_Percent_Trees_Changed <-if(nrow(Repeat_Quads>0)){
   
 #12.21.0
 Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
-  Repeat_Quads %>% left_join(QCQuads) %>% 
+  Repeat_Quads %>% left_join(QCAllQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Rock) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
     mutate(Start_Year=min(Sample_Year), Rock_Change=abs(as.numeric(Percent_Rock)-lead(as.numeric(Percent_Rock)))) %>% 
@@ -164,7 +164,7 @@ Quads_Percent_Rock_Changed <-if(nrow(Repeat_Quads>0)){
 
 #12.22.0
 Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
-  Repeat_Quads %>% left_join(QCQuads) %>% 
+  Repeat_Quads %>% left_join(QCAllQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Bryophytes) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
     mutate(Start_Year=min(Sample_Year), Bryophyte_Change=abs(as.numeric(Percent_Bryophytes)-lead(as.numeric(Percent_Bryophytes)))) %>% 
@@ -175,7 +175,7 @@ Quads_Percent_Bryophytes_Changed <-if(nrow(Repeat_Quads>0)){
 
 #12.23.0
 Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
-  Repeat_Quads %>% left_join(QCQuads) %>% 
+  Repeat_Quads %>% left_join(QCAllQuads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Ferns) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
     mutate(Start_Year=min(Sample_Year), Fern_Change=abs(as.numeric(Percent_Ferns)-lead(as.numeric(Percent_Ferns)))) %>% 
@@ -189,7 +189,7 @@ Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
 # Look to see if difference between years from Grass to sedge is greater than that from grass to grass, and similar for sedges
 
 Grass_Sedge_Switched <-if(nrow(Repeat_Quads>0)){
-  QCQuads %>% semi_join(Repeat_Quads) %>% 
+  QCAllQuads %>% semi_join(Repeat_Quads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Grasses, Percent_Sedges) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
     mutate(Start_Year=min(Sample_Year), 

@@ -313,9 +313,9 @@ Repeat_Saplings<-QCAllSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% 
    filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
            abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>% 
    arrange(Sample_Year) %>% 
-    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year, DBH_Check) %>% 
     {if(nrow(.)!=0) pivot_wider(.,id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-                values_from = c(StemsLive, LiveDBH), names_from = Cycle, names_sep = " " ) else data.frame()}
+                values_from = c(StemsLive, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) else data.frame()}
    } else data.frame()
 
 #6.26.0
@@ -328,9 +328,9 @@ Repeat_Saplings<-QCAllSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% 
   mutate(Start_Year=min(Sample_Year)) %>%
    filter(any(Status %in% Live_Status &  Equiv_Live_DBH_cm >3 & is.na(lag(Equiv_Live_DBH_cm, order_by = Sample_Year) ))) %>% 
     arrange(Sample_Year) %>% 
-   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year,DBH_Check) %>% 
    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-                 values_from = c(StemsLive, LiveDBH), names_from = Cycle, names_sep = " " ) } else data.frame()
+                 values_from = c(StemsLive, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) } else data.frame()
  
 
 ## Status  Change 

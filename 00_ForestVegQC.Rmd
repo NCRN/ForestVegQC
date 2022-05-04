@@ -32,13 +32,13 @@ errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><
 
 #DataDir<-"C:/Data/NCRN_Veg_2020"
 
-DataDir<-"C:/Data/NCRN_Veg_2021/NCRN_Cumulative_ForestVeg/"
+DataDir<-"C:/Data/NCRN_Veg_2021_Good//"
 
 NCRN<-importNCRN(DataDir)
 
 #QCYears<-c(2008, 2012,2016, 2021)
-QCYears<-c(2021)
-QCPastYears<-c(2008,2012,2016)
+QCYears<-c(2017)
+QCPastYears<-c(2009,2013,2017)
 QCAllYears<-unique(c(QCYears, QCPastYears))
 
 
@@ -54,37 +54,37 @@ QCPlots<-getPlots(NCRN, years = QCYears, type="all" ) %>% mutate(Aspect= as.nume
 QCEvents<-getEvents(NCRN, years = QCYears)
 QCAllEvents<-getEvents(NCRN, years = QCAllYears)
 
-QCCWD<-getPlants(NCRN, "cwd", years=QCYears) %>% filter(!Latin_Name %in% Bad_Species)
+QCCWD<-getPlants(NCRN, "cwd", years=QCYears) #%>% filter(!Latin_Name %in% Bad_Species)
 
-QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all") %>% filter(!Latin_Name %in% Bad_Species)
-QCAllTrees<-getPlants(NCRN,"trees", years=QCAllYears, status = "all") %>% filter(!Latin_Name %in% Bad_Species)
+QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCAllTrees<-getPlants(NCRN,"trees", years=QCAllYears, status = "all") #%>% filter(!Latin_Name %in% Bad_Species)
 
-QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all") %>% filter(!Latin_Name %in% Bad_Species)
-QCAllSaplings<-getPlants(NCRN, "saplings",  years=QCAllYears, status="all") %>% filter(!Latin_Name %in% Bad_Species)
+QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCAllSaplings<-getPlants(NCRN, "saplings",  years=QCAllYears, status="all")# %>% filter(!Latin_Name %in% Bad_Species)
 
-QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears, !Latin_Name %in% Bad_Species)
+QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
 
-QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all") %>% filter(!Latin_Name %in% Bad_Species)
-QCAllShrubs<-getPlants(NCRN, "shrubs",  years=QCAllYears, status="all") %>% filter(!Latin_Name %in% Bad_Species)
+QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCAllShrubs<-getPlants(NCRN, "shrubs",  years=QCAllYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
 
 QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F) %>% 
-   filter(Sample_Year %in% QCYears, !Latin_Name %in% Bad_Species)
+   filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
 
 QCAllConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F) %>% 
-   filter(Sample_Year %in% QCAllYears, !Latin_Name %in% Bad_Species)
+   filter(Sample_Year %in% QCAllYears)#, !Latin_Name %in% Bad_Species)
 
 
-QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears, !Latin_Name %in% Bad_Species)
+QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
 
-QCVines<-getPlants(NCRN,"vines",  years=QCYears ) %>% filter(!Latin_Name %in% Bad_Species)
-QCAllVines<-getPlants(NCRN,"vines",  years=QCAllYears ) %>% filter(!Latin_Name %in% Bad_Species)
+QCVines<-getPlants(NCRN,"vines",  years=QCYears )# %>% filter(!Latin_Name %in% Bad_Species)
+QCAllVines<-getPlants(NCRN,"vines",  years=QCAllYears )# %>% filter(!Latin_Name %in% Bad_Species)
 
 QCQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
 QCAllQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCAllYears)
 
-QCSeedlings<-rbind(getPlants(NCRN,"seedlings", years=QCYears),getPlants(NCRN,"shseedlings", years=QCYears) ) %>% filter(!Latin_Name %in% Bad_Species)
+QCSeedlings<-rbind(getPlants(NCRN,"seedlings", years=QCYears),getPlants(NCRN,"shseedlings", years=QCYears) )# %>% filter(!Latin_Name %in% Bad_Species)
 
-QCHerbs<-getPlants(NCRN, "herbs", years=QCYears) %>% filter(!Latin_Name %in% Bad_Species)
+QCHerbs<-getPlants(NCRN, "herbs", years=QCYears) #%>% filter(!Latin_Name %in% Bad_Species)
 
 
 QCWoodies<-bind_rows( QCTrees %>% select(Unit_Code,Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status),   # used for conditions, foliage, vines
@@ -145,7 +145,7 @@ h1, h2, h3 {
 
 - Need a way to check about tags being retired
 
-- Beed a way to check that we don't exort data for plants that have been removed from study
+- Need a way to check that we don't export data for plants that have been removed from study
 
 - Need to export Class and Habit for all relevant tables (Foliage in particular)
 
@@ -164,7 +164,7 @@ h1, h2, h3 {
 #### Saplings
 - Around 1680 saplings and shrubs not currently exported due to not having habit filled in. Many are removed from study and would not be exported
 
-- Equivalent diameter and Sum basal area is not exported for dead stems of saplings (this will typcially = 0
+- Equivalent diameter and Sum basal area is not exported for dead stems of saplings (this will typically = 0)
 
 - Dead shrubs with no "habit" are exported as saplings
 
@@ -176,7 +176,7 @@ h1, h2, h3 {
 
 - Need  a mechanism to check if Latin names are reasonable
 
-- Need to export the foliage conditions, tree conditions and vines checkboxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015? on, but not checked in other cases.
+- Need to export the foliage conditions, tree conditions and vines check-boxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015(?) on, but not checked in other cases.
 
 #### Conditions
 - Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - eliminate. This is not true of Shrubs
@@ -193,8 +193,7 @@ h1, h2, h3 {
 #### Understory Plants
 - Need to export Herb browsable and browse data
 
-- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples 
- to use as QC? What about species lists? Need to check data.
+- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples  to use as QC? What about species lists? Need to check data.
 
 #### Tags
 - Need to check that all tags that should be monitored are, and that none that should not be monitored are monitored

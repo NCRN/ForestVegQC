@@ -95,12 +95,12 @@ CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Co
 
 #4.14.0
 CWD_Bad_Tag<-QCCWD %>%  
-   filter(!is.na(Tag),!Tag %in% c(QCTrees %>% pull(Tag), QCSaplings %>% pull(Tag))) %>% 
+   filter(!is.na(Tag),!Tag %in% c(QCAllTrees %>% pull(Tag), QCAllSaplings %>% pull(Tag))) %>% 
  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag, Latin_Name)
    
 CWD_Relocated_Tag<-QCCWD %>% 
   filter(!is.na(Tag)) %>% 
-  left_join( bind_rows(QCTrees %>% select(Plot_Name,Tag), QCSaplings %>% select(Plot_Name,Tag)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
+  left_join( bind_rows(QCAllTrees %>% select(Plot_Name,Tag), QCAllSaplings %>% select(Plot_Name,Tag)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
   rowwise() %>% 
   filter(!Plot_Name_CWD %in% Plot_Name_Trees) %>% 
  select(Unit_Code, Plot_Name=Plot_Name_CWD, Tree_Plot=Plot_Name_Trees, Sample_Year, 
@@ -109,10 +109,10 @@ CWD_Relocated_Tag<-QCCWD %>%
 #4.15.0
 CWD_Renamed_Tag<-QCCWD %>% 
    filter(!is.na(Tag)) %>% 
-   left_join( bind_rows(QCTrees %>% select(Tag, Latin_Name), QCSaplings %>% select(Tag,Latin_Name)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
+   left_join( bind_rows(QCAllTrees %>% select(Tag, Latin_Name), QCAllSaplings %>% select(Tag,Latin_Name)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
    rowwise() %>% 
    filter(!Latin_Name_CWD %in% Latin_Name_Trees) %>% 
-  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag=Tag, Latin_Name=Latin_Name_CWD, Tree_Latin_Name=Latin_Name_Trees)
+  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag=Tag, Latin_Name=Latin_Name_CWD, Tree_Latin_Name=Latin_Name_Trees) %>% distinct()
 
 ```
 

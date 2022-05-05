@@ -319,10 +319,10 @@ if(nrow(Stems_Saplings_No_Tree)==0) cat("All saplings stem tags match a valid sa
 
 ```{r Stem_Nubmber, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Stems_Trees_Wrong_Number)==0) cat("Number of tree stems exported matches data in tree records .<br>") else {
-   errorText("Mismatches between number of stem reocrds and number of stems exprected from tree records:"); NiceTable(Stems_Trees_Wrong_Number)}
+   errorText("Mismatches between number of stem records in the stems table and number of stems listed in the tree records:"); NiceTable(Stems_Trees_Wrong_Number)}
 
 if(nrow(Stems_Saplings_Wrong_Number)==0) cat("Number of sapling stems exported matches data in sapling records .<br>") else {
-   errorText("Mismatches between number of stem reocrds and number of stems exprected from sapling records:"); NiceTable(Stems_Saplings_Wrong_Number)}
+   errorText("Mismatches between number of stem records in the stems table and number of stems listed in the sapling records:"); NiceTable(Stems_Saplings_Wrong_Number)}
 
 ```
 

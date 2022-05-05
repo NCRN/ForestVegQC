@@ -148,7 +148,8 @@ Plants_Unalive_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) &
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
 
 #9.16.0
-Plants_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=="Vines in the crown")%>% 
+Plants_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=="Vines in the crown"
+                                           )%>% 
  anti_join(QCVines %>% filter(Condition=="Vines in the crown") %>%  select(Plot_Name,Sample_Year,Tag=Host_Tag)) %>% 
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Status,  Condition)
 
@@ -221,7 +222,7 @@ Plants_Lose_Hollow<- if(length(Repeat_Woodies>0)){
 #9.23.0
 Plants_Lose_Vine_Crown<- if(length(Repeat_Woodies>0)){
  QCAllWoodies %>% 
-   left_join(QCAllConditions %>% filter(Condition=="Vines in the crown") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>%
+   left_join(QCAllConditions %>% filter(Condition=="Vines in the crown",Status %in% Live_Status) %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>%
  filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
  filter(any (Condition=="Vines in the crown" & (lead(Condition, order_by = Sample_Year) != "Vines in the crown") & 

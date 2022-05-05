@@ -360,8 +360,8 @@ Repeat_Saplings<-QCAllSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% 
  Saplings_Levitated<-if(length(Repeat_Saplings>0)){
    QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
-   filter(any(Status =="Alive Fallen" & lead(Status, order_by=Sample_Year) %in% c("Alive Broken", "Alive Leaning", 
-            "Alive Standing","Dead Leaning", "Dead Standing"))) %>% 
+   filter(any(Status =="Alive Fallen" & lead(Status, order_by=Sample_Year) %in% c("Alive Broken",  
+            "Alive Standing","Dead Standing"))) %>% 
    mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
     select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
     pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
@@ -735,8 +735,8 @@ cat("<br>**Conditions Checkbox**<br>")
 
  
  cat("<br>**Saplings that Fell Down and then Levitated Back Up**<br>")
-  if(nrow(Saplings_Levitated)==0) cat("No sapling was Alive Fallen and then became Standing or Leaning.<br>") else {
-    errorText("Saplings that were Alive Fallen but then became Standing or Leaning:"); NiceTable(Saplings_Levitated)}
+  if(nrow(Saplings_Levitated)==0) cat("No sapling was Alive Fallen and then became Standing.<br>") else {
+    errorText("Saplings that were Alive Fallen but then became Standing:"); NiceTable(Saplings_Levitated)}
  
  cat("<br>**Saplings that went Missing and were Found Alive**<br>")
   if(nrow(Saplings_Found_Alive)==0) cat("No sapling was Missing and then found Alive.<br>") else {

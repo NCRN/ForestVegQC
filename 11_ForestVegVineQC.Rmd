@@ -136,11 +136,11 @@ Vines_Bad_Exotic<-QCVines %>% filter(!Exotic %in% c(1,0)) %>%
 #11.18.0
 
 # Challenge - makes sure trees with no vines are included!
-Vine_Number<-QCAllVines %>% 
+Vine_Number<-QCAllVines %>% filter(Host_Status %in% Live_Status) %>% 
   group_by(Host_Tag,Sample_Year) %>% summarize(Vine_Total=n()) %>% 
   select(Host_Tag, Sample_Year,Vine_Total)
 
-Vines_Number_Changes<-left_join(QCAllWoodies , Vine_Number,  by=c("Sample_Year"="Sample_Year", "Tag"="Host_Tag")) %>%
+Vines_Number_Changes<-left_join(QCAllWoodies%>% filter(Status %in% Live_Status) , Vine_Number,  by=c("Sample_Year"="Sample_Year", "Tag"="Host_Tag")) %>%
    #filter(Status %in% Live_Status) %>% 
    mutate(Vine_Total=ifelse(is.na(Vine_Total),0, Vine_Total)) %>% 
    group_by(Tag) %>% 
@@ -287,7 +287,7 @@ if(nrow(Vines_Wrong_Host_Name)==0) cat("All vine records host Latin names match 
     errorText("Vine records with an invalid condition:"); NiceTable(Vines_Bad_Condition)}
 
  if(nrow(Vines_Crown_Inconsistent)==0) cat("Vine that are recorded as in the crown match conditions export.<br>") else {
-    errorText("Trees where the vine and conditinos export distagee about vines in the crown:"); NiceTable(Vines_Crown_Inconsistent)}
+    errorText("Trees where the vine export and the conditions export disagree about the presence of vines in the crown:"); NiceTable(Vines_Crown_Inconsistent)}
 ```
 
 ### Vine Nativity
@@ -295,7 +295,7 @@ if(nrow(Vines_Wrong_Host_Name)==0) cat("All vine records host Latin names match 
 ```{r Vine_Nativity, echo=FALSE, hold=FALSE, results="asis"}
 
  if(nrow(Vines_Bad_Exotic)==0) cat("All vine records have either an exotic status of 0 or 1.<br>") else {
-    errorText("Vine records with an invalid exotic statsu :"); NiceTable(Vines_Bad_Exotic)}
+    errorText("Vine records with an invalid exotic status:"); NiceTable(Vines_Bad_Exotic)}
 
 ```
 

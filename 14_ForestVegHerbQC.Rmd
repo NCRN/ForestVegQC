@@ -94,8 +94,7 @@ Herbs_Wrong_Species<-QCHerbs %>% filter(!Latin_Name %in% c("Akebia quinata", "Al
     "Berberis thunbergii", "Celastrus orbiculatus", "Centaurea biebersteinii", "Cirsium arvense", "Clematis terniflora", "Corydalis incisa", 
     "Duchesnea indica", "Epipactis helleborine", "Euonymus fortunei", "Gaylussacia spp.", "Glechoma hederacea", "Hedera helix", "Hemerocallis fulva",
     "Humulus japonicus","Ilex verticillata", "Kalmia latifolia", "Lespedeza cuneata", "Liliaceae Family", "Lindera benzoin", "Lonicera japonica",
-    "Lonicera spp.", "Lysimachia nummularia", "Microstegium vimineum", "Murdannia keisak", "Oplismenus undulatifolius", "Orchid family",
-    "Perilla frutescens", "Podophyllum peltatum", "Polygonum caespitosum", "Polygonum cuspidatum", "Polygonum perfoliatum", "Polygonum persicaria",
+    "Lonicera spp.", "Lysimachia nummularia", "Microstegium vimineum", "Murdannia keisak", "Oplismenus undulatifolius", "Orchid family","Persicaria longiseta","Perilla frutescens", "Podophyllum peltatum",  "Polygonum cuspidatum", "Polygonum perfoliatum", "Polygonum persicaria",
     "Pueraria montana", "Ranunculus ficaria", "Rosa carolina", "Rosa multiflora", "Rubus argutus", "Rubus bifrons", "Rubus discolor", 
     "Rubus phoenicolasius", "Smilax glauca",  "Smilax rotundifolia",  "Smilax tamnoides", "Symphoricarpos orbiculatus", "Toxicodendron radicans",
     "Urtica dioica", "Vaccinium spp.", "Vinca minor", "Wisteria floribunda", "Wisteria sinensis")
@@ -109,7 +108,7 @@ Herbs_Anachronistic_Name <-QCHerbs %>% filter(
     (Sample_Year < 2015 & Latin_Name == "Lindera benzoin") | (Sample_Year < 2008 & Latin_Name == "Lysimachia nummularia") |
     (Sample_Year < 2009 & Latin_Name == "Murdannia keisak") | (Sample_Year < 2009 & Latin_Name == "Oplismenus undulatifolius") |
     (Sample_Year < 2008 & Latin_Name == "Orchid family") |  (Sample_Year < 2013 & Latin_Name == "Perilla frutescens") |
-    (Sample_Year < 2008 & Latin_Name == "Polygonum caespitosum") | (Sample_Year < 2008 & Latin_Name == "Polygonum persicaria") |
+    (Sample_Year < 2008 & Latin_Name == "Persicaria longiseta") | (Sample_Year < 2008 & Latin_Name == "Polygonum persicaria") |
     (Sample_Year < 2010 & Latin_Name == "Rosa carolina") | (Sample_Year < 2010 & Latin_Name == "Rubus argutus") |
     (Sample_Year < 2014 & Latin_Name == "Rubus bifrons") | (Sample_Year < 2014 & Latin_Name == "Rubus discolor") |
     (Sample_Year < 2008 & Latin_Name == "Smilax glauca") | (Sample_Year < 2008 & Latin_Name == "Smilax rotundifolia") |
@@ -149,7 +148,7 @@ Herbs_Wrong_Exotic<-QCHerbs %>% filter( (Latin_Name %in% c("Gaylussacia spp.", "
       "Celastrus orbiculatus", "Centaurea biebersteinii", "Cirsium arvense", "Clematis terniflora", "Corydalis incisa", "Duchesnea indica", 
        "Epipactis helleborine", "Euonymus fortunei","Glechoma hederacea", "Hedera helix",  "Hemerocallis fulva", "Humulus japonicus",
       "Lespedeza cuneata", "Lonicera japonica","Lonicera spp.", "Lysimachia nummularia", "Microstegium vimineum", "Murdannia keisak",
-      "Oplismenus undulatifolius", "Perilla frutescens",  "Polygonum caespitosum", "Polygonum cuspidatum", "Polygonum perfoliatum",
+      "Oplismenus undulatifolius", "Perilla frutescens", "Persicaria longiseta", "Polygonum cuspidatum", "Polygonum perfoliatum",
       "Polygonum persicaria", "Pueraria montana", "Ranunculus ficaria", "Rosa multiflora","Rubus bifrons", "Rubus discolor", 
       "Rubus phoenicolasius","Urtica dioica", "Vinca minor", "Wisteria floribunda", "Wisteria sinensis"
       ) & Exotic!=1)

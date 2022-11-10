@@ -32,20 +32,20 @@ errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><
 
 #DataDir<-"C:/Data/NCRN_Veg_2020"
 
-DataDir<-"C:/Data/NCRN_Veg_2021_Good//"
+DataDir<-"C:/Data/NCRN_Veg_2022_Good/"
 
 NCRN<-importNCRN(DataDir)
 
 #QCYears<-c(2008, 2012,2016, 2021)
-QCYears<-c(2017)
+QCYears<-c(2022)
 QCPastYears<-c(2009,2013,2017)
 QCAllYears<-unique(c(QCYears, QCPastYears))
 
 
 
-Bad_Species<-c("Carya tomentosa", "Hicoria cordiformis", "Quercus prinus", "Robinia pseudo-acacia", "Rulac negundo", "Sassafras officinale",
-               "Polycodium stamineum", "Vaccinium atrococcum", "Vaccinium constablaei",
-               "Alliaria officinalis", "Eulalia viminea","Nepeta hederacea", "Polygonum cespitosum","Rosa cathayensis","Smilax hispida")
+# Bad_Species<-c("Carya tomentosa", "Hicoria cordiformis", "Quercus prinus", "Robinia pseudo-acacia", "Rulac negundo", "Sassafras officinale",
+#                "Polycodium stamineum", "Vaccinium atrococcum", "Vaccinium constablaei",
+#                "Alliaria officinalis", "Eulalia viminea","Nepeta hederacea", "Polygonum cespitosum","Rosa cathayensis","Smilax hispida")
 
 
 

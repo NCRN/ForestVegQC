@@ -313,7 +313,10 @@ Trees_Unalive_Foliage_Check<-QCTrees %>%
 
 ### Multi-Year Checks
 
-Repeat_Trees<-QCAllTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+Repeat_Trees<-if(length(QCAllYears)!=1) {
+  QCAllTrees %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)} else {
+    NULL
+  }
 
 
 ## Tree Diameter Change

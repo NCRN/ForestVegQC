@@ -81,7 +81,7 @@ Foliage_Bad_Year<-QCFoliage %>%
 Foliage_Bad_Tag<-QCFoliage %>% filter(!Tag %in% 1:30000) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
-Foliage_No_Plant<-QCFoliage %>% anti_join(QCWoodies) %>% 
+Foliage_No_Plant<-QCFoliage %>% select(-Cycle) %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issues
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 ## Latin Name
@@ -90,7 +90,7 @@ Foliage_No_Plant<-QCFoliage %>% anti_join(QCWoodies) %>%
 Foliage_No_Name<-QCFoliage %>% filter(Latin_Name=="") %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
-Foliage_Wrong_Name<-QCFoliage %>% anti_join(QCWoodies) %>% 
+Foliage_Wrong_Name<-QCFoliage %>% select(-Cycle) %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issues
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 ## TSN
@@ -99,7 +99,7 @@ Foliage_Wrong_Name<-QCFoliage %>% anti_join(QCWoodies) %>%
 Foliage_No_TSN <-QCFoliage %>% filter(is.na(TSN) | TSN=="") %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
 
-Foliage_Wrong_TSN<-QCFoliage %>% anti_join(QCWoodies) %>% 
+Foliage_Wrong_TSN<-QCFoliage %>% select(-Cycle) %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issues
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
 
 ## Condition and Description

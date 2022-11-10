@@ -80,7 +80,7 @@ Conditions_Bad_Year<-QCConditions %>%
 Conditions_Bad_Tag<-QCConditions %>% filter(!Tag %in% 1:30000) %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
  
-Conditions_No_Plant<-QCConditions %>% anti_join(QCWoodies) %>% 
+Conditions_No_Plant<-QCConditions %>% select (-Cycle) %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issues
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 ## Latin Name
@@ -89,7 +89,7 @@ Conditions_No_Plant<-QCConditions %>% anti_join(QCWoodies) %>%
 Condtions_No_Name<-QCConditions %>% filter(Latin_Name=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
 
-Conditions_Wrong_Name<-QCConditions %>% anti_join(QCWoodies) %>%  
+Conditions_Wrong_Name<-QCConditions%>% select (-Cycle) %>% anti_join(QCWoodies) %>%  #select(-Cycle) due to export cycle issues
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 ## TSN
@@ -98,7 +98,7 @@ Conditions_Wrong_Name<-QCConditions %>% anti_join(QCWoodies) %>%
 Conditions_No_TSN <-QCConditions %>% filter(is.na(TSN) | TSN=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
 
-Conditions_Wrong_TSN<-QCConditions %>% anti_join(QCWoodies) %>% 
+Conditions_Wrong_TSN<-QCConditions %>% select (-Cycle)  %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issue
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
 
 ## Status
@@ -107,7 +107,7 @@ Conditions_Wrong_TSN<-QCConditions %>% anti_join(QCWoodies) %>%
 Conditions_No_Status <- QCConditions %>% filter(is.na(Status) | Status=="") %>%
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
-Conditions_Wrong_Status<-QCConditions %>% anti_join(QCWoodies) %>% 
+Conditions_Wrong_Status<-QCConditions  %>% select (-Cycle) %>%  anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issue
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
  
 
@@ -158,7 +158,7 @@ Plants_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition
 #9.17.0
 Plants_Live_Bad_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
  !Condition %in% c("Asian longhorned beetle", "Beech bark disease",  "Butternut canker", "Chestnut blight", "Dogwood anthracnose", 
-                   "Emerald ash borer", "Gypsy moth","Hemlock Scale", "Hemlock wooly adelgid", "Oak wilt", "Spotted lanternfly", 
+                   "Emerald ash borer", "Gypsy moth","Hemlock Scale", "Hemlock wooly adelgid", "Oak wilt", "Spotted Lanternfly", 
                    "Thousand cankers disease", "Tent caterpillars", "Other significant insect damage")) %>% 
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
  

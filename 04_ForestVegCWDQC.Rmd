@@ -209,7 +209,7 @@ if(nrow(CWD_Missing_TSN)==0) cat("All pieces of CWD have a TSN.<br>") else {
 if(nrow(CWD_No_Name)==0) cat("All pieces of CWD have a species ID.<br>") else {
    errorText("Pieces of CWD with no species name:"); NiceTable(CWD_No_Name)}
 
-if(nrow(CWD_Renamed_Tag)==0) cat("All CWD and trees with the smame tag have the same Latin name. <br>") else {
+if(nrow(CWD_Renamed_Tag)==0) cat("All CWD and trees with the same tag have the same Latin name. <br>") else {
    errorText("CWD and trees with the same tag but different Latin names:"); NiceTable(CWD_Renamed_Tag)}
 
 ```

@@ -9,6 +9,7 @@ output: html_document
 ```{r quad_setup, include=F}
 TotQuads<-nrow(QCQuads) #Total Number of tree records checked
 
+
 #12.1.0
 Quads_Bad_Unit<-QCQuads %>% 
  filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
@@ -70,7 +71,8 @@ Quads_Bad_Cycle<-QCQuads %>%
  filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
      !(Cycle==2 & Sample_Year %in% 2010:2013) &
      !(Cycle==3 & Sample_Year %in% 2014:2017) &
-     !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+     !(Cycle==4 & Sample_Year %in% 2018:2022) &
+     !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
  select(Unit_Code,Plot_Name, Quadrat_Number,  Sample_Year, Cycle)
 
 ## Dates
@@ -188,7 +190,7 @@ Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
 
 # Look to see if difference between years from Grass to sedge is greater than that from grass to grass, and similar for sedges
 
-Grass_Sedge_Switched <-if(nrow(Repeat_Quads>0) & QCYears!=QCPastYears){
+Grass_Sedge_Switched <-if(nrow(Repeat_Quads>0) & !QCYears %in% QCPastYears){
   QCAllQuads %>% semi_join(Repeat_Quads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Grasses, Percent_Sedges) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 
@@ -268,7 +270,7 @@ errorText("Quad records without a frame of either Region or Park:"); NiceTable(Q
 
 cat("<br>**Cycle Data**<br>")
 if(nrow(Quads_Bad_Cycle)==0) cat("Each quad record is from a cycle that matches its event year.<br>") else {
-errorText("Quad records without a cycle or with a cycle that does not match its event year:"); NiceTable(Quad_Bad_Cycle)}
+errorText("Quad records without a cycle or with a cycle that does not match its event year:"); NiceTable(Quads_Bad_Cycle)}
 
 ```
 

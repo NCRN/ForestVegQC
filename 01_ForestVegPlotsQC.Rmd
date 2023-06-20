@@ -89,7 +89,7 @@ Plots_Bad_Location_Status<-QCPlots %>%
 
 #1.10.0
 Plots_Bad_Event_Count<-QCPlots %>% 
-   filter(!Event_Count %in% 1:4) %>% 
+   filter(!Event_Count %in% 1:5) %>% 
    select(Unit_Code, Plot_Name, Event_Count)
 
 #1.11.0
@@ -99,12 +99,12 @@ Plots_Bad_Event_Earliest<-QCPlots %>%
 
 #1.12.0
 Plots_Bad_Event_Latest<-QCPlots %>% 
-   filter(!year(Event_Latest) %in% 2007:2022 | !month (Event_Latest) %in% 4:10) %>% 
+   filter(!year(Event_Latest) %in% 2007:2023 | !month (Event_Latest) %in% 4:10) %>% 
    select(Unit_Code, Plot_Name, Event_Latest)
 
 #1.13.0
 Plots_Bad_Install_Date<-QCPlots %>% 
-   filter(!year(Event_Latest) %in% 2007:2022 | !month (Event_Latest) %in% 4:10) %>% 
+   filter(!year(Event_Latest) %in% 2007:2023 | !month (Event_Latest) %in% 4:10) %>% 
    select(Unit_Code, Plot_Name, Event_Latest)
 
 #1.13.0
@@ -267,8 +267,8 @@ if(nrow(Plots_Bad_Event_Earliest)==0) cat("All plots have an earliest event betw
 
 ```{r plot_event_latest, echo=FALSE, hold=FALSE, results="asis"}
 cat("<br>**Plot Latest Event**<br>")
-if(nrow(Plots_Bad_Event_Latest)==0) cat("All plots have a latest event between April and October and between 2007 to 2021.<br>") else {
-   errorText("Plots without an a latest event between April and October and between 2007 to 2027:"); NiceTable(Plots_Bad_Event_Latest)}
+if(nrow(Plots_Bad_Event_Latest)==0) cat("All plots have a latest event between April and October and between 2007 to 2023.<br>") else {
+   errorText("Plots without a latest event between April and October and between 2007 to 2023:"); NiceTable(Plots_Bad_Event_Latest)}
 ```
 
 ```{r plot_instal_date, echo=FALSE, hold=FALSE, results="asis"}

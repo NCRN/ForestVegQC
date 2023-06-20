@@ -59,7 +59,8 @@ Conditions_Bad_Cycle<-QCConditions %>%
   filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
          !(Cycle==2 & Sample_Year %in% 2010:2013) &
          !(Cycle==3 & Sample_Year %in% 2014:2017) &
-         !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+         !(Cycle==4 & Sample_Year %in% 2018:2022) &
+         !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
   select(Unit_Code,Plot_Name, Sample_Year, Cycle,Tag, Latin_Name)
 
 ## Dates
@@ -157,7 +158,7 @@ Plants_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition
  
 #9.17.0
 Plants_Live_Bad_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
- !Condition %in% c("Asian longhorned beetle", "Beech bark disease",  "Butternut canker", "Chestnut blight", "Dogwood anthracnose", 
+ !Condition %in% c("Asian longhorned beetle", "Beech bark disease", "Beech leaf diesase",  "Butternut canker", "Chestnut blight", "Dogwood anthracnose", 
                    "Emerald ash borer", "Gypsy moth","Hemlock Scale", "Hemlock wooly adelgid", "Oak wilt", "Spotted Lanternfly", 
                    "Thousand cankers disease", "Tent caterpillars", "Other significant insect damage")) %>% 
  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
@@ -169,7 +170,9 @@ Plants_Live_Anachronistic_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYea
          (Condition =="Emrerald ash borer" & Sample_Year < 2009) |
          (Condition %in% c("Asian longhorn beetle","Chestnut blight", "Oak wilt", "Thousand cankers disease") & Sample_Year < 2014) |
          (Condition =="Tent caterpillars" & Sample_Year< 2017) |
-         (Condition =="Spotted lanternfly" & Sample_Year < 2018))
+         (Condition =="Spotted lanternfly" & Sample_Year < 2018) |
+         (Condition == "Beech leaf disease" & Sample_Year < 2022)
+         )
    ) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
 
 #9.19.0
@@ -438,12 +441,12 @@ if(nrow(Plants_Live_Bad_Tree_Condition)==0) cat("All live tree, sapling and shru
       errorText("Living tree sapling or shrub records with a condition we don't monitor:"); NiceTable(Plants_Live_Bad_Tree_Condition)}
  
 cat("<br>**Anachronistic Conditions**<br>")
-if(nrow(Anachronistic_Conditions)==0) cat("No coditions were recorded in a year they were not used.<br>") else {
+if(nrow(Anachronistic_Conditions)==0) cat("No conditions were recorded in a year they were not used.<br>") else {
  errorText("Records with a condition from the wrong year:"); NiceTable(Anachronistic_Conditions)}
 
 cat("<br>**Redundant Conditions**<br>")
 if(nrow(Plants_Live_Redundant_Conditions)==0) cat("All conditions are only entered only once.<br>") else {
- errorText("Living tree, sapling or shrub records with a repeated conditions:"); NiceTable(Plants_Live_Redundant_Conditions)}
+ errorText("Living tree, sapling or shrub records with duplicated conditions:"); NiceTable(Plants_Live_Redundant_Conditions)}
 
 cat("<br>**Non-Living Conditions**<br>")
 if(nrow(Plants_Unalive_Conditions)==0) cat("No non-living platns have conditions.<br>") else { 

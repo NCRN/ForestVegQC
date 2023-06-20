@@ -89,7 +89,8 @@ Events_Bad_Cycle<-QCEvents %>%
   filter(!(Cycle==1 & Event_Year %in% 2005:2009) &
          !(Cycle==2 & Event_Year %in% 2010:2013) &
          !(Cycle==3 & Event_Year %in% 2014:2017) &
-         !(Cycle==4 & Event_Year %in% 2018:2022)) %>% 
+         !(Cycle==4 & Event_Year %in% 2018:2022) &
+         !(Cycle==5 & Event_Year %in% 2023:2026)) %>% 
   select(Unit_Code,Plot_Name, Event_Year, Cycle)
 
 #2.14.0

@@ -58,7 +58,8 @@ Vines_Bad_Cycle<-QCVines %>%
   filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
       !(Cycle==2 & Sample_Year %in% 2010:2013) &
       !(Cycle==3 & Sample_Year %in% 2014:2017) &
-      !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+      !(Cycle==4 & Sample_Year %in% 2018:2022) &
+      !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
   select(Unit_Code,Plot_Name, Sample_Year, Cycle,Host_Tag, Latin_Name)
 
 ## Dates

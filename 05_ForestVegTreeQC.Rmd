@@ -58,7 +58,8 @@ Trees_Bad_Cycle<-QCTrees %>%
     filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
            !(Cycle==2 & Sample_Year %in% 2010:2013) &
            !(Cycle==3 & Sample_Year %in% 2014:2017) &
-           !(Cycle==4 & Sample_Year %in% 2018:2022)) %>% 
+           !(Cycle==4 & Sample_Year %in% 2018:2022) &
+           !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
     select(Unit_Code,Plot_Name, Sample_Year, Cycle,Tag, Latin_Name)
 
 ## Dates
@@ -618,7 +619,7 @@ if(nrow(Trees_No_Stem_Count)==0) cat("All tree records have a stem count.<br>") 
    errorText("Trees without a stem count:"); NiceTable(Trees_No_Stem_Count)}
 
 if(nrow(Trees_Live_Many_Stems)==0) cat("All live tree records have between 1 and 5 stems.<br>") else {
-   errorText("Live tress with less than 1 or more than 5 stems:"); NiceTable(Trees_Live_Many_Stems)}
+   errorText("Live trees with less than 1 or more than 5 stems:"); NiceTable(Trees_Live_Many_Stems)}
 
 if(nrow(Trees_Standing_Dead_Many_Stems)==0) cat("All standing/leaning dead tree records have between 1 and 5 stems.<br>") else {
    errorText("Standing or leaning dead trees with less than 1 or more than 5 stems:"); NiceTable(Trees_Standing_Dead_Many_Stems)}

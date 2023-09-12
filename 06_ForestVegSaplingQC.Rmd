@@ -293,7 +293,7 @@ Saplings_Unalive_VineCheck<-QCSaplings %>%
                summarise(Foliage=n())) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, FoliageConditionsChecked, Foliage)
  
- Saplings_Unalive_Foliage_Check<-QCTrees %>% 
+ Saplings_Unalive_Foliage_Check<-QCSaplings %>% 
    filter(!Status %in% Live_Status, FoliageConditionsChecked==1) %>% 
    left_join(QCFoliage %>% group_by(Plot_Name,Sample_Year,Tag) %>%
                summarise(Foliage=n())) %>%

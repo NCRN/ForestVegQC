@@ -1,0 +1,262 @@
+---
+title: "15_TagChecks"
+author: "John Paul Schmit"
+date: "2024-05-14"
+output: html_document
+---
+
+```{r tag_setup, include=F}
+TotTags<-nrow(QCTags) #Total Number of tree records checked
+
+## Unit Codes
+
+## Plots 
+#15.1.0
+  
+Tags_No_Plot_Name <- QCTags %>% 
+  filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+  select(Plot_Name, Tag, Tag_Status)
+ 
+## Location Status
+
+#15.2.0
+Tags_Bad_Location_Status<-QCTags %>% 
+  filter(is.na(Location_Status)| Location_Status != "Active") %>% 
+  select(Plot_Name, Tag, Location_Status, Tag_Status)
+
+
+## Tag Number
+
+# 15.3.0
+Tags_Bad_Tag<-QCTags %>% filter(!Tag %in% 1:30000) %>%
+  select(Plot_Name, Tag, Tag_Status)
+
+Tags_Duplicate_Tags<- QCTags %>%  
+  summarize(Count=n(), .by=Tag) %>% 
+  filter(Count!=1)
+
+
+## Event Earliest and Latest
+
+#15.4.0
+
+Tags_Missing_Event <- QCTags %>% 
+  filter(is.na(Earliest_Event) | Earliest_Event==""| is.na(Latest_Event) | Latest_Event=="") %>% 
+  select(Plot_Name, Tag, Tag_Status, Earliest_Event, Latest_Event)
+
+#15.5.0
+Tags_Events_Wrong_Years <-QCTags %>% 
+  filter(Earliest_Event>Latest_Event) %>% 
+  select(Plot_Name, Tag, Tag_Status, Earliest_Event, Latest_Event)
+
+## Tag Status
+
+#15.6.0
+
+Tags_Bad_Status<-QCTags %>% 
+  filter(!Tag_Status %in% c("Tree", "Sapling", "Retired (In Office)", "Inactive (In Field)", "Inactive (Lost)")) %>% 
+   select(Plot_Name, Tag, Tag_Status)
+
+## Plant Status
+Tree_Status_Tree<-c("Tree - Alive Broken", "Tree - Alive Fallen", "Tree - Alive Leaning", 
+               "Tree - Alive Standing","Tree - Dead", "Tree - Dead - Human Action",
+               "Tree - Dead Leaning", "Tree - Dead Standing", "Tree - Downgraded to Non-Sampled")
+
+Tree_Status_Missing<-c( "Tree - Dead Missing","Tree - Missing", 
+                "Tree - Missing - Presumed Dead", "Tree - Missing - Uncertain")
+
+Tree_Status_Other<-c("Tree - Dead - Too Small", "Tree - Dead Fallen")
+
+
+Sapling_Status_Sapling<-c("Sapling - Alive Broken", "Sapling - Alive Fallen", "Sapling - Alive Leaning", 
+                 "Sapling - Alive Standing" )
+
+Sapling_Status_Missing<-c("Sapling - Missing",
+                 "Sapling - Missing - Presumed Dead", "Sapling - Missing - Uncertain","Sapling - Dead Missing")
+
+Sapling_Status_Other<-c("Sapling - Dead", "Sapling - Dead - Human Action",
+                 "Sapling - Dead - Too Small", "Sapling - Dead Fallen", "Sapling - Dead Leaning",
+                 "Sapling - Dead Standing", "Sapling - Downgraded to Non-Sampled" )
+
+Tag_Status_Other<-c("Retired (In Office)", "Inactive (In Field)", "Inactive (Lost)")
+
+All_Plant_Status<-c(Tree_Status_Tree, Tree_Status_Other, Tree_Status_Missing,
+                    Sapling_Status_Sapling, Sapling_Status_Other, Sapling_Status_Missing)
+
+#15.7.0
+Tags_Bad_Plant_Status <- QCTags_Long %>%
+  filter(!Plant_Status %in% c("",All_Plant_Status )) %>% 
+  select(Plot_Name, Tag, Plant_Status, Cycle)
+
+#15.8.0
+Tags_Bad_Tree<-QCTags_Latest %>% 
+  filter((Tag_Status=="Tree" &  (!Plant_Status %in% c(Tree_Status_Tree, Tree_Status_Missing))) |
+   (Tag_Status=="Tree" &  (Plant_Status %in% Tree_Status_Missing) & Missing_Events >=2)) %>% 
+  select(Plot_Name,Tag, Latin_Name,Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
+
+#15.9.0
+Tags_Missing_Tree<- QCTags_Latest %>% 
+  filter (((Plant_Status %in% Tree_Status_Tree) & Tag_Status != "Tree") |
+          (Tag_Status %in% Tag_Status_Other & Plant_Status==Tree_Status_Missing & Missing_Events<2)) %>% 
+   select(Plot_Name,Tag, Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
+
+#15.10.0
+Tags_Bad_Sapling<-QCTags_Latest %>% 
+  filter((Tag_Status=="Sapling" &  (!Plant_Status %in% c(Sapling_Status_Sapling, Sapling_Status_Missing))) |
+   (Tag_Status=="Sapling" &  (Plant_Status %in% Sapling_Status_Missing) & Missing_Events >=2) ) %>% 
+  select(Plot_Name,Tag, Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
+
+#15.11.0
+Tags_Missing_Sapling<- QCTags_Latest %>% 
+  filter ((((Plant_Status %in% Sapling_Status_Sapling) & Tag_Status != "Sapling") |
+          (Tag_Status %in% Tag_Status_Other & Plant_Status==Sapling_Status_Missing & Missing_Events<2)) &
+            (Tag_Status %in% Tag_Status_Other & 
+               (!Latin_Name %in% c("Lindera benzoin", "Kalmia latifolia", "Ilex verticillata")))
+             ) %>% 
+   select(Plot_Name,Tag, Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
+
+
+#15.12.0
+Tags_Bad_Other<-QCTags_Latest %>% 
+  filter( ((Tag_Status %in% Tag_Status_Other) & 
+         (!Plant_Status %in% c(Tree_Status_Other,Tree_Status_Missing, 
+                               Sapling_Status_Other, Sapling_Status_Missing)) |
+           ((Tag_Status %in% Tag_Status_Other) & Plant_Status %in% c(Tree_Status_Missing, 
+                               Sapling_Status_Missing) & Missing_Events <2)) &
+           !Latin_Name %in% c("Lindera benzoin", "Kalmia latifolia", "Ilex verticillata")
+           ) %>% 
+   select(Plot_Name,Tag,Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
+         
+#15.13.0
+Tags_Missing_Other<- QCTags_Latest %>% 
+  filter(
+    (Latin_Name %in% c("Lindera benzoin", "Kalmia latifolia", "Ilex verticillata") &
+            (!Tag_Status %in% Tag_Status_Other )) |
+    ((Plant_Status %in% c(Tree_Status_Other, Sapling_Status_Other)) &
+           (!Tag_Status %in% Tag_Status_Other ) |
+           ((Plant_Status %in% c(Tree_Status_Missing, Sapling_Status_Missing)) &
+              (!Tag_Status %in% Tag_Status_Other) & Missing_Events >=2 ))
+    ) %>% 
+  select(Plot_Name,Tag, Latin_Name,Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
+  
+
+
+#          |
+#             ((Plant_Status %in% c(Tree_Status_Other, Sapling_Status_Other)) &
+#                (!Tag_Status %in% Tag_Status_Other))) %>% 
+# select(Plot_Name,Tag, Tag_Status, Latest_Event, Cycle, Plant_Status)
+#          
+#### Need to:
+# check that there are no internal blanks
+# check that the last status that is not blank matches the Tag_status
+# Sapling tag vs good plant status
+#tree tag vs good plant status
+#"Retired (In Office)", 
+#"Inactive (In Field)", 
+#"Inactive (Lost)"
+
+
+```
+
+
+#### **Tag Records Checked:** `r TotTags` ####
+
+---
+
+### Plot Names
+
+```{r tag_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Tags_No_Plot_Name)==0) cat("All tag records have a Plot Name.<br>") else {
+errortext("Tag records with a missing Plot Name:"); NiceTable(Tags_No_Plot_Name)}
+
+```
+
+---
+
+###  Location Status
+```{r tag_location_status, echo=FALSE, hold=FALSE, results="asis"}
+
+  if(nrow(Tags_Bad_Location_Status)==0) cat("All records have a valid location status.<br>") else {
+     errorText("Records without a valid location status:"); NiceTable(Tags_Bad_Location_Status)}
+
+```
+
+---
+
+
+###  Tag Number
+```{r tag_tag_number, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Tag Number**<br>") 
+ if(nrow(Tags_Bad_Tag)==0) cat("All tag records have a valid number.<br>") else {
+    errorText("Tag records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Tags_Bad_Tag)}
+
+cat("<br>**Duplicate Tags**<br>") 
+if(nrow(Tags_Duplicate_Tags)==0) cat("No tags are duplicated in a single visit.<br>") else {
+    errorText("Tags with duplicate tag number records:"); NiceTable(Tags_Duplicate_Tag)}
+
+```
+
+---
+
+### Events
+
+```{r tags_Events ,echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Missing Event**<br>")
+if(nrow(Tags_Missing_Event)==0) cat("Each tag has an earliest and a latest event year.<br>") else {
+errorText("Tag records without an earliest or latest event year:"); NiceTable(Tags_Missing_Event)}
+ 
+cat("<br>**Inconsistent Years**<br>")
+if(nrow(Tags_Events_Wrong_Years)==0) cat("Each tag record has an earliest event year prior to or the same as the latest event year.<br>") else {
+errorText("Tag records whose ealiest event year is after their latest event year:"); NicetTable(Tags_Events_Wrong_Years)}
+
+```
+
+---
+
+###  Tag Staus
+```{r tag_tag_status, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Tags_Bad_Status)==0) cat("All tag records have a valid tag status.<br>") else {
+errorText("Tag records without a valid tag status:"); NiceTable(Tags_Bad_Status)}
+
+```
+
+---
+
+### Plant Status
+
+```{r tag_plant_status, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Valid Plant Status**<br>")
+if(nrow(Tags_Bad_Plant_Status)==0) cat("All tag records have a valid plant status.<br>") else {
+errorText("Tag records without a valid plant status:"); NiceTable(Tags_Bad_Plant_Status)}
+
+cat("<br>**Tree Tag Status Incorrect**<br>")
+if(nrow(Tags_Bad_Tree)==0) cat("All tag records that have a tag status of Tree should have that status.<br>") else {
+errorText("Tag records with a misapplied Tree tag status:"); NiceTable(Tags_Bad_Tree)}
+
+cat("<br>**Tree Tag Status Missing**<br>")
+if(nrow(Tags_Missing_Tree)==0) cat("All tag records that should have a tag status of Tree have that status.<br>") else {
+errorText("Tag records that should have a Tree tag status:"); NiceTable(Tags_Missing_Tree)}
+
+cat("<br>**Sapling Tag Status Inorrect**<br>")
+if(nrow(Tags_Bad_Sapling)==0) cat("All tag records that have a tag status of Sapling should have that status.<br>") else {
+errorText("Tag records with a misapplied Sapling tag status:"); NiceTable(Tags_Bad_Sapling)}
+
+cat("<br>**Sapling Tag Status Missing**<br>")
+if(nrow(Tags_Missing_Sapling)==0) cat("All tag records that should have a tag status of Sapling have that status.<br>") else {
+errorText("Tag records that should have a Sapling tag status:"); NiceTable(Tags_Missing_Sapling)}
+
+cat("<br>**Plants with misapplied Retired or Inactive  Tag Status**<br>")
+if(nrow(Tags_Bad_Other)==0) cat("All Tag records with a tag status or incative or retired should have that stutus.<br>") else {
+errorText("Tag records of that incorrectly have a tag status of inactive or retired:"); NiceTable(Tags_Bad_Other)}
+
+cat("<br>**Plants Missing Retired or Inactive Tag Status**<br>")
+if(nrow(Tags_Missing_Other)==0) cat("All Tag records thats should have a tag status or incative or retired have that stutus.<br>") else {
+errorText("Tag records of that are missing a tag status of inactive or retired:"); NiceTable(Tags_Missing_Other)}
+
+
+```
+  

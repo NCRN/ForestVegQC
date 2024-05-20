@@ -91,25 +91,25 @@ Tags_Bad_Plant_Status <- QCTags_Long %>%
 #15.8.0
 Tags_Bad_Tree<-QCTags_Latest %>% 
   filter((Tag_Status=="Tree" &  (!Plant_Status %in% c(Tree_Status_Tree, Tree_Status_Missing))) |
-   (Tag_Status=="Tree" &  (Plant_Status %in% Tree_Status_Missing) & Missing_Events >=2)) %>% 
+   (Tag_Status=="Tree" &  (Plant_Status %in% Tree_Status_Missing) & Missing_Events >=3)) %>% 
   select(Plot_Name,Tag, Latin_Name,Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
 
 #15.9.0
 Tags_Missing_Tree<- QCTags_Latest %>% 
   filter (((Plant_Status %in% Tree_Status_Tree) & Tag_Status != "Tree") |
-          (Tag_Status %in% Tag_Status_Other & Plant_Status==Tree_Status_Missing & Missing_Events<2)) %>% 
+          (Tag_Status %in% Tag_Status_Other & Plant_Status==Tree_Status_Missing & Missing_Events<3)) %>% 
    select(Plot_Name,Tag, Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
 
 #15.10.0
 Tags_Bad_Sapling<-QCTags_Latest %>% 
   filter((Tag_Status=="Sapling" &  (!Plant_Status %in% c(Sapling_Status_Sapling, Sapling_Status_Missing))) |
-   (Tag_Status=="Sapling" &  (Plant_Status %in% Sapling_Status_Missing) & Missing_Events >=2) ) %>% 
+   (Tag_Status=="Sapling" &  (Plant_Status %in% Sapling_Status_Missing) & Missing_Events >=3) ) %>% 
   select(Plot_Name,Tag, Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
 
 #15.11.0
 Tags_Missing_Sapling<- QCTags_Latest %>% 
   filter ((((Plant_Status %in% Sapling_Status_Sapling) & Tag_Status != "Sapling") |
-          (Tag_Status %in% Tag_Status_Other & Plant_Status==Sapling_Status_Missing & Missing_Events<2)) &
+          (Tag_Status %in% Tag_Status_Other & Plant_Status==Sapling_Status_Missing & Missing_Events<3)) &
             (Tag_Status %in% Tag_Status_Other & 
                (!Latin_Name %in% c("Lindera benzoin", "Kalmia latifolia", "Ilex verticillata")))
              ) %>% 
@@ -122,7 +122,7 @@ Tags_Bad_Other<-QCTags_Latest %>%
          (!Plant_Status %in% c(Tree_Status_Other,Tree_Status_Missing, 
                                Sapling_Status_Other, Sapling_Status_Missing)) |
            ((Tag_Status %in% Tag_Status_Other) & Plant_Status %in% c(Tree_Status_Missing, 
-                               Sapling_Status_Missing) & Missing_Events <2)) &
+                               Sapling_Status_Missing) & Missing_Events <3)) &
            !Latin_Name %in% c("Lindera benzoin", "Kalmia latifolia", "Ilex verticillata")
            ) %>% 
    select(Plot_Name,Tag,Latin_Name, Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
@@ -135,7 +135,7 @@ Tags_Missing_Other<- QCTags_Latest %>%
     ((Plant_Status %in% c(Tree_Status_Other, Sapling_Status_Other)) &
            (!Tag_Status %in% Tag_Status_Other ) |
            ((Plant_Status %in% c(Tree_Status_Missing, Sapling_Status_Missing)) &
-              (!Tag_Status %in% Tag_Status_Other) & Missing_Events >=2 ))
+              (!Tag_Status %in% Tag_Status_Other) & Missing_Events >=3 ))
     ) %>% 
   select(Plot_Name,Tag, Latin_Name,Tag_Status, Latest_Event, Cycle, Plant_Status, Missing_Events)
   

@@ -113,6 +113,9 @@ QCAllWoodies<-bind_rows( QCAllTrees %>% select(Unit_Code,Plot_Name, Tag, Latin_N
 
 Repeat_Woodies<-QCAllWoodies %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
 
+
+
+QCCommonNames<-read.csv(paste0(DataDir,"/CommonNames.csv"), stringsAsFactors = F)
 # QCPlotFloor<-read.csv(paste0(DataDir,"/Plot_Floor.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
 # QCTags<-read.csv(paste0(DataDir,"/Tag_History.csv"), stringsAsFactors = F)
 
@@ -291,5 +294,10 @@ h1, h2, h3 {
 ## Tags
 
 ```{r Tag-QC, child="15_ForestVegTagsQC.Rmd"}
+```
+
+## Species
+
+```{r Species-QC, child="16_CommonNamesQC.Rmd"}
 ```
 

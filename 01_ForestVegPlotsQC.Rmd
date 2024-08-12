@@ -159,13 +159,13 @@ Plots_Inconsistent_County<-QCPlots %>%
 
 ```{r Plot_unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_Bad_Unit)==0) cat("All plots have a recognized Unit Code.<br>") else {
-   errortext("Plots with a missing or unrecongized Unit Code:"); NiceTable(Plots_Bad_Unit)}
+   errorText("Plots with a missing or unrecongized Unit Code:"); NiceTable(Plots_Bad_Unit)}
 
 if(nrow(Plots_Bad_Unit_Group)==0) cat("All plots have a recognized Unit Group.<br>") else {
-   errortext("Plots with a missing or unrecongized Unit Group:"); NiceTable(Plots_Bad_Unit_Group)}
+   errorText("Plots with a missing or unrecongized Unit Group:"); NiceTable(Plots_Bad_Unit_Group)}
 
 if(nrow(Plots_Mismatch_Unit_Group)==0) cat("All plots have Unit Group that is consistent with their Unit Code.<br>") else {
-   errortext("Plots with a Unit Group that is inconsistent with their Unit Code:");NiceTable(Plots_Mismatch_Unit_Group)}
+   errorText("Plots with a Unit Group that is inconsistent with their Unit Code:");NiceTable(Plots_Mismatch_Unit_Group)}
 
 ```
 
@@ -175,10 +175,10 @@ if(nrow(Plots_Mismatch_Unit_Group)==0) cat("All plots have Unit Group that is co
 
 ```{r Plot_plot_names, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Plots_No_Plot_Name)==0) cat("All plots have a Plot Name.<br>") else {
-   errortext("Plots with a missing Plot Name:"); NiceTable(Plots_No_Plot_Name)}
+   errorText("Plots with a missing Plot Name:"); NiceTable(Plots_No_Plot_Name)}
 
 if(nrow(Plots_Duplicated)==0) cat("All plots have a unique Plot Name.<br>") else {
-   errortext("Plots with a duplicated Plot Name:"); NiceTable(Plots_Duplicated)}
+   errorText("Plots with a duplicated Plot Name:"); NiceTable(Plots_Duplicated)}
 ```
 
 ---

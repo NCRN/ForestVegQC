@@ -1,0 +1,90 @@
+---
+title: "16_CommonNames"
+author: "John Paul Schmit"
+date: "2024-08-12"
+output: html_document
+---
+
+```{r CommonNames_setup, include=FALSE}
+
+TotSpecies<-nrow(QCCommonNames)
+
+## TSN
+# 16.1.0
+Species_No_TSN<-QCCommonNames |> filter(is.na(TSN) | TSN=="")
+
+## Taxon Code
+# 16.2.0
+Species_No_TaxonCode<-QCCommonNames |> filter(is.na(TaxonCode) | TaxonCode=="")
+
+## USDA PLANTS Code
+# 16.3.0
+Species_No_USDACode<-QCCommonNames |> filter(is.na(PLANTS_Code) | PLANTS_Code=="")
+
+## Taxonomy
+#16.4.0 - (order, family, genus, species) - 16.7.0
+## Latin Name
+
+# 16.8.0
+Species_No_Latin_Name<-QCCommonNames |> filter(is.na(Latin_Name) | Latin_Name=="")
+
+## Common Names
+
+# 16.9.0
+
+Species_No_Common<-QCCommonNames |> filter(is.na(Common) | Common=="")
+
+```
+#### **Species Names Checked:** `r TotSpecies` ####
+
+---
+
+### Taxonomic Serial Number (TSN)
+
+```{r species_tsn, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_TSN)==0) cat("All species have a TSN.<br>") else {
+errorText("Species records with a missing TSN:"); NiceTable(Species_No_TSN)}
+
+```
+
+---
+
+### Taxon Code
+
+```{r species_taxon_code, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_TaxonCode)==0) cat("All species have a Taxon Code.<br>") else {
+errorText("Species records with a missing Taxon Code:"); NiceTable(Species_No_TaxonCode)}
+
+```
+
+---
+
+### USDA PLANTS Code
+
+```{r species_Plants_code, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_USDACode)==0) cat("All species have a USDA PLANTS Code.<br>") else {
+errorText("Species records with a missing USDA PLANTS Code:"); NiceTable(Species_No_USDACode)}
+
+```
+
+---
+
+### Latin Names
+
+```{r species_Latin_Name, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Latin_Name)==0) cat("All species have a Latin name.<br>") else {
+errorText("Species records with a missing Latin Name:"); NiceTable(Species_No_Latin_Name)}
+
+```
+
+---
+
+### Common Names
+
+```{r species_Common Name, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Common)==0) cat("All species have a Common Name.<br>") else {
+errorText("Species records with a missing Common Name:"); NiceTable(Species_No_Common)}
+
+```
+
+---

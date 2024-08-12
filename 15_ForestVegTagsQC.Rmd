@@ -167,7 +167,7 @@ Tags_Missing_Other<- QCTags_Latest %>%
 
 ```{r tag_plot_names, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Tags_No_Plot_Name)==0) cat("All tag records have a Plot Name.<br>") else {
-errortext("Tag records with a missing Plot Name:"); NiceTable(Tags_No_Plot_Name)}
+errorText("Tag records with a missing Plot Name:"); NiceTable(Tags_No_Plot_Name)}
 
 ```
 

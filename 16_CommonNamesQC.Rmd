@@ -11,28 +11,93 @@ TotSpecies<-nrow(QCCommonNames)
 
 ## TSN
 # 16.1.0
-Species_No_TSN<-QCCommonNames |> filter(is.na(TSN) | TSN=="")
+Species_No_TSN<-QCCommonNames |> filter(is.na(TSN) | TSN=="") |> 
+select(Genus, Species, Latin_Name, Common, TSN)
 
 ## Taxon Code
 # 16.2.0
-Species_No_TaxonCode<-QCCommonNames |> filter(is.na(TaxonCode) | TaxonCode=="")
+Species_No_TaxonCode<-QCCommonNames |> filter(is.na(TaxonCode) | TaxonCode=="") |>
+  select(Genus, Species, Latin_Name, Common, TaxonCode)
 
 ## USDA PLANTS Code
 # 16.3.0
-Species_No_USDACode<-QCCommonNames |> filter(is.na(PLANTS_Code) | PLANTS_Code=="")
+Species_No_USDACode<-QCCommonNames |> filter(is.na(PLANTS_Code) | PLANTS_Code=="") |> 
+  select(Genus, Species, Latin_Name, Common, PLANTS_Code)
 
 ## Taxonomy
-#16.4.0 - (order, family, genus, species) - 16.7.0
+#16.4.0
+Species_No_Order<-QCCommonNames |> filter(is.na(Order) | Order=="") |> 
+  select(Genus, Species, Latin_Name, Common, Order)
+
+#16.5.0
+Species_No_Family<-QCCommonNames |> filter(is.na(Family) | Family=="")|> 
+  select(Genus, Species, Latin_Name, Common, Family)
+
+#16.6.0
+Species_No_Genus<-QCCommonNames |> filter(is.na(Genus) | Genus=="") |> 
+  select(Genus, Species, Latin_Name, Common)
+
+#16.6.0
+Species_No_Species<-QCCommonNames |> filter(is.na(Species) | Species=="")|> 
+  select(Genus, Species, Latin_Name, Common)
+
 ## Latin Name
 
 # 16.8.0
-Species_No_Latin_Name<-QCCommonNames |> filter(is.na(Latin_Name) | Latin_Name=="")
+Species_No_Latin_Name<-QCCommonNames |> filter(is.na(Latin_Name) | Latin_Name=="") |> 
+  select(Genus, Species, Latin_Name, Common)
 
 ## Common Names
 
 # 16.9.0
 
-Species_No_Common<-QCCommonNames |> filter(is.na(Common) | Common=="")
+Species_No_Common<-QCCommonNames |> filter(is.na(Common) | Common=="")|> 
+  select(Genus, Species, Latin_Name, Common)
+
+
+## Plant Traits
+
+# 16.10.0
+
+Species_No_Woody<-QCCommonNames |> filter(is.na(Woody) | Woody=="")|> 
+  select(Genus, Species, Latin_Name, Woody)
+
+Species_No_Herbaceous<-QCCommonNames |> filter(is.na(Herbaceous) | Herbaceous=="")|> 
+  select(Genus, Species, Latin_Name, Herbaceous)
+
+Species_No_Targeted<-QCCommonNames |> filter(is.na(TargetedHerbaceous) | TargetedHerbaceous=="")|> 
+  select(Genus, Species, Latin_Name, TargetedHerbaceous)
+
+Species_No_Tree<-QCCommonNames |> filter(is.na(Tree) | Tree=="")|> 
+  select(Genus, Species, Latin_Name, Tree)
+
+Species_No_Vine<-QCCommonNames |> filter(is.na(Vine) | Vine=="")|> 
+  select(Genus, Species, Latin_Name, Vine)
+
+Species_No_Shrub<-QCCommonNames |> filter(is.na(Shrub) | Shrub=="")|> 
+  select(Genus, Species, Latin_Name, Shrub)
+
+Species_No_Exotic<-QCCommonNames |> filter(is.na(Exotic) | Exotic=="")|> 
+  select(Genus, Species, Latin_Name, Exotic)
+
+Species_No_Sensitive<-QCCommonNames |> filter(is.na(Sensitive) | Sensitive=="")|> 
+  select(Genus, Species, Latin_Name, Sensitive)
+
+
+## All Species
+
+Tree_Names<-QCTrees |> select(Latin_Name) |> distinct() |> mutate(Growth_Form="Tree")
+Sapling_Names<-QCSaplings |> select(Latin_Name)|> distinct() |> mutate(Growth_Form="Sapling")
+Seedling_Names<-QCSeedlings |> select(Latin_Name)|> distinct() |> mutate(Growth_Form="Seedling")
+Shrub_Names<-QCShrubs |> select(Latin_Name)|> distinct() |> mutate(Growth_Form="Shrub")
+Vine_Names<-QCVines |> select(Latin_Name)|> distinct() |> mutate(Growth_Form="Vine")
+Herb_Names<-QCHerbs |> select(Latin_Name)|> distinct() |> mutate(Growth_Form="Understory Plant")
+CWD_Names<-QCCWD |> select(Latin_Name)|> distinct() |> mutate(Growth_Form="CWD")
+
+Missing_Names<- rbind(Tree_Names, Sapling_Names, Seedling_Names, Shrub_Names, 
+                      Vine_Names, Herb_Names, CWD_Names) |> arrange(Latin_Name, Growth_Form) |> 
+  anti_join(QCCommonNames |> select(Latin_Name))
+
 
 ```
 #### **Species Names Checked:** `r TotSpecies` ####
@@ -69,6 +134,41 @@ errorText("Species records with a missing USDA PLANTS Code:"); NiceTable(Species
 
 ---
 
+### Taxonomy
+
+```{r species_Order, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Order)==0) cat("All species have a taxonomic Order.<br>") else {
+errorText("Species records with a missing taxonomic Order:"); NiceTable(Species_No_Order)}
+
+```
+
+---
+
+```{r species_Family, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Family)==0) cat("All species have a taxonomic Family.<br>") else {
+errorText("Species records with a missing taxonomic Family:"); NiceTable(Species_No_Family)}
+
+```
+
+---
+
+```{r species_Genus, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Genus)==0) cat("All species have a taxonomic Genus.<br>") else {
+errorText("Species records with a missing taxonomic Genus:"); NiceTable(Species_No_Genus)}
+
+```
+
+---
+
+
+```{r species_Species, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Species)==0) cat("All species have a taxonomic Species.<br>") else {
+errorText("Species records with a missing taxonomic Species:"); NiceTable(Species_No_Species)}
+
+```
+
+---
+
 ### Latin Names
 
 ```{r species_Latin_Name, echo=FALSE, hold=FALSE, results="asis"}
@@ -81,9 +181,99 @@ errorText("Species records with a missing Latin Name:"); NiceTable(Species_No_La
 
 ### Common Names
 
-```{r species_Common Name, echo=FALSE, hold=FALSE, results="asis"}
+```{r species_Common_Name, echo=FALSE, hold=FALSE, results="asis"}
 if(nrow(Species_No_Common)==0) cat("All species have a Common Name.<br>") else {
 errorText("Species records with a missing Common Name:"); NiceTable(Species_No_Common)}
+
+```
+
+---
+
+### Woody
+
+```{r species_Woody, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Woody)==0) cat("All species are classified as woody or not.<br>") else {
+errorText("Species records not classified as woody or not:"); NiceTable(Species_No_Woody)}
+
+```
+
+---
+
+### Herbaceous
+
+```{r species_Herbaceous, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Herbaceous)==0) cat("All species are classified as herbaceous or not.<br>") else {
+errorText("Species records not classified as herbaceous or not:"); NiceTable(Species_No_Herbaceous)}
+
+```
+
+---
+
+### Targeted
+
+```{r species_Targeted, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Targeted)==0) cat("All species are classified as targeted or not.<br>") else {
+errorText("Species records not classified as targeted or not:"); NiceTable(Species_No_Targeted)}
+
+```
+
+---
+
+### Tree
+
+```{r species_Tree, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Tree)==0) cat("All species are classified as tree or not.<br>") else {
+errorText("Species records not classified as tree or not:"); NiceTable(Species_No_Tree)}
+
+```
+
+---
+
+### Vine
+
+```{r species_Vine, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Vine)==0) cat("All species are classified as vine or not.<br>") else {
+errorText("Species records not classified as vine or not:"); NiceTable(Species_No_Vine)}
+
+```
+
+---
+
+### Shrub
+
+```{r species_Shrub, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Shrub)==0) cat("All species are classified as shrub or not.<br>") else {
+errorText("Species records not classified as shrub or not:"); NiceTable(Species_No_Shrub)}
+
+```
+
+---
+
+### Exotic
+
+```{r species_Exotic, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Exotic)==0) cat("All species are classified as exotic or not.<br>") else {
+errorText("Species records not classified as exotic or not:"); NiceTable(Species_No_Exotic)}
+
+```
+
+---
+
+### Sensitive
+
+```{r species_Sensitive, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Species_No_Herbaceous)==0) cat("All species are classified as sensetitive or not.<br>") else {
+errorText("Species records not classified as senstiive or not:"); NiceTable(Species_No_Senstive)}
+
+```
+
+---
+
+### Missing Names
+
+```{r species_Missing_Nmmes, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Missing_Names)==0) cat("All species found in the data have a species metadata.<br>") else {
+errorText("Species in the data without metadata:"); NiceTable(Missing_Names)}
 
 ```
 

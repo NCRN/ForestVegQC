@@ -41,7 +41,7 @@ QCYears<-c(2024)
 QCPastYears<-c(
   2019,2015, 2011,2007)
 QCAllYears<-unique(c(QCYears, QCPastYears))
-
+QCLastSample<-2019
 
 
 # Bad_Species<-c("Carya tomentosa", "Hicoria cordiformis", "Quercus prinus", "Robinia pseudo-acacia", "Rulac negundo", "Sassafras officinale",
@@ -58,14 +58,17 @@ QCAllEvents<-getEvents(NCRN, years = QCAllYears)
 QCCWD<-getPlants(NCRN, "cwd", years=QCYears) #%>% filter(!Latin_Name %in% Bad_Species)
 
 QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCLastTrees<-getPlants(NCRN,"trees", years=QCLastSample, status = "all") 
 QCAllTrees<-getPlants(NCRN,"trees", years=QCAllYears, status = "all") #%>% filter(!Latin_Name %in% Bad_Species)
 
 QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCLastSaplings<-getPlants(NCRN,"saplings", years=QCLastSample, status = "all") 
 QCAllSaplings<-getPlants(NCRN, "saplings",  years=QCAllYears, status="all")# %>% filter(!Latin_Name %in% Bad_Species)
 
 QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
 
 QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCLastShrubs<-getPlants(NCRN,"shrubs", years=QCLastSample, status = "all") 
 QCAllShrubs<-getPlants(NCRN, "shrubs",  years=QCAllYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
 
 QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F) %>% 

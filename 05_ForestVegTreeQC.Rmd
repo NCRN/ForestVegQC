@@ -312,6 +312,14 @@ Trees_Unalive_Foliage_Check<-QCTrees %>%
               summarise(Foliage=n())) %>%
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, FoliageConditionsChecked, Foliage)
 
+
+###Missed Trees
+
+#5.24.5
+Missed_Trees<-QCLastTrees |> filter(!Status %in% c("Dead Fallen", "Dead - Too Small")) |> select(Tag, Plot_Name,Status) |> 
+  anti_join(QCTrees,by="Tag") |> anti_join(QCSaplings,by="Tag") |> anti_join(QCTags_Latest |> filter(Missing_Events>1),by="Tag") |> 
+  semi_join(QCEvents, by="Plot_Name")
+
 ### Multi-Year Checks
 
 Repeat_Trees<-if(length(QCAllYears)!=1) {
@@ -782,6 +790,15 @@ cat("<br>**Non-Living Trees' Crown Description**<br>")
  
 ```
 
+###  Missed Trees
+
+```{r Tree_Missed, echo=FALSE, hold=FALSE, results="asis"}
+ 
+  if(nrow(Missed_Trees)==0) cat("All trees that should have been monitored were monitored.<br>") else {
+     errorText("Trees that should have been monitored but were not:"); NiceTable(Missed_Trees)}
+
+ 
+```
 
 ### **Change Over Time**
 

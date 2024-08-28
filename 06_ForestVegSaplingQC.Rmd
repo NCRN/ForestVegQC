@@ -299,7 +299,15 @@ Saplings_Unalive_VineCheck<-QCSaplings %>%
                summarise(Foliage=n())) %>%
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, FoliageConditionsChecked, Foliage)
  
-  
+ 
+ ## Missed Saplings
+ 
+
+#6.24.5
+Missed_Saplings<-QCLastSaplings |> filter(!Status %in% c(Dead_Status, Other_Status)) |> select(Tag, Plot_Name,Status) |> 
+  anti_join(QCSaplings,by="Tag") |> anti_join(QCTrees,by="Tag") |> anti_join(QCTags_Latest |> filter(Missing_Events>1),by="Tag") |> 
+  semi_join(QCEvents, by="Plot_Name")  
+
  ### Multi-Year Checks
  
 Repeat_Saplings<-QCAllSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
@@ -703,6 +711,19 @@ cat("<br>**Conditions Checkbox**<br>")
 ```
 
 ---
+
+
+###  Missed Saplings
+
+```{r Sapling_Missed, echo=FALSE, hold=FALSE, results="asis"}
+ 
+  if(nrow(Missed_Saplings)==0) cat("All saplings that should have been monitored were monitored.<br>") else {
+     errorText("Saplings that should have been monitored but were not:"); NiceTable(Missed_Saplings)}
+
+ 
+```
+
+
 
 ### **Change Over Time**
 

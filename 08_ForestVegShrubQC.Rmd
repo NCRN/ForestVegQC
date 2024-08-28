@@ -190,7 +190,13 @@ Shrubs_Bad_Vigor_Class<-QCShrubs %>% filter( (SaplingVigor==0 & !is.na(VigorClas
 #8.18.0
  Shrubs_Live_Illogical_Browse <- QCShrubs %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+
+## Missed Shrubs
  
+#5.24.5
+Missed_Shrubs<-QCLastShrubs |> filter(!Status %in% c(Dead_Status, Other_Status)) |> select(Tag, Plot_Name,Status) |> 
+  anti_join(QCShrubs,by="Tag")  |> anti_join(QCTags_Latest |> filter(Missing_Events>1),by="Tag") |> 
+  semi_join(QCEvents, by="Plot_Name") 
  
 ### Multi-Year Checks
 
@@ -465,6 +471,18 @@ if(nrow(Shrubs_Bad_Vigor_Class)==0) cat("All shrubs have consisntent vigor and v
 ```
 
 ---
+
+
+
+###  Missed Shrubs
+
+```{r Shrub_Missed, echo=FALSE, hold=FALSE, results="asis"}
+ 
+  if(nrow(Missed_Shrubs)==0) cat("All shrubs that should have been monitored were monitored.<br>") else {
+     errorText("Shrubs that should have been monitored but were not:"); NiceTable(Missed_Shrubs)}
+
+ 
+```
 
 ### **Change Over Time**
 

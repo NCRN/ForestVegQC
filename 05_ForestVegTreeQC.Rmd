@@ -316,7 +316,9 @@ Trees_Unalive_Foliage_Check<-QCTrees %>%
 ###Missed Trees
 
 #5.24.5
-Missed_Trees<-QCLastTrees |> filter(!Status %in% c("Dead Fallen", "Dead - Too Small")) |> select(Tag, Plot_Name,Status) |> 
+Missed_Trees<-QCLastTrees |> filter(!Status %in% c("Dead Fallen", "Dead - Too Small")) |> 
+  select(Tag, Latin_Name, Plot_Name,Status) |> 
+  arrange(Plot_Name) |> 
   anti_join(QCTrees,by="Tag") |> anti_join(QCSaplings,by="Tag") |> anti_join(QCTags_Latest |> filter(Missing_Events>1),by="Tag") |> 
   semi_join(QCEvents, by="Plot_Name")
 
@@ -331,15 +333,26 @@ Repeat_Trees<-if(length(QCAllYears)!=1) {
 ## Tree Diameter Change
 
 # 5.25.0
+# Trees_Live_Large_DBH_change <-if(length(Repeat_Trees>0)){
+#   QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
+#   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+#   filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
+#           abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>% 
+#   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+#    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, Stems, Start_Year, DBH_Check) %>% 
+#    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+#                values_from = c(Stems, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) } else data.frame()
+
 Trees_Live_Large_DBH_change <-if(length(Repeat_Trees>0)){
   QCAllTrees %>% filter(Tag %in% Repeat_Trees) %>% 
-  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
-  filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
-          abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>% 
-  mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
-   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, Stems, Start_Year, DBH_Check) %>% 
-   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-               values_from = c(Stems, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) } else data.frame()
+    group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+    filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
+                 abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>%
+    mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, Start_Year, DBH_Check) %>% 
+    left_join(QCStemSummary |> select(Tag, Sample_Year, Live_Stems)) |> 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = c(Live_Stems, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) } else data.frame()
 
 # 5.26.0
 Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
@@ -349,9 +362,10 @@ Trees_Dead_Large_DBH_change <-if(length(Repeat_Trees>0)){
         lead(Status, order_by = Sample_Year) %in% Dead_Status & lead(Stems, order_by = Sample_Year) > 0 &
           abs(Equiv_Dead_DBH_cm -lead(Equiv_Dead_DBH_cm, order_by=Sample_Year) > 3))) %>% 
   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
-   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, DeadDBH=Equiv_Dead_DBH_cm, Stems, Start_Year, DBH_Check) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, DeadDBH=Equiv_Dead_DBH_cm, Start_Year, DBH_Check) %>% 
+    left_join(QCStemSummary |> select(Tag, Sample_Year, Dead_Stems)) %>% 
     {if(nrow(.)>0)  pivot_wider(.,id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
-               values_from = c(Stems, DeadDBH, DBH_Check), names_from = Cycle, names_sep = " " ) else data.frame()}  } else data.frame()
+               values_from = c(Dead_Stems, DeadDBH, DBH_Check), names_from = Cycle, names_sep = " " ) else data.frame()}  } else data.frame()
 
 # 5.27.0
  Trees_Start_Too_Large <-if(length(Repeat_Trees>0)){

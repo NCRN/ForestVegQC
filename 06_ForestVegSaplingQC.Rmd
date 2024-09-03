@@ -304,9 +304,11 @@ Saplings_Unalive_VineCheck<-QCSaplings %>%
  
 
 #6.24.5
-Missed_Saplings<-QCLastSaplings |> filter(!Status %in% c(Dead_Status, Other_Status)) |> select(Tag, Plot_Name,Status) |> 
+Missed_Saplings<-QCLastSaplings |> filter(!Status %in% c(Dead_Status, Other_Status)) |> 
+  select(Tag, Latin_Name, Plot_Name, Status) |> 
+  arrange(Plot_Name) |> 
   anti_join(QCSaplings,by="Tag") |> anti_join(QCTrees,by="Tag") |> anti_join(QCTags_Latest |> filter(Missing_Events>1),by="Tag") |> 
-  semi_join(QCEvents, by="Plot_Name")  
+  semi_join(QCEvents, by="Plot_Name")
 
  ### Multi-Year Checks
  

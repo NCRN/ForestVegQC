@@ -38,8 +38,7 @@ NCRN<-importNCRN(DataDir)
 
 #QCYears<-c(2008, 2012,2016, 2021)
 QCYears<-c(2024)
-QCPastYears<-c(
-  2019,2015, 2011,2007)
+QCPastYears<-c(2019, 2015, 2011, 2007)
 QCAllYears<-unique(c(QCYears, QCPastYears))
 QCLastSample<-2019
 
@@ -65,7 +64,9 @@ QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all") #%>% filte
 QCLastSaplings<-getPlants(NCRN,"saplings", years=QCLastSample, status = "all") 
 QCAllSaplings<-getPlants(NCRN, "saplings",  years=QCAllYears, status="all")# %>% filter(!Latin_Name %in% Bad_Species)
 
-QCStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
+QCAllStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)#, !Latin_Name %in% Bad_Species)
+QCStems<-QCAllStems %>% filter(Sample_Year %in% QCYears)
+QCStemSummary<-QCAllStems |> summarize(Live_Stems=sum(Live==1), Dead_Stems=sum(Live==0), .by=c(Tag, Sample_Year))
 
 QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
 QCLastShrubs<-getPlants(NCRN,"shrubs", years=QCLastSample, status = "all") 

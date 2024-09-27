@@ -190,7 +190,7 @@ Quads_Percent_Ferns_Changed <-if(nrow(Repeat_Quads>0)){
 
 # Look to see if difference between years from Grass to sedge is greater than that from grass to grass, and similar for sedges
 
-Grass_Sedge_Switched <-if(nrow(Repeat_Quads>0) & !QCYears %in% QCPastYears){
+Grass_Sedge_Switched <-if(nrow(Repeat_Quads>0) & !any(QCYears %in% QCPastYears)){
   QCAllQuads %>% semi_join(Repeat_Quads) %>% 
     select(Plot_Name, Quadrat_Number, Cycle, Sample_Year, Percent_Grasses, Percent_Sedges) %>% 
     group_by(Plot_Name, Quadrat_Number) %>% arrange(Plot_Name, Quadrat_Number, Sample_Year) %>% 

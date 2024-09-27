@@ -262,8 +262,8 @@ errorText("Species records not classified as exotic or not:"); NiceTable(Species
 ### Sensitive
 
 ```{r species_Sensitive, echo=FALSE, hold=FALSE, results="asis"}
-if(nrow(Species_No_Herbaceous)==0) cat("All species are classified as sensetitive or not.<br>") else {
-errorText("Species records not classified as senstiive or not:"); NiceTable(Species_No_Senstive)}
+if(nrow(Species_No_Sensitive)==0) cat("All species are classified as sensetitive or not.<br>") else {
+errorText("Species records not classified as senstiive or not:"); NiceTable(Species_No_Sensitive)}
 
 ```
 

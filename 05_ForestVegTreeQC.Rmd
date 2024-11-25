@@ -124,13 +124,14 @@ Trees_No_Stem_Count<-QCTrees %>% filter(is.na(Stems)| Stems == "") %>%
 Trees_Live_Many_Stems<-QCTrees %>% filter(Status %in% Live_Status& (Stems<1 | Stems >5)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Stems)
   
-Trees_Standing_Dead_Many_Stems<-QCTrees %>% filter(Status %in% c("Dead Standing","Dead Leaning", "Dead - Human Action") & (Stems<1 | Stems >5)) %>% 
+Trees_Standing_Dead_Many_Stems<-QCTrees %>% filter(Status %in% c("Dead Standing","Dead Leaning") & (Stems<1 | Stems >5)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Stems)
 
 Trees_Wrongly_Have_Stems<-QCTrees %>% 
   filter(Status %in% c("Dead","Dead - Too Small", "Dead Fallen", "Dead Missing", Missing_Status, Other_Status) & (Stems!=0)) %>% 
   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Stems)
 
+#Dead - Human Action has no expectations, so not checked
 
 ## Total Basal Area
 
@@ -143,7 +144,7 @@ Trees_Live_Small_BA<-QCTrees %>% filter(Status %in% Live_Status, SumLiveBasalAre
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)
 
 Trees_Dead_Small_BA<-QCTrees %>% 
-  filter(Status %in% c("Dead Standing","Dead Leaning", "Dead - Human Action"), SumDeadBasalArea_cm2 <round(25*pi,1) ) %>% 
+  filter(Status %in% c("Dead Standing","Dead Leaning"), SumDeadBasalArea_cm2 <round(25*pi,1) ) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
 
 Trees_DeadBA_Too_Small <-QCTrees %>% 
@@ -163,6 +164,7 @@ Trees_BA_Stems_Mistmatch <-QCTrees %>%
             (Stems>0 & (SumDeadBasalArea_cm2 + SumLiveBasalArea_cm2==0) )) %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2, SumDeadBasalArea_cm2)
 
+#Dead - Human Action has no expectations, so not checked
 
 ## Tree DBH
 
@@ -177,7 +179,7 @@ Trees_Live_Bad_DBH<-QCTrees %>% filter(Status %in% Live_Status & (
    (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 10 | is.na(Equiv_Dead_DBH_cm) | ( Equiv_Dead_DBH_cm>0 & Equiv_Dead_DBH_cm < 10)) ))  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
-Trees_Dead_Bad_DBH<-QCTrees %>% filter(Status %in% c("Dead Leaning", "Dead Standing", "Dead - Human Action") & (
+Trees_Dead_Bad_DBH<-QCTrees %>% filter(Status %in% c("Dead Leaning", "Dead Standing") & (
    (is.na(Equiv_Dead_DBH_cm) | Equiv_Dead_DBH_cm < 10 | is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm>=10 |
       ( Equiv_Live_DBH_cm >0 & Equiv_Live_DBH_cm < 1)) ))  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
@@ -188,6 +190,7 @@ Trees_Other_Bad_DBH<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Stat
        Equiv_Dead_DBH_cm !=0 )) )  %>% 
    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm, Equiv_Dead_DBH_cm)
 
+#Dead - Human Action has no expectations, so not checked
 
 #5.15.5
 Tree_is_Sapling<-QCTrees %>% filter(Equiv_Live_DBH_cm< 10 & Equiv_Live_DBH_cm>0 & (

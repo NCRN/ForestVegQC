@@ -1,0 +1,308 @@
+---
+title: "NCRN Forest Vegetation QC"
+output: html_document
+knit: (function(inputFile, encoding) { 
+          rmarkdown::render(inputFile,
+                        encoding=encoding, 
+                        output_file='NCRN_Forest_Veg_QC.html') })
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(NPSForVeg)
+library(tidyverse)
+library(DT)
+library(lubridate)
+
+options(htmlwidgets.TOJSON_ARGS = list(na = 'string'))
+
+NiceTable<-function(DF){
+   
+
+   datatable(DF, rownames = F, extensions = "Buttons", autoHideNavigation = T, options=list(
+      columnDefs=list(list(className='dt-center', targets=0:ncol(DF)-1 )),
+      pageLength=25,
+      dom='Btip',
+      buttons=c('copy','csv'))
+   )}
+
+errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><br>"))}
+
+#DataDir<-"C:/Data/NCRN_Veg_2020"
+
+#DataDir<-"C:/Users/jschmit/OneDrive - DOI/Data/NCRN_Veg_2024"
+DataDir<-"C:/Users/jschmit/OneDrive - DOI/Data/NCRN_Veg_2024/"
+
+NCRN<-importNCRN(DataDir)
+
+#QCYears<-c(2008, 2012,2016, 2021)
+QCYears<-c(2020:2021)
+QCPastYears<-c(2016, 2012, 2008)
+QCAllYears<-unique(c(QCYears, QCPastYears))
+QCLastSample<-2016
+
+
+# Bad_Species<-c("Carya tomentosa", "Hicoria cordiformis", "Quercus prinus", "Robinia pseudo-acacia", "Rulac negundo", "Sassafras officinale",
+#                "Polycodium stamineum", "Vaccinium atrococcum", "Vaccinium constablaei",
+#                "Alliaria officinalis", "Eulalia viminea","Nepeta hederacea", "Polygonum cespitosum","Rosa cathayensis","Smilax hispida")
+
+
+
+QCPlots<-getPlots(NCRN, years = QCYears, type="all" ) %>% mutate(Aspect= as.numeric(Aspect))
+
+QCEvents<-getEvents(NCRN, years = QCYears)
+QCAllEvents<-getEvents(NCRN, years = QCAllYears)
+
+QCCWD<-getPlants(NCRN, "cwd", years=QCYears) #%>% filter(!Latin_Name %in% Bad_Species)
+
+QCTrees<-getPlants(NCRN,"trees", years=QCYears, status = "all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCLastTrees<-getPlants(NCRN,"trees", years=QCLastSample, status = "all") 
+QCAllTrees<-getPlants(NCRN,"trees", years=QCAllYears, status = "all") #%>% filter(!Latin_Name %in% Bad_Species)
+
+QCSaplings<-getPlants(NCRN, "saplings",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCLastSaplings<-getPlants(NCRN,"saplings", years=QCLastSample, status = "all") 
+QCAllSaplings<-getPlants(NCRN, "saplings",  years=QCAllYears, status="all")# %>% filter(!Latin_Name %in% Bad_Species)
+
+QCAllStems<-read.csv(paste0(DataDir,"/Stems.csv"), stringsAsFactors = F)#, !Latin_Name %in% Bad_Species)
+QCStems<-QCAllStems %>% filter(Sample_Year %in% QCYears)
+QCStemSummary<-QCAllStems |> summarize(Live_Stems=sum(Live==1), Dead_Stems=sum(Live==0), .by=c(Tag, Sample_Year))
+
+QCShrubs<-getPlants(NCRN, "shrubs",  years=QCYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+QCLastShrubs<-getPlants(NCRN,"shrubs", years=QCLastSample, status = "all") 
+QCAllShrubs<-getPlants(NCRN, "shrubs",  years=QCAllYears, status="all") #%>% filter(!Latin_Name %in% Bad_Species)
+
+QCConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F) %>% 
+   filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
+
+QCAllConditions<-read.csv(paste0(DataDir,"/Tree_Sapling_Conditions.csv"), stringsAsFactors = F) %>% 
+   filter(Sample_Year %in% QCAllYears)#, !Latin_Name %in% Bad_Species)
+
+
+QCFoliage<-read.csv(paste0(DataDir,"/Foliage_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)#, !Latin_Name %in% Bad_Species)
+
+QCVines<-getPlants(NCRN,"vines",  years=QCYears )# %>% filter(!Latin_Name %in% Bad_Species)
+QCAllVines<-getPlants(NCRN,"vines",  years=QCAllYears )# %>% filter(!Latin_Name %in% Bad_Species)
+
+QCQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
+QCAllQuads<-read.csv(paste0(DataDir,"/Quadrat_Conditions.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCAllYears)
+
+QCSeedlings<-rbind(getPlants(NCRN,"seedlings", years=QCYears),getPlants(NCRN,"shseedlings", years=QCYears) )# %>% filter(!Latin_Name %in% Bad_Species)
+
+QCHerbs<-getPlants(NCRN, "herbs", years=QCYears) #%>% filter(!Latin_Name %in% Bad_Species)
+
+
+QCTags<-read.csv(paste0(DataDir,"/Tag_History.csv"), stringsAsFactors = F) %>% filter(Location_Status!="Retired")
+QCTags_Long<-QCTags %>% pivot_longer(cols=starts_with("X"), names_to="Raw_Cycle", values_to="Plant_Status") %>% 
+  mutate(Cycle=gsub("X","", Raw_Cycle) %>% as.numeric)
+QCTags_Latest<-QCTags_Long %>% filter(Plant_Status!="") %>% group_by(Tag) %>% 
+  mutate(Missing_Events=sum(Plant_Status %in% c("Tree - Missing",  "Tree - Dead Missing",
+                "Tree - Missing - Presumed Dead", "Tree - Missing - Uncertain", "Sapling - Missing",
+                 "Sapling - Missing - Presumed Dead", "Sapling - Missing - Uncertain"))) %>% 
+  filter(Cycle==max(Cycle)) %>% ungroup()
+
+All_Plants<-rbind(getPlants(NCRN,"trees") %>% select(Tag,Latin_Name),
+                  getPlants(NCRN,"saplings") %>% select(Tag,Latin_Name),
+              getPlants(NCRN,"shrubs") %>% select(Tag,Latin_Name) ) %>% distinct
+
+QCTags_Latest<-QCTags_Latest %>% left_join(All_Plants)
+QCWoodies<-bind_rows( QCTrees %>% select(Unit_Code,Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status),   # used for conditions, foliage, vines
+                      QCSaplings %>% select(Unit_Code, Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status),
+                      QCShrubs %>% select(Unit_Code, Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status))
+
+
+QCAllWoodies<-bind_rows( QCAllTrees %>% select(Unit_Code,Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status), 
+                      QCAllSaplings %>% select(Unit_Code, Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status),
+                      QCAllShrubs %>% select(Unit_Code, Plot_Name, Tag, Latin_Name, TSN, Cycle, Sample_Year, Status))
+
+Repeat_Woodies<-QCAllWoodies %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+
+
+
+QCCommonNames<-read.csv(paste0(DataDir,"/CommonNames.csv"), stringsAsFactors = F)
+# QCPlotFloor<-read.csv(paste0(DataDir,"/Plot_Floor.csv"), stringsAsFactors = F) %>% filter(Sample_Year %in% QCYears)
+# QCTags<-read.csv(paste0(DataDir,"/Tag_History.csv"), stringsAsFactors = F)
+
+
+
+Live_Status<-c("Alive Broken", "Alive Fallen", "Alive Leaning", "Alive Standing")
+Dead_Status<-c("Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Leaning", "Dead Missing", "Dead Standing")
+Missing_Status<-c("Missing", "Missing - Presumed Dead", "Missing - Uncertain")
+Other_Status<-c( "Downgraded to Non-Sampled")
+
+Vigor_Options<-c("Healthy", "Light Decline", "Moderate Decline","Severe Decline", "Functionally Dead")
+
+
+```
+
+
+
+```{css, echo=FALSE}
+h1, h2, h3 {
+  text-align: center;
+}
+
+.nav>li>a {
+   padding: 10px;
+}
+```
+
+#  {.tabset .tabset-pills .tabset-fade}
+
+## Introduction
+
+**Run on:** `r format(Sys.Date(),"%B %d %Y") `.
+
+**Years covered:** `r paste0(min(QCYears),"-", max(QCYears)) `.
+
+
+### The following data is not currently QCed:
+
+#### All
+- Flags are not exported from the database and are not considered during QC.
+
+- Sub-unit codes need to be revisited
+
+- Need a mechanism to check if Latin names are reasonable
+
+- Need a way to check about tags being retired
+
+- Need a way to check that we don't export data for plants that have been removed from study
+
+- Need to export Class and Habit for all relevant tables (Foliage in particular)
+
+- Exotic Status is sometimes exported and sometimes not
+
+- Browsing data is inconsistent between Seedlings and Herbs
+
+#### Plots
+- Retired date for retired plots not currently recorded and should be revisited.
+
+#### Events
+- Need to export table that matches years with panels so we can verify the correct plots were sampled.
+
+- Need to consider if and how to handle Invasive, rare and plot maintenance checks before they were part of interface.
+
+#### Saplings
+- Around 1680 saplings and shrubs not currently exported due to not having habit filled in. Many are removed from study and would not be exported
+
+- Equivalent diameter and Sum basal area is not exported for dead stems of saplings (this will typically = 0)
+
+- Dead shrubs with no "habit" are exported as saplings
+
+#### Stems
+- Dead stems not exported
+
+#### Shrubs
+- Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
+
+- Need  a mechanism to check if Latin names are reasonable
+
+- Need to export the foliage conditions, tree conditions and vines check-boxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015(?) on, but not checked in other cases.
+
+#### Conditions
+- Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - eliminate. This is not true of Shrubs
+
+- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+
+#### Quads
+- Need to export table that matches years with panels so we can verify the correct quads were sampled.
+
+
+#### Seedlings
+- Seedling number / height/ species - need to determine if these are consistent enough between samples for QC or not
+
+#### Understory Plants
+- Need to export Herb browsable and browse data
+
+- Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples  to use as QC? What about species lists? Need to check data.
+
+#### Tags
+- Need to check that all tags that should be monitored are, and that none that should not be monitored are monitored
+
+## Plots
+
+```{r Plot-QC, child="01_ForestVegPlotsQC.Rmd"}
+```
+
+
+## Events
+
+```{r Event-QC, child="02_ForestVegEventsQC.Rmd"}
+```
+
+## Plot Floor
+
+```{r Plot_Floor-QC, child="03_ForestVegPlotFloorQC.Rmd"}
+```
+
+## CWD
+
+```{r CWD-QC, child="04_ForestVegCWDQC.Rmd"}
+```
+
+## Trees
+
+```{r Tree-QC, child="05_ForestVegTreeQC.Rmd"}
+```
+
+
+## Saplings
+
+```{r Sapling-QC, child="06_ForestVegSaplingQC.Rmd"}
+```
+
+## Stems
+
+```{r Stem-QC, child="07_ForestVegStemQC.Rmd"}
+```
+
+
+## Shrubs
+
+```{r Shrub-QC, child="08_ForestVegShrubQC.Rmd"}
+```
+
+## Conditions
+
+```{r Condition-QC, child="09_ForestVegConditionsQC.Rmd"}
+```
+
+## Foliage
+
+```{r Foliage-QC, child="10_ForestVegFoliageConditionsQC.Rmd"}
+```
+
+## Vines
+
+```{r Vine-QC, child="11_ForestVegVineQC.Rmd"}
+```
+
+
+## Quadrats
+
+```{r Quad-QC, child="12_ForestVegQuadsQC.Rmd"}
+```
+
+
+## Seedlings
+
+```{r Seedling-QC, child="13_ForestVegSeedlingQC.Rmd"}
+```
+
+## Understory Plants
+
+```{r Herb-QC, child="14_ForestVegHerbQC.Rmd"}
+```
+
+## Tags
+
+```{r Tag-QC, child="15_ForestVegTagsQC.Rmd"}
+```
+
+## Species
+
+```{r Species-QC, child="16_CommonNamesQC.Rmd"}
+```
+

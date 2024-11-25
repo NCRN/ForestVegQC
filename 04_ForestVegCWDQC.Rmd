@@ -1,0 +1,257 @@
+---
+title: "Forest Vegetation CWD QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r cwd_setup, include=F}
+
+
+TotCWD<-nrow(QCCWD) #Total Number of events checked
+
+#4.1.0
+CWD_Bad_Unit<-QCCWD %>% 
+   filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+
+ CWD_Bad_Unit_Group<-QCCWD %>% 
+    filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                             "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+    select(Unit_Code, Unit_Group, Plot_Name,Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+ 
+ CWD_Mismatch_Unit_Group<-QCCWD %>% 
+    filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+              Unit_Code=="CATO" & Unit_Group !="CATO"|
+              Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+              Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+              Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+              Unit_Code=="MANA" & Unit_Group !="MANA" |
+              Unit_Code=="MONO" & Unit_Group !="MONO" |
+              Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+              Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+              Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+              Unit_Code=="WOTR" & Unit_Group!="WOTR"
+           ) %>% 
+    select(Plot_Name, Unit_Code, Unit_Group, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+
+#4.2.0
+CWD_No_Plot_Name<-QCCWD %>% 
+   filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+   select(Unit_Code, Plot_Name,Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+ 
+#4.3.0
+CWD_Bad_Panel<-QCCWD %>%
+  filter(!Panel %in% 1:4) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Panel,Transect_Azimuth, Latin_Name, Diameter)
+
+#4.4.0
+ CWD_Bad_Frame<-QCCWD %>%
+   filter(!Frame %in% c("Park","Region")) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Frame,Transect_Azimuth, Latin_Name, Diameter)
+ 
+#4.5.0
+CWD_Bad_Cycle<-QCCWD %>% 
+   filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+          !(Cycle==2 & Sample_Year %in% 2010:2013) &
+          !(Cycle==3 & Sample_Year %in% 2014:2017) &
+          !(Cycle==4 & Sample_Year %in% 2018:2022) &
+          !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
+   select(Unit_Code,Plot_Name, Sample_Year, Cycle,Transect_Azimuth, Latin_Name, Diameter)
+
+#4.6.0
+CWD_Bad_Date<-QCCWD %>% 
+   filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Date, Transect_Azimuth, Latin_Name, Diameter)
+
+#4.7.0
+CWD_Bad_Year<-QCCWD %>% 
+   filter(Sample_Year != year(ymd(Date))) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year,Date, Transect_Azimuth, Latin_Name, Diameter)
+
+#4.8.0
+CWD_Bad_Transect<-QCCWD %>% filter( !Transect_Azimuth %in% c(120,240,360) ) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Latin_Name, Transect_Azimuth)
+
+#4.9.0
+CWD_Bad_Decay<-QCCWD %>% filter( !Decay_Class %in% c(1:5) ) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Decay_Class )
+
+#4.10.0
+CWD_Missing_TSN <-QCCWD %>% 
+   filter(is.na(TSN) | TSN=="") %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, TSN,  Diameter)
+
+#4.11.0
+CWD_No_Name<-QCCWD %>% filter(Latin_Name=="" | is.na(Latin_Name)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name)
+
+#4.12.0
+CWD_No_Diameter<-QCCWD %>% filter(is.na(Diameter)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+
+CWD_Bad_Diameter<-QCCWD %>% filter(Diameter<7.5 | Diameter > 150 ) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Diameter)
+
+#4.13.0
+CWD_Bad_Hollow<-QCCWD %>% filter(!Hollow %in% c(TRUE, FALSE)) %>% select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Latin_Name, Hollow)
+
+#4.14.0
+CWD_Bad_Tag<-QCCWD %>%  
+   filter(!is.na(Tag),!Tag %in% c(QCAllTrees %>% pull(Tag), QCAllSaplings %>% pull(Tag))) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag, Latin_Name)
+   
+CWD_Relocated_Tag<-QCCWD %>% 
+  filter(!is.na(Tag)) %>% 
+  left_join( bind_rows(QCAllTrees %>% select(Plot_Name,Tag), QCAllSaplings %>% select(Plot_Name,Tag)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
+  rowwise() %>% 
+  filter(!Plot_Name_CWD %in% Plot_Name_Trees) %>% 
+ select(Unit_Code, Plot_Name=Plot_Name_CWD, Tree_Plot=Plot_Name_Trees, Sample_Year, 
+        Transect_Azimuth, Tag=Tag, Latin_Name)
+
+#4.15.0
+CWD_Renamed_Tag<-QCCWD %>% 
+   filter(!is.na(Tag)) %>% 
+   left_join( bind_rows(QCAllTrees %>% select(Tag, Latin_Name), QCAllSaplings %>% select(Tag,Latin_Name)), by="Tag", suffix=c("_CWD","_Trees")) %>% 
+   rowwise() %>% 
+   filter(!Latin_Name_CWD %in% Latin_Name_Trees) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Transect_Azimuth, Tag=Tag, Latin_Name=Latin_Name_CWD, Tree_Latin_Name=Latin_Name_Trees) %>% distinct()
+
+```
+
+#### **Pieces of CWD Checked:** `r TotCWD` ####
+
+### Unit Codes
+
+```{r CWD_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(CWD_Bad_Unit)==0) cat("All CWD have a recognized Unit Code.<br>") else {
+   errortext("CWD with a missing or unrecongized Unit Code:"); NiceTable(CWD_Bad_Unit)}
+
+ if(nrow(CWD_Bad_Unit_Group)==0) cat("All CWD have a recognized Unit Group.<br>") else {
+    errortext("CWD with a missing or unrecongized Unit Group:"); NiceTable(CWD_Bad_Unit_Group)}
+ 
+ if(nrow(CWD_Mismatch_Unit_Group)==0) cat("All CWD have Unit Group that is consistent with their Unit Code.<br>") else {
+    errortext("CWD with a Unit Group that is inconsistent with their Unit Code:");NiceTable(CWD_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r CWD_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(CWD_No_Plot_Name)==0) cat("All CWD have a Plot Name.<br>") else {
+   errortext("CWD with a missing Plot Name:"); NiceTable(CWD_No_Plot_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r CWD_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**CWD Panel Data**<br>")
+if(nrow(CWD_Bad_Panel)==0) cat("Each CWD has a panel code from 1 to 4.<br>") else {
+errorText("CWD without a panel code from 1-4:"); NiceTable(CWD_Bad_Panel)}
+
+cat("<br>**CWD Frame Data**<br>")
+ if(nrow(CWD_Bad_Frame)==0) cat("Each CWD has a frame that is either Region or Park.<br>") else {
+ errorText("CWD without a frame of either Region or Park:"); NiceTable(CWD_Bad_Frame)}
+ 
+ cat("<br>**CWD Cycle Data**<br>")
+ if(nrow(CWD_Bad_Cycle)==0) cat("Each CWD is from a cycle that matches its event year <br>") else {
+ errorText("CWD without a cycle or with a cycle that does not match its event year:"); NiceTable(CWD_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r CWD_Dates, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Date)==0) cat("All CWD dates match an event date.<br>") else {
+   errorText("CWD whose date does not match an event date:"); NiceTable(CWD_Bad_Date)}
+
+if(nrow(CWD_Bad_Year)==0) cat("All CWD dates and sample years are consistent.<br>") else {
+   errorText("CWD whose date does not match its sample year:"); NiceTable(CWD_Bad_Year)}
+
+
+```
+
+---
+
+
+###  Transects
+```{r Transects, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Transect)==0) cat("All pieces of CWD have a valid transect.<br>") else {
+   errorText("Pieces of CWD with a transect other than 120, 240 or 360:"); NiceTable(CWD_Bad_Transect)}
+
+```
+
+---
+
+### Decay
+```{r Decay_Class, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Decay)==0) cat("All pieces of CWD have a valid decay class.<br>") else {
+   errorText("Pieces of CWD with an decay class other than 1-5:"); NiceTable(CWD_Bad_Decay)}
+
+```
+
+---
+
+### Species ID
+
+```{r CWD_species, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Missing_TSN)==0) cat("All pieces of CWD have a TSN.<br>") else {
+   errorText("Pieces of CWD without a TSN"); NiceTable(CWD_Missing_TSN)}
+
+
+if(nrow(CWD_No_Name)==0) cat("All pieces of CWD have a species ID.<br>") else {
+   errorText("Pieces of CWD with no species name:"); NiceTable(CWD_No_Name)}
+
+if(nrow(CWD_Renamed_Tag)==0) cat("All CWD and trees with the same tag have the same Latin name. <br>") else {
+   errorText("CWD and trees with the same tag but different Latin names:"); NiceTable(CWD_Renamed_Tag)}
+
+```
+
+
+---
+
+### Diameter
+
+```{r CWD_Diameter, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Missing Diameter**<br>")
+if(nrow(CWD_No_Diameter)==0) cat(paste(TotCWD, " Pieces of CWD checked and all have a diameter.  \n")) else {
+   errortext("Pieces of CWD with no diameter:  \n"); NiceTable(CWD_No_Diameter)}
+
+cat("<br>**Diameter too small or too large**<br>")
+if(nrow(CWD_Bad_Diameter)==0) cat("All pieces of CWD checked have a typical diameter.<br>") else {
+   errorText("Pieces of CWD with an diameter <7.5 cm or >150cm:"); NiceTable(CWD_Bad_Diameter)}
+
+```
+
+---
+
+### Hollow
+
+```{r CWD_hollow, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Hollow)==0) cat("All pieces of CWD checked entry for Hollow is valid.<br>") else {
+   errorText("Pieces of CWD with an invalid entry for Hollow:"); NiceTable(CWD_Bad_Hollow)}
+
+```
+
+---
+
+### Tags
+
+```{r CWD_Tag, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(CWD_Bad_Tag)==0) cat("All CWD tags were once on trees or saplings. <br>") else {
+   errorText("Pieces of CWD with a tag that was never used for a tree or sapling:"); NiceTable(CWD_Bad_Tag)}
+
+if(nrow(CWD_Relocated_Tag)==0) cat("All CWD and Tree with the same tag are from the same plot. <br>") else {
+   errorText("Pieces of CWD and trees with the same tag but are from different plots:"); NiceTable(CWD_Relocated_Tag)}
+
+```

@@ -1,0 +1,792 @@
+---
+title: "Forest Vegetation Tree QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r sapling_setup, include=F}
+TotSaplings<-nrow(QCSaplings) #Total Number of tree records checked
+
+# Units
+
+# 6.1.0
+Saplings_Bad_Unit<-QCSaplings %>% 
+  filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+ 
+Saplings_Bad_Unit_Group<-QCSaplings %>% 
+  filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                         "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+  select(Unit_Code, Unit_Group, Plot_Name,Sample_Year, Tag, Latin_Name)
+   
+Saplings_Mismatch_Unit_Group<-QCSaplings %>% 
+    filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+           Unit_Code=="CATO" & Unit_Group !="CATO"|
+           Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+           Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+           Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+           Unit_Code=="MANA" & Unit_Group !="MANA" |
+           Unit_Code=="MONO" & Unit_Group !="MONO" |
+           Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+           Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+           Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+           Unit_Code=="WOTR" & Unit_Group!="WOTR"
+           ) %>% 
+      select(Plot_Name, Unit_Code, Unit_Group, Sample_Year, Tag, Latin_Name)
+ 
+## Plots
+
+#6.2.0
+  Saplings_No_Plot_Name<-QCSaplings %>% 
+     filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+     select(Unit_Code, Plot_Name,Sample_Year, Tag, Latin_Name)
+   
+## Panel Frame Cycle  
+  
+#6.3.0
+Saplings_Bad_Panel<-QCSaplings %>%
+  filter(!Panel %in% 1:4) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Panel,Tag, Latin_Name)
+  
+#6.4.0
+Saplings_Bad_Frame<-QCSaplings %>%
+   filter(!Frame %in% c("Park","Region")) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Frame,Tag, Latin_Name)
+   
+#6.5.0
+Saplings_Bad_Cycle<-QCSaplings %>% 
+   filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+          !(Cycle==2 & Sample_Year %in% 2010:2013) &
+          !(Cycle==3 & Sample_Year %in% 2014:2017) &
+          !(Cycle==4 & Sample_Year %in% 2018:2022) &
+          !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
+   select(Unit_Code,Plot_Name, Sample_Year, Cycle,Tag, Latin_Name)
+
+## Dates
+
+#6.6.0
+Saplings_Bad_Date<-QCSaplings %>% 
+   filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Date, Tag, Latin_Name)
+
+  
+#6.7.0
+Saplings_Bad_Year<-QCSaplings %>% 
+ filter(Sample_Year != year(ymd(Date))) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year,Date, Tag, Latin_Name)
+
+## Sapling Tag
+
+#6.8.0
+Saplings_Bad_Tag<-QCSaplings %>% filter(!Tag %in%1:30000) %>%
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Saplings_Duplicate_Tag<-QCSaplings %>% group_by(Cycle,Tag) %>% 
+   summarize(Count=n()) %>% filter(Count!=1)
+
+## Microplot
+
+#6.9.0
+Saplings_Bad_Microplot<-QCSaplings %>% filter(!Microplot_Number %in% c(60,180,300)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Microplot_Number)
+
+
+## Latin Name
+
+# 6.10.0
+Saplings_No_Name<-QCSaplings %>% filter(Latin_Name=="") %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Saplings_Many_Names<-QCSaplings %>% group_by(Tag) %>% 
+ filter(n_distinct(Latin_Name)!=1)  %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+## TSN
+
+# 6.11.0
+Saplings_No_TSN<-QCSaplings %>% filter(is.na(TSN) | TSN=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
+
+Saplings_Many_TSN<-QCSaplings %>% group_by(Tag) %>% 
+  filter(n_distinct(TSN)!=1)  %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
+
+## Stems
+
+#6.12.0
+Saplings_Live_Bad_Stems<-QCSaplings %>% filter(Status %in% Live_Status & (is.na(StemsLive)| StemsLive<1 | StemsLive>=6) )  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, StemsLive)
+
+Saplings_Unalive_Living_Stems<-QCSaplings %>% filter(!Status %in% Live_Status & (is.na(StemsLive) | StemsLive>0))  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, StemsLive)
+ 
+  
+
+## Total Basal Area
+
+#6.13.0
+Saplings_No_BA<-QCSaplings %>%                    # Dead BA not exported
+   filter(is.na(SumLiveBasalArea_cm2)|#is.na(SumDeadBasalArea_cm2)| 
+            SumLiveBasalArea_cm2<0 #| SumDeadBasalArea_cm2<0\
+          ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, SumLiveBasalArea_cm2)#, SumDeadBasalArea_cm2)
+ 
+Saplings_Live_Wrong_BA<-QCSaplings %>% filter(Status %in% Live_Status & 
+                    (SumLiveBasalArea_cm2<round(0.25*pi,1) | SumLiveBasalArea_cm2>=round(25*pi,1) )  ) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)
+
+# Dead BA not exported
+# Trees_Dead_Small_BA<-QCTrees %>%   
+#   filter(Status %in% c("Dead Standing","Dead Leaning", "Dead - Human Action"), SumDeadBasalArea_cm2 <round(25*pi,1) ) %>% 
+#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
+# 
+# Trees_DeadBA_Too_Small <-QCTrees %>% 
+#   filter(SumDeadBasalArea_cm2 <round(25*pi,1) & SumDeadBasalArea_cm2!=0 ) %>% 
+#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
+
+Saplings_NonLiving_Live_BA  <-QCSaplings %>%  
+  filter(Status %in% c(Missing_Status, Other_Status, Dead_Status) & SumLiveBasalArea_cm2>0) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)
+
+# Trees_Other_Dead_BA<-QCTrees %>% filter(Status %in% c(Missing_Status, Other_Status, 
+#     "Dead",  "Dead - Too Small", "Dead Fallen", "Dead Missing") & SumDeadBasalArea_cm2>0) %>% 
+#    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumDeadBasalArea_cm2)
+
+
+Saplings_BA_Stems_Mistmatch <-QCSaplings %>% 
+ filter( (StemsLive==0 & (#SumDeadBasalArea_cm2 + 
+   SumLiveBasalArea_cm2>0) )|
+             (StemsLive>0 & (#SumDeadBasalArea_cm2 + \
+               SumLiveBasalArea_cm2==0) )) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SumLiveBasalArea_cm2)#, SumDeadBasalArea_cm2)
+ 
+## DBH
+
+#6.14.0
+ Saplings_Bad_DBH_Check <-QCSaplings %>% filter( (Sample_Year<2018 & DBH_Check) | 
+      (Sample_Year>2017 & DBH_Check & 
+          Status %in% c(Missing_Status, "Dead Fallen", "Dead Missing", "Dead - Too Small", Other_Status))) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, DBH_Check)
+
+ Saplings_Live_Bad_DBH<-QCSaplings %>% filter(Status %in% Live_Status & (
+    (is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm < 1 | Equiv_Live_DBH_cm >= 10) ))  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm)
+ 
+ Saplings_Dead_Bad_DBH<-QCSaplings %>% filter(Status %in% c("Dead Leaning", "Dead Standing") & (
+     is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm>0 ) )  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm)
+ 
+ Saplings_Other_Bad_DBH<-QCSaplings %>% filter(Status %in% c(Missing_Status, Other_Status, 
+     "Dead", "Dead - Human Action", "Dead - Too Small", "Dead Fallen", "Dead Missing") & (
+    is.na(Equiv_Live_DBH_cm) | Equiv_Live_DBH_cm!=0 ))  %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Equiv_Live_DBH_cm)
+ 
+ 
+## Status
+ 
+#6.15.0
+Saplings_Bad_Status<-QCSaplings %>% filter(!Status %in% c(Live_Status, Dead_Status, Missing_Status, Other_Status) ) %>%
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status)
+ 
+## Habit
+
+#6.16.0
+Saplings_Bad_Habit<-QCSaplings %>% filter(!Habit=="Tree") %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Habit) 
+
+
+
+## Vigor
+
+#6.17.0
+
+Saplings_Live_Bad_Vigor<-QCSaplings %>% filter(Status %in% Live_Status & 
+          ( (Sample_Year<2017 & !is.na(SaplingVigor)) | (Sample_Year >=2017 & is.na(SaplingVigor))  | 
+             (Sample_Year >=2017 & !SaplingVigor %in% 0:5))) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor)
+ 
+Saplings_Unalive_Bad_Vigor<-QCSaplings %>% filter(!Status %in% Live_Status, !is.na(SaplingVigor)) %>% 
+     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor)
+ 
+#6.18.0
+
+Saplings_Bad_Vigor_Class<-QCSaplings %>% filter( (SaplingVigor==0 & !is.na(VigorClass)) |
+                                            (SaplingVigor==1 & VigorClass != "Healthy") |
+                                            (SaplingVigor==2 & VigorClass !="Light Decline") |
+                                            (SaplingVigor==3 & VigorClass !="Moderate Decline") |
+                                            (SaplingVigor==4 & VigorClass !="Severe Decline") |
+                                            (SaplingVigor==5 & VigorClass !="Functionally Dead") |
+                                            (is.na(SaplingVigor) & VigorClass!="") ) %>% 
+     select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, SaplingVigor, VigorClass)
+  
+ 
+## Sapling Browse
+  
+#6.19.0
+
+Saplings_Live_Bad_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & !Browsable %in% c("Yes","No", "unk") ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+Saplings_Live_Anachronistic_Browsable<-QCSaplings %>% filter(Status %in% Live_Status & Sample_Year<2010 & Browsable != "unk" ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+Saplings_Unalive_Browsable<-QCSaplings %>% filter(!Status %in% Live_Status & Browsable !="" ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+
+#6.20.0
+Saplings_Live_Bad_Browsed<-QCSaplings %>% filter(Status %in% Live_Status & !Browsed %in% c("Yes","No") ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+ 
+Saplings_Unalive_Browsed<-QCSaplings %>% filter(!Status %in% Live_Status & Browsed !="" ) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+
+#6.21.1 
+Saplings_Live_Illogical_Browse <- QCSaplings %>% filter(Status %in% Live_Status, Browsed =="Yes", Browsable == "No") %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Browsable, Browsed)
+
+## Data Check-boxes
+
+# 6.22.0
+Saplings_Bad_Vine_Check<-QCSaplings %>% filter(!VinesChecked %in% c(0,1)) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, VinesChecked)
+ 
+Saplings_Live_No_VineCheck<-QCSaplings %>% 
+  filter(Status %in% Live_Status, VinesChecked==0, Sample_Year>2013) %>%  
+  left_join(QCVines %>% group_by(Plot_Name,Sample_Year,Host_Tag) %>% 
+             summarise(Vines=n()) %>% rename(Tag=Host_Tag)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, VinesChecked, Vines)
+ 
+Saplings_Unalive_VineCheck<-QCSaplings %>% 
+  filter(!Status %in% Live_Status, VinesChecked==1) %>%  
+  left_join(QCVines %>% group_by(Plot_Name,Sample_Year,Host_Tag) %>% 
+             summarise(Vines=n()) %>% rename(Tag=Host_Tag)) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, VinesChecked, Vines)
+ 
+#6.23.0
+ Saplings_Bad_Conditions_Check<-QCSaplings %>% filter(!ConditionsChecked %in% c(0,1)) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, ConditionsChecked)
+ 
+ Saplings_Live_No_Conditions_Check<-QCSaplings %>% 
+   filter(Status %in% Live_Status, ConditionsChecked==0, Sample_Year>2013) %>%  
+   left_join(QCConditions %>% filter(Condition!="") %>% group_by(Plot_Name,Sample_Year,Tag) %>% 
+               ## the filter on conditions could be removed if the export was updated
+               summarise(Conditions=n())) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, ConditionsChecked, Conditions)
+ 
+ Saplings_Unalive_Conditions_Check<-QCSaplings %>% 
+   filter(!Status %in% Live_Status, ConditionsChecked==1) %>% 
+   left_join(QCConditions %>% filter(Condition!="") %>% group_by(Plot_Name,Sample_Year,Tag) %>%
+             ## the filter on conditions could be removed if the export was updated
+               summarise(Conditions=n(), EAB="Emerald ash borer" %in% Condition)) %>%
+   filter(!EAB) %>% #non-living trees can have EAB as a condition
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, ConditionsChecked, Conditions)
+ 
+# #6.24.0
+ Saplings_Bad_Foliage_Check<-QCSaplings %>% filter(!FoliageConditionsChecked %in% c(0,1)) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, FoliageConditionsChecked)
+ 
+ Saplings_Live_No_Foliage_Check<-QCSaplings %>% 
+   filter(Status %in% Live_Status, FoliageConditionsChecked==0, Sample_Year>2013) %>%  
+   left_join(QCFoliage %>% group_by(Plot_Name,Sample_Year,Tag) %>% 
+               summarise(Foliage=n())) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, FoliageConditionsChecked, Foliage)
+ 
+ Saplings_Unalive_Foliage_Check<-QCSaplings %>% 
+   filter(!Status %in% Live_Status, FoliageConditionsChecked==1) %>% 
+   left_join(QCFoliage %>% group_by(Plot_Name,Sample_Year,Tag) %>%
+               summarise(Foliage=n())) %>%
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, FoliageConditionsChecked, Foliage)
+ 
+ 
+ ## Missed Saplings
+ 
+
+#6.24.5
+Missed_Saplings<-QCLastSaplings |> filter(!Status %in% c(Dead_Status, Other_Status)) |> 
+  select(Tag, Latin_Name, Plot_Name, Status) |> 
+  arrange(Plot_Name) |> 
+  anti_join(QCSaplings,by="Tag") |> anti_join(QCTrees,by="Tag") |> anti_join(QCTags_Latest |> filter(Missing_Events>1),by="Tag") |> 
+  semi_join(QCEvents, by="Plot_Name")
+
+ ### Multi-Year Checks
+ 
+Repeat_Saplings<-QCAllSaplings %>% group_by(Tag) %>% summarize(Records=n()) %>% filter(Records>1) %>% pull(Tag)
+ 
+## Sapling Diameter Change
+
+# 6.25.0
+ Saplings_Live_Large_DBH_change <-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+     mutate(Start_Year=min(Sample_Year)) %>% 
+   filter(any(Status %in% Live_Status & lead(Status, order_by = Sample_Year) %in% Live_Status & 
+           abs(Equiv_Live_DBH_cm -lead(Equiv_Live_DBH_cm, order_by=Sample_Year) > 3))) %>% 
+   arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year, DBH_Check) %>% 
+    {if(nrow(.)!=0) pivot_wider(.,id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = c(StemsLive, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) else data.frame()}
+   } else data.frame()
+
+#6.26.0
+  Saplings_Start_Too_Large <-if(length(Repeat_Saplings>0)){
+    QCAllSaplings %>% 
+   #This next line excludes any tree tag present the first time a plot was sampled
+   filter(!Tag %in% (semi_join(QCAllSaplings, QCAllEvents %>% group_by(Plot_Name) %>% filter(rank(Event_Year)==1)) %>% pull (Tag)),
+      Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>%
+   filter(any(Status %in% Live_Status &  Equiv_Live_DBH_cm >3 & is.na(lag(Equiv_Live_DBH_cm, order_by = Sample_Year) ))) %>% 
+    arrange(Sample_Year) %>% 
+   select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, LiveDBH=Equiv_Live_DBH_cm, StemsLive, Start_Year,DBH_Check) %>% 
+   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                 values_from = c(StemsLive, LiveDBH, DBH_Check), names_from = Cycle, names_sep = " " ) } else data.frame()
+ 
+
+## Status  Change 
+
+#6.27.0
+ Saplings_Start_Wrong<-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   filter(any(Sample_Year==min(Sample_Year) & (Status  %in% c(Missing_Status, Other_Status, Dead_Status)) | 
+            (Status %in% Dead_Status & Sample_Year < 2010 )) ) %>% 
+   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+   select(Plot_Name, Cycle, Tag, Latin_Name, Status, Start_Year) %>% 
+     pivot_wider(id_cols=c(Plot_Name, Tag, Latin_Name, Start_Year) , names_from = Cycle, 
+                 names_prefix = "Cycle ", values_from = Status)} else data.frame()
+ #6.28.0
+ Saplings_Dead_Plus<-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   filter(any(Sample_Year!=max(Sample_Year) & Status %in% Dead_Status)) %>% 
+   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = Status, names_from = Cycle )
+     } else data.frame()
+             
+#6.29.0  
+ Saplings_Levitated<-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   filter(any(Status =="Alive Fallen" & lead(Status, order_by=Sample_Year) %in% c("Alive Broken",  
+            "Alive Standing","Dead Standing"))) %>% 
+   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = Status, names_from = Cycle ) } else data.frame()
+ 
+ #6.30.0
+ Saplings_Found_Alive<-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Live_Status) )) %>% 
+   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = Status, names_from = Cycle ) } else data.frame()
+ 
+ #6.31.0
+ Saplings_Downgraded_Persisting <-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   filter(any( (Status =="Downgraded to Non-Sampled") & (lead(Status, order_by=Sample_Year) %in% 
+                            c(Live_Status, Dead_Status, Other_Status, Missing_Status)) )) %>% 
+   mutate(Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = Status, names_from = Cycle ) } else data.frame()
+
+#6.32.0
+ Saplings_Triple_Missing <-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   mutate(Start_Year=min(Sample_Year)) %>%
+   filter(any( (Status %in% Missing_Status) & (lead(Status, order_by=Sample_Year) %in% Missing_Status)
+               & (lead(Status,n=2, order_by=Sample_Year) %in% Missing_Status))) %>% 
+    arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, Status, Start_Year) %>% 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = Status, names_from = Cycle ) } else data.frame()
+ 
+## Vigor Change
+ 
+#6.33.0
+ Saplings_Vigor_Jump <-if(length(Repeat_Saplings>0)){
+   QCAllSaplings %>% filter(Tag %in% Repeat_Saplings) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+  mutate(Start_Year=min(Sample_Year)) %>%
+   filter(any( 
+     (VigorClass =="Moderate Decline" & lead(Status, order_by=Sample_Year) == "Healthy") |
+     (VigorClass =="Functionally Dead" & lead(Status, order_by=Sample_Year) %in% c("Healthy", "Light Decline"))
+     )) %>% 
+    arrange(Sample_Year) %>% 
+    select(Plot_Name, Cycle, Sample_Year, Tag, Latin_Name, VigorClass, Start_Year) %>% 
+    pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                values_from = VigorClass, names_from = Cycle ) } else data.frame()
+
+```
+
+
+#### **Saplings Checked:** `r TotSaplings` ####
+
+
+### Unit Codes
+
+```{r Sapling_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Saplings_Bad_Unit)==0) cat("All saplings have a recognized Unit Code.<br>") else {
+    cat(errortext("Trees with a missing or unrecongized Unit Code:")); NiceTable(Saplings_Bad_Unit)}
+ 
+if(nrow(Saplings_Bad_Unit_Group)==0) cat("All saplings have a recognized Unit Group.<br>") else {
+  cat( errortext("Saplings with a missing or unrecongized Unit Group:")); NiceTable(Saplings_Bad_Unit_Group)}
+
+if(nrow(Saplings_Mismatch_Unit_Group)==0) cat("All saplings have Unit Group that is consistent with their Unit Code.<br>") else {
+     cat(errortext("Saplings with a Unit Group that is inconsistent with their Unit Code:")); NiceTable(Saplings_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r Sapling_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Saplings_No_Plot_Name)==0) cat("All saplings have a Plot Name.<br>") else {
+  errortext("Saplings with a missing Plot Name:"); NiceTable(Saplings_No_Plot_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r Sapling_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Sapling Panel Data**<br>")
+if(nrow(Saplings_Bad_Panel)==0) cat("Each sapling has a panel code from 1 to 4.<br>") else {
+errorText("Saplings without a panel code from 1-4:"); NiceTable(Saplings_Bad_Panel)}
+  
+cat("<br>**Sapling Frame Data**<br>")
+if(nrow(Saplings_Bad_Frame)==0) cat("Each sapling has a frame that is either Region or Park.<br>") else {
+errorText("Saplings without a frame of either Region or Park:"); NiceTable(Saplings_Bad_Frame)}
+ 
+cat("<br>**Sapling Cycle Data**<br>")
+if(nrow(Saplings_Bad_Cycle)==0) cat("Each saplings is from a cycle that matches its event year <br>") else {
+errorText("Saplings without a cycle or with a cycle that does not match its event year:"); NiceTable(Saplings_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r Sapling_Dates, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Saplings_Bad_Date)==0) cat("All sapling dates match an event date.<br>") else {
+  errorText("Saplings whose date does not match an event date:"); NiceTable(Saplings_Bad_Date)}
+ 
+if(nrow(Saplings_Bad_Year)==0) cat("All sapling dates and sample years are consistent.<br>") else {
+  errorText("Saplings whose date does not match its sample year:"); NiceTable(Saplings_Bad_Year)}
+
+```
+
+---
+
+### Sapling Tag
+
+```{r Sapling_Tag, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Saplings_Bad_Tag)==0) cat("All sapling records have a valid tag.<br>") else {
+     errorText("Sapling records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Saplings_Bad_Tag)}
+
+if(nrow(Saplings_Duplicate_Tag)==0) cat("No tags are duplicated in a single visit.<br>") else {
+   errorText("Saplings with duplicate tag records:"); NiceTable(Saplings_Duplicate_Tag)}
+
+```
+
+---
+
+### Sapling Microplot
+
+```{r Sapling_Microplot, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Saplings_Bad_Microplot)==0) cat("All saplings have a microplot of 60, 180 or 300.<br>") else {
+    errorText("Saplings with a microplot number that is not 60, 180 or 300:"); NiceTable(Saplings_Bad_Microplot)}
+```
+
+---
+
+### Species ID
+
+```{r Sapling_Species, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Saplings_No_Name)==0) cat("All sapling records checked have a species ID.<br>") else {
+  errorText("Saplings with no species name:"); NiceTable(Saplings_No_Name)}
+
+if(nrow(Saplings_Many_Names)==0) cat("All saplings have only one species ID.<br>") else {
+  errorText("Saplings with multiple species names:"); NiceTable(Saplings_Many_Names)}
+ 
+if(nrow(Saplings_No_TSN)==0) cat("All sapling records checked have a TSN.<br>") else {
+  errorText("Saplings with no TSN:"); NiceTable(Saplings_No_TSN)}
+ 
+if(nrow(Saplings_Many_TSN)==0) cat("All saplings have only one TSN.<br>") else {
+  errorText("Saplings with multiple TSB:"); NiceTable(Saplings_Many_TSN)}
+
+```
+
+---
+
+### Sapling Stem Number
+
+```{r Sapling_Stem_Number, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Live Sapling Stem Number**<br>")
+  if(nrow(Saplings_Live_Bad_Stems)==0) cat("All living sapling records have between one and five stems.<br>") else {
+     errorText("Living sapling records with <1 or >5 stems:"); NiceTable(Saplings_Live_Bad_Stems)}
+
+cat("<br>**Non-living  Sapling with Live Stems**<br>")
+  if(nrow(Saplings_Unalive_Living_Stems)==0) cat("No non-living sapling records have live stems.<br>") else {
+     errorText("Non-living sapling records with living stems not 0:"); NiceTable(Saplings_Unalive_Living_Stems)}
+
+```
+
+---
+
+
+###  Sapling Basal Area
+```{r Sapling_BA, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Saplings_No_BA)==0) cat("All saplings have live basal area > 0.<br>") else {
+    errorText("Saplings missing basal area or with live basal area <0:"); NiceTable(Saplings_No_BA)}
+ 
+if(nrow(Saplings_Live_Wrong_BA)==0) cat("All living saplngs have a live basal area consistent with a 0.1 to 9.9 cm dbh stem.<br>") else {
+  errorText("Living saplings whose live basal area is too small or too large:"); NiceTable(Saplings_Live_Wrong_BA)}
+# 
+# if(nrow(Trees_Dead_Small_BA)==0) cat("All dead trees have at least a dead basal area consistent with a 10cm stem.<br>") else {
+#    errorText("Dead trees whose dead basal area is too small:"); NiceTable(Trees_Dead_Small_BA)}
+# 
+# if(nrow(Trees_DeadBA_Too_Small)==0) cat("No trees have a dead BA > 0 and less than that of a 10cm stem.<br>") else {
+#    errorText("Dead trees whose dead basal area is >0m, but too small for a 10 cm stem:"); NiceTable(Trees_DeadBA_Too_Small)}
+
+if(nrow(Saplings_NonLiving_Live_BA)==0) cat("No non-living saplings have a live BA > 0.<br>") else {
+    errorText("Non-living saplings whose live basal area is >0m:"); NiceTable(Saplings_NonLiving_Live_BA)}
+ 
+# if(nrow(Trees_Other_Dead_BA)==0) cat("No trees have a dead BA when they should not.<br>") else {
+#    errorText("Trees with a dead BA >0 that should be 0:"); NiceTable(Trees_Other_Dead_BA)}
+
+if(nrow(Saplings_BA_Stems_Mistmatch)==0) cat("No saplings have a stem with no live BA or live BA with no stems.<br>") else {
+  errorText("Saplings with inconsistent live BA and stems:"); NiceTable(saplings_BA_Stems_Mistmatch)}
+```
+
+---
+
+### Sapling Diameter
+
+```{r Sapling_Diameter, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**DBH Check**<br>")
+  if(nrow(Saplings_Bad_DBH_Check)==0) cat("No sapling records have an inappropriate DBH check.<br>") else { 
+     errorText("Sapling records with the DBH check box checked before that was done or for tree with no DBH:<br>"); NiceTable(Saplings_Bad_DBH_Check)}
+ 
+cat("<br>**Living Sapling DBH Incorrect**<br>")
+  if(nrow(Saplings_Live_Bad_DBH)==0) cat("No living saplings records have an invlid DBH.<br>") else { 
+     errorText("Live sapling records with a living DBH=0 or > 10cm:"); NiceTable(Saplings_Live_Bad_DBH)}
+
+cat("<br>**Dead Saplings DBH Incorrect**<br>")   
+ if(nrow(Saplings_Dead_Bad_DBH)==0) cat("No dead saplings have a mising or live DBH.<br>") else { 
+     errorText("Dead sapling records with a living or missing DBH:"); NiceTable(Saplings_Dead_Bad_DBH)}
+ 
+cat("<br>**DBH Wrongly Recorded**<br>")
+ if(nrow(Saplings_Other_Bad_DBH)==0) cat("No saplings have a live DBH when they should not.<br>") else {
+   errorText("Sapling records with a live DBH that should not have one:"); NiceTable(Saplings_Other_Bad_DBH)}
+
+```
+
+---
+
+###  Sapling Status
+```{r Sapling_Status, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Saplings_Bad_Status)==0) cat("All sapling records have a valid status.<br>") else {
+   errorText("Sapling records without a status or a status we do not use:"); NiceTable(Saplings_Bad_Status)}
+
+```
+
+---
+
+### Sapling Habit
+
+```{r Sapling_Habit, echo=FALSE, hold=FALSE, results="asis"}
+
+  if(nrow(Saplings_Bad_Habit)==0) cat("All sapling records have a habit of 'Tree'.<br>") else {
+     errorText("Sapling records without a habit of 'Tree':"); NiceTable(Saplings_Bad_Habit)}
+
+```
+
+---
+
+### Sapling Vigor
+
+```{r Sapling_vigor, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Living Saplings Vigor Invalid**<br>") 
+   if(nrow(Saplings_Live_Bad_Vigor)==0) cat("All live saplings have a valid vigor.<br>") else {
+    errorText("Living sapling records with a vigor other than 0-5:"); NiceTable(Saplings_Live_Bad_Vigor)}
+  
+cat("<br>**Non-Living Saplings with Vigor**<br>")
+   if(nrow(Saplings_Unalive_Bad_Vigor)==0) cat("No non-living saplings have a vigor.<br>") else {
+      errorText("Non-living sapling records with a vigor:"); NiceTable(Saplings_Unalive_Bad_Vigor)}
+
+cat("<br>**Saplings with Inconsistent Vigor and Vigor Class**<br>")
+ if(nrow(Saplings_Bad_Vigor_Class)==0) cat("All saplings have consisntent vigor and vigor classes.<br>") else {
+  errorText("Saplings with inconsistent vigor and vigor classes:"); NiceTable(Saplings_Bad_Vigor_Class)}
+
+```
+
+---
+
+### Sapling Browse
+
+```{r Sapling_Browse, echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Living Saplings Browsable Status Invalid**<br>") 
+  if(nrow(Saplings_Live_Bad_Browsable)==0) cat("All live saplings have a valid browsable status.<br>") else {
+     errorText("Living sapling records with a browsable status other than Yes, No, or unk:"); NiceTable(Saplings_Live_Bad_Browsable)}
+  
+
+cat("<br>**Living Saplings Anachronistic Browsable Status**<br>") 
+  if(nrow(Saplings_Live_Anachronistic_Browsable)==0) cat("No living saplings records have a browsable status before 2010.<br>") else {
+     errorText("Living sapling records with a browsable status before 2010:"); NiceTable(Saplings_Live_Anachronistic_Browsable)}
+  
+ cat("<br>**Non-Living Saplings with Browsable Status**<br>")
+   if(nrow(Saplings_Unalive_Browsable)==0) cat("No non-living saplings have a browsable status.<br>") else {
+      errorText("Non-living sapling records with a browsable status:"); NiceTable(Saplings_Unalive_Browsable)}
+
+ cat("<br>**Living Saplings Browsed Status Invalid**<br>") 
+  if(nrow(Saplings_Live_Bad_Browsed)==0) cat("All live saplings have a valid browsed status.<br>") else {
+     errorText("Living sapling records with a browsed status other than Yes, or No:"); NiceTable(Saplings_Live_Bad_Browsed)}
+   
+ cat("<br>**Non-Living Saplings with Browsed Status**<br>")
+   if(nrow(Saplings_Unalive_Browsed)==0) cat("No non-living saplings have a browsed status.<br>") else {
+      errorText("Non-living sapling records with a browsed status:"); NiceTable(Saplings_Unalive_Browsed)}
+ 
+  cat("<br>**Living Saplings with Illogical Browsing**<br>")
+   if(nrow(Saplings_Live_Illogical_Browse)==0) cat("No living saplings have contradictory browsable and browsed status.<br>") else {
+      errorText("Living sapling records with a browsable status of 'No' and browsed status of 'Yes':"); NiceTable(Saplings_Live_Illogical_Browse)}
+ 
+```
+
+---
+
+###  Data Checkboxes
+
+```{r Sapling_Checkboxes, echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Vine Checkbox**<br>")
+  if(nrow(Saplings_Bad_Vine_Check)==0) cat("All saplings have a valid vine check value.<br>") else {
+     errorText("Saplings with a vine check that is neither 0 nor 1:"); NiceTable(Saplings_Bad_Vine_Check)}
+ 
+  if(nrow(Saplings_Live_No_VineCheck)==0) cat("Since 2014, all living sapllings have been checked for vines.<br>") else {
+     errorText("Living saplings that were sampled in 2014 or later and have not been checked for vines:"); NiceTable(Saplings_Live_No_VineCheck)}
+ 
+  if(nrow(Saplings_Unalive_VineCheck)==0) cat("All non-living saplings do not have the vine checkbox checked.<br>") else {
+     errorText("Non-living saplings with the vine checkbox checked:"); NiceTable(Saplings_Unalive_VineCheck)}
+ 
+cat("<br>**Conditions Checkbox**<br>")
+  if(nrow(Saplings_Bad_Conditions_Check)==0) cat("All saplings have a valid condition check value.<br>") else {
+     errorText("Saplings with a condition check that is neither 0 nor 1:"); NiceTable(Saplings_Bad_Conditions_Check)}
+  
+   if(nrow(Saplings_Live_No_Conditions_Check)==0) cat("Since 2014, all living saplings have been checked for tree conditions.<br>") else {
+     errorText("Living saplings that were sampled in 2014 or later and have not been checked for tree conditions:"); NiceTable(Saplings_Live_No_Conditions_Check)}
+ 
+   if(nrow(Saplings_Unalive_Conditions_Check)==0) cat("All non-living saplings do not have the condition checkbox checked except for EAB.<br>") else {
+     errorText("Non-living saplings with the condition checkbox checked and no EAB:"); NiceTable(Saplings_Unalive_Conditions_Check)}
+ 
+ cat("<br>**Foliage Checkbox**<br>")
+  if(nrow(Saplings_Bad_Foliage_Check)==0) cat("All saplings have a valid foliage check value.<br>") else {
+     errorText("Saplings with a foliage check that is neither 0 nor 1:"); NiceTable(Saplings_Bad_Foliage_Check)}
+ 
+  if(nrow(Saplings_Live_No_Foliage_Check)==0) cat("Since 2014, all living saplings have been checked for foliage conditions.<br>") else {
+      errorText("Living saplings that were sampled after 2014 and have not been checked for foliage conditions:"); NiceTable(Saplings_Live_No_Foliage_Check)}
+ 
+   if(nrow(Saplings_Unalive_Foliage_Check)==0) cat("All non-living saplings do not have the foliage checkbox checked.<br>") else {
+       errorText("Non-living saplings with the foliage checkbox checked:"); NiceTable(Saplings_Unalive_Foliage_Check)}
+ 
+```
+
+---
+
+
+###  Missed Saplings
+
+```{r Sapling_Missed, echo=FALSE, hold=FALSE, results="asis"}
+ 
+  if(nrow(Missed_Saplings)==0) cat("All saplings that should have been monitored were monitored.<br>") else {
+     errorText("Saplings that should have been monitored but were not:"); NiceTable(Missed_Saplings)}
+
+ 
+```
+
+
+
+### **Change Over Time**
+
+
+### Sapling DBH Change
+```{r Sapling_Live_DBH_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+ cat("<br>**Saplings that have a large change in Live DBH**<br>")
+  if(nrow(Saplings_Live_Large_DBH_change)==0) cat("No sapling has had a 3cm change in live DBH.<br>") else {
+    errorText("Saplings that have had a 3cm change in live DBH:"); NiceTable(Saplings_Live_Large_DBH_change)}
+ 
+ cat("<br>**Saplings that have a large starting DBH**<br>")
+  if(nrow(Saplings_Start_Too_Large)==0) cat("No saplings starts with a >3cm DBH after a plot is established.<br>") else {
+    errorText("Saplings that start with a >3cm DBH after a plot is established:"); NiceTable(Saplings_Start_Too_Large)}
+
+```
+
+---
+
+### Sapling Status Discrepancies
+
+```{r Sapling_Status_Change, echo=FALSE, hold=FALSE, results="asis"}
+ 
+ cat("<br>**Saplings that Start in a Non-Sampled Status**<br>")
+  if(nrow(Saplings_Start_Wrong)==0) cat("No saplings start as missing downgraded, or dead fallen.<br>") else {
+    errorText("Saplings that start in a non-sampled status:"); NiceTable(Saplings_Start_Wrong)}
+ 
+ cat("<br>**Saplings that are Sampled after they are Dead**<br>")
+  if(nrow(Saplings_Dead_Plus)==0) cat("No sapling was sampled after it was dead.<br>") else {
+    errorText("Saplings that were reorded as dead and then sampled again:"); NiceTable(Saplings_Dead_Plus)}
+
+ 
+ cat("<br>**Saplings that Fell Down and then Levitated Back Up**<br>")
+  if(nrow(Saplings_Levitated)==0) cat("No sapling was Alive Fallen and then became Standing.<br>") else {
+    errorText("Saplings that were Alive Fallen but then became Standing:"); NiceTable(Saplings_Levitated)}
+ 
+ cat("<br>**Saplings that went Missing and were Found Alive**<br>")
+  if(nrow(Saplings_Found_Alive)==0) cat("No sapling was Missing and then found Alive.<br>") else {
+    errorText("Saplings that were Missing but then were found Alive:"); NiceTable(Saplings_Found_Alive)}
+ 
+ cat("<br>**Saplings that were Downgraded and resampled**<br>")
+  if(nrow(Saplings_Downgraded_Persisting)==0) cat("No sapling was resampled after being downgraded.<br>") else {
+    errorText("Saplings that were Downgraded but then were resampled:"); NiceTable(Saplings_Downgraded_Persisting)}
+
+ cat("<br>**Saplings that went Missing Three Times in a Row**<br>")
+  if(nrow(Saplings_Triple_Missing)==0) cat("No sapling went missing 3 consecutive visits.<br>") else {
+    errorText("Saplings that were Missing three times in a row:"); NiceTable(Saplings_Triple_Missing)}
+
+```
+
+---
+
+### Sapling Vigor Change
+```{r Sapling_Vigor_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+ cat("<br>**Saplings that have a Large Improvement in Vigor**<br>")
+  if(nrow(Saplings_Vigor_Jump)==0) cat("No sapling has a 2 class improvement in vigor.<br>") else {
+    errorText("Saplings that have a 2 class improvement in vigor:"); NiceTable(Saplings_Vigor_Jump)}
+```
+
+
+
+
+

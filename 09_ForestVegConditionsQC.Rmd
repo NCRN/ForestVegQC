@@ -1,0 +1,539 @@
+---
+title: "Forest Vegetation Conditions QC"
+author: "John Paul Schmit"
+date: "5/19/2020"
+output: html_document
+---
+
+
+```{r Condition_setup, include=F}
+
+TotConds<-nrow(QCConditions) #Total number of stem records checked
+
+## Units
+
+#9.1.0
+Conditions_Bad_Unit<-QCConditions %>% 
+    filter(!Unit_Code %in% c("ANTI", "CATO", "CHOH", "GWMP", "HAFE", "MANA", "MONO", "NACE", "PRWI", "ROCR", "WOTR")) %>% 
+    select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+ 
+Conditions_Bad_Unit_Group<-QCConditions %>% 
+     filter(!Unit_Group %in% c("ANTI","BOHE", "BRUN", "CATO", "CUMB", "GREE", "LOHE", "MAHE", "MANA", "MONO", "NACE", "PISC", "POGO","PRWI", "ROCR", 
+                              "SHHI","SHIS","TIDE", "WILL", "WOTR")) %>% 
+     select(Unit_Code, Unit_Group, Plot_Name,Sample_Year, Tag, Latin_Name)
+  
+Conditions_Mismatch_Unit_Group<-QCConditions %>% 
+     filter(Unit_Code=="ANTI" & Unit_Group!="ANTI"|
+               Unit_Code=="CATO" & Unit_Group !="CATO"|
+               Unit_Code=="CHOH" & !Unit_Group %in% c("BRUN", "CUMB", "POGO", "WILL") |
+               Unit_Code =="GWMP" & !Unit_Group %in% c("POGO","TIDE") |
+               Unit_Code =="HAFE" & !Unit_Group %in% c("BOHE", "LOHE", "MAHE","SHHI", "SHIS")|
+               Unit_Code=="MANA" & Unit_Group !="MANA" |
+               Unit_Code=="MONO" & Unit_Group !="MONO" |
+               Unit_Code=="NACE" & !Unit_Group %in% c("GREE","NACE","PISC")|
+               Unit_Code=="PRWI" & Unit_Group !="PRWI" |
+               Unit_Code=="ROCR" & Unit_Group !="ROCR" |
+               Unit_Code=="WOTR" & Unit_Group!="WOTR"
+            ) %>% 
+     select(Plot_Name, Unit_Code, Unit_Group, Sample_Year, Tag, Latin_Name)
+   
+#9.2.0
+Conditions_No_Plot_Name<-QCConditions %>% 
+  filter(is.na(Plot_Name) | Plot_Name=="") %>% 
+  select(Unit_Code, Plot_Name,Sample_Year, Tag, Latin_Name)
+
+## Panel Frame Cycle  
+
+#9.3.0
+Conditions_Bad_Panel<-QCConditions %>%
+  filter(!Panel %in% 1:4) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Panel,Tag, Latin_Name)
+
+#9.4.0
+Conditions_Bad_Frame<-QCConditions %>%
+  filter(!Frame %in% c("Park","Region")) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Frame,Tag, Latin_Name)
+
+#9.5.0
+Conditions_Bad_Cycle<-QCConditions %>% 
+  filter(!(Cycle==1 & Sample_Year %in% 2005:2009) &
+         !(Cycle==2 & Sample_Year %in% 2010:2013) &
+         !(Cycle==3 & Sample_Year %in% 2014:2017) &
+         !(Cycle==4 & Sample_Year %in% 2018:2022) &
+         !(Cycle==5 & Sample_Year %in% 2023:2026)) %>% 
+  select(Unit_Code,Plot_Name, Sample_Year, Cycle,Tag, Latin_Name)
+
+## Dates
+
+#9.6.0
+Conditions_Bad_Date<-QCConditions %>% 
+  filter(!ymd(Date) %in% QCEvents$Event_Date) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year, Date, Tag, Latin_Name)
+
+#9.7.0
+Conditions_Bad_Year<-QCConditions %>% 
+  filter(Sample_Year != year(ymd(Date))) %>% 
+  select(Unit_Code, Plot_Name, Sample_Year,Date, Tag, Latin_Name)
+
+## Condition Record Tags
+ 
+# 9.8.0
+Conditions_Bad_Tag<-QCConditions %>% filter(!Tag %in% 1:30000) %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+ 
+Conditions_No_Plant<-QCConditions %>% select (-Cycle) %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issues
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+
+## Latin Name
+
+# 9.9.0
+Condtions_No_Name<-QCConditions %>% filter(Latin_Name=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name)
+
+Conditions_Wrong_Name<-QCConditions%>% select (-Cycle) %>% anti_join(QCWoodies) %>%  #select(-Cycle) due to export cycle issues
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+
+## TSN
+
+# 9.10.0
+Conditions_No_TSN <-QCConditions %>% filter(is.na(TSN) | TSN=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN)
+
+Conditions_Wrong_TSN<-QCConditions %>% select (-Cycle)  %>% anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issue
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, TSN, Condition)
+
+## Status
+
+# 9.11.0
+Conditions_No_Status <- QCConditions %>% filter(is.na(Status) | Status=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+
+Conditions_Wrong_Status<-QCConditions  %>% select (-Cycle) %>%  anti_join(QCWoodies) %>% #select(-Cycle) due to export cycle issue
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+ 
+
+## Conditions
+
+#9.12.0
+
+Conditions_Missing <- QCConditions %>% filter(is.na(Condition) | Condition=="") %>%
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+        
+Plants_Live_Bad_Tree_Condition<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &
+ !Condition %in% c("", "Advanced decay", "Primary branch broken",  "Large dead branches", "Lightning Damage", "Wind Damage", "Buck Rub", "Bark Damage",
+                   "Beaver Damage", "Human Damage", "Mammal Damage", "Bird Damage", "Exposed roots", "Epicormic sprouts", "Fungus", "Fire", "Hollow",
+                   "Sparse foliage", "Open wound", "Vines in the crown",  "Vine stress", "Other visible condition", "Other visible damage")) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+ 
+#9.13.0
+Anachronistic_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & !Pest & (Status %in% Live_Status) &
+       (
+         (Condition =="Lightning Damage" & Sample_Year< 2009) | 
+           (Condition %in% c("Buck Rub", "Bark Damage", "Human Damage") & Sample_Year < 2014) |
+           (Condition =="Beaver Damage" & !Sample_Year %in% 2014:2016) |
+           (Condition =="Epicormic Sprouts" & Sample_Year< 2015) |
+           (Condition %in% c("Mammal Damage", "Bird Damage", "Exposed roots", "Fungus", "Fire", "Hollow", "Sparse foliage",
+                             "Other visible condition") & Sample_Year < 2017) |
+           (Condition =="Vine Stress" & Sample_Year< 2015) |
+          (Condition =="Other visible damage" & Sample_Year> 2016)
+         )) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+ 
+#9.14.0
+Plants_Live_Redundant_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & (Status %in% Live_Status)) %>% 
+ group_by(Tag, Sample_Year, Condition) %>% filter(n()!=n_distinct(Condition)) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+
+#9.15.0
+Plants_Unalive_Conditions<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Condition!="" &
+                !Pest & (Status %in% c(Dead_Status, Missing_Status, Other_Status))) %>% 
+   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+
+#9.16.0
+Plants_Bad_Vines<-QCConditions %>% filter((Sample_Year %in% QCYears) & Condition=="Vines in the crown"
+                                           )%>% 
+ anti_join(QCVines %>% filter(Condition=="Vines in the crown") %>%  select(Plot_Name,Sample_Year,Tag=Host_Tag)) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Status,  Condition)
+
+## Tree Pests
+ 
+#9.17.0
+Plants_Live_Bad_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
+ !Condition %in% c("Asian longhorned beetle", "Beech bark disease", "Beech leaf disease",  "Butternut canker", "Chestnut blight", "Dogwood anthracnose", 
+                   "Emerald ash borer", "Gypsy moth","Hemlock Scale", "Hemlock wooly adelgid", "Oak wilt", "Spotted Lanternfly", 
+                   "Thousand cankers disease", "Tent caterpillars", "Other significant insect damage")) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+ 
+# 9.18.0
+Plants_Live_Anachronistic_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & (Status %in% Live_Status) &
+     (
+       (Condition %in% c("Dogwood anthracnose","Hemlock Scale") & Sample_Year< 2008) | 
+         (Condition =="Emrerald ash borer" & Sample_Year < 2009) |
+         (Condition %in% c("Asian longhorn beetle","Chestnut blight", "Oak wilt", "Thousand cankers disease") & Sample_Year < 2014) |
+         (Condition =="Tent caterpillars" & Sample_Year< 2017) |
+         (Condition =="Spotted lanternfly" & Sample_Year < 2018) |
+         (Condition == "Beech leaf disease" & Sample_Year < 2022)
+         )
+   ) %>%   select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Condition)
+
+#9.19.0
+Plants_Unalive_Pest<-QCConditions %>% filter( (Sample_Year %in% QCYears) & Pest & Condition !="Emerald ash borer" &
+               (Status %in% c(Dead_Status, Missing_Status, Other_Status) )) %>% 
+ select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+
+#9.20..0
+Plants_Pest_Bad_Host<-QCConditions %>% filter((Sample_Year %in% QCYears) & Pest & 
+ (
+  (Condition == "Beach bark disease" & Latin_Name !="Fagus grandifolia") |
+  (Condition == "Beach leaf disease" & Latin_Name !="Fagus grandifolia") |
+  (Condition =="Butternut canker" & Latin_Name != "Junglans cinerea") |
+  (Condition == "Chestnut blight" & Latin_Name != "Castanea dentata") |
+   (Condition == "Dogwood anthracnose" & Latin_Name != "Cornus florida") |
+  (Condition =="Emerald ash borer" & !Latin_Name %in% c("Fraxinus americana", "Fraxinus nigra", "Fraxinus pennsylvanica", "Fraxinus profunda")) |
+  (Condition %in% c("Hemlock Scale", "Hemlock wooly adelgid") & Latin_Name != "Tsuga canadensis") |
+  (Condition =="Thousand cankers disease" & Latin_Name !="Juglans nigra")
+ )) %>% select(Unit_Code, Plot_Name, Sample_Year, Tag, Latin_Name, Status, Condition)
+ 
+
+## Condition Change
+
+
+#9.21.0
+Plants_Lose_ExpRoots<- if(length(Repeat_Woodies)>0){    
+ QCAllWoodies %>% left_join(QCAllConditions %>% filter(Condition=="Exposed roots") %>%  
+                           select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+ group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Exposed roots" & (lead(Condition, order_by = Sample_Year) != "Exposed roots") & 
+               lead(Status %in% Live_Status) )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+#9.22.0
+Plants_Lose_Hollow<- if(length(Repeat_Woodies>0)){
+   QCAllWoodies %>%  
+    left_join(QCAllConditions %>% filter(Condition=="Hollow") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+   filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+   group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+   filter(any (Condition=="Hollow" & (lead(Condition, order_by = Sample_Year) != "Hollow") & 
+                 lead(Status %in% Live_Status) )) %>% 
+   {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+   select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+   pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+                 values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+  
+#9.23.0
+Plants_Lose_Vine_Crown<- if(length(Repeat_Woodies>0)){
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Vines in the crown",Status %in% Live_Status) %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>%
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+  group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Vines in the crown" & (lead(Condition, order_by = Sample_Year) != "Vines in the crown") & 
+               lead(Status %in% Live_Status) )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+#9.24.0
+Plants_Lose_Vine_Stress<- if(length(Repeat_Woodies>0)){
+ QCAllWoodies %>%
+   left_join(QCAllConditions %>% filter(Condition=="Vine stress") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+ group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Vine stress" & (lead(Condition, order_by = Sample_Year) != "Vine stress") & 
+               lead(Status %in% Live_Status) )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+## Tree Pest Change
+
+#9.25.0
+Plants_Lose_EAB<- if(length(Repeat_Woodies>0)){
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Emerald ash borer") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+ group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Emerald ash borer" & (lead(Condition, order_by = Sample_Year) != "Emerald ash borer")  )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+#9.26.0
+Plants_Lose_Anthracnose<- if(length(Repeat_Woodies>0)){
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Dogwood anthracnose") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+ group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Dogwood anthracnose" & (lead(Condition, order_by = Sample_Year) != "Dogwood anthracnose") & 
+               lead(Status %in% Live_Status) )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+#9.27.0
+Plants_Lose_Scale <-if(length(Repeat_Woodies>0)){
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Hemlock Scale") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+ group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Hemlock Scale" & (lead(Condition, order_by = Sample_Year) != "Hemlock Scale") & 
+               lead(Status %in% Live_Status) )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+#9.28.0
+Plants_Lose_Adelgid <-if(length(Repeat_Woodies>0)){
+ QCAllWoodies %>% 
+   left_join(QCAllConditions %>% filter(Condition=="Hemlock wooly adelgid") %>%  select(Tag, Sample_Year, Condition), by=c("Tag", "Sample_Year") ) %>% 
+ filter(Tag %in% Repeat_Woodies) %>% mutate(Condition=replace_na(Condition, "None")) %>% 
+ group_by(Tag) %>% arrange(Tag, Sample_Year) %>% 
+ filter(any (Condition=="Hemlock wooly adelgid" & (lead(Condition, order_by = Sample_Year) != "Hemlock wooly adelgid") & 
+               lead(Status %in% Live_Status) )) %>% 
+ {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+ 
+## Condtions and Pests
+#9.29.0
+Plants_Change_Conditon_Number<-if(length(Repeat_Woodies>0)){
+QCAllWoodies %>%
+   filter(Tag %in% Repeat_Woodies) %>% 
+   left_join( QCAllConditions %>% select(Tag, Sample_Year, Condition) %>% filter(Condition !="") %>% group_by(Tag, Sample_Year) %>% 
+                summarise(Condition_Total=n()), by=c("Tag","Sample_Year")) %>% mutate(Condition_Total = replace_na(Condition_Total ,0)) %>% 
+   arrange(Tag, Sample_Year) %>% group_by(Tag) %>% 
+   filter(any( Condition_Total!=lead(Condition_Total, order_by = Sample_Year)& lead(Status, order_by = Sample_Year)%in% Live_Status )) %>% 
+   {if(nrow(.)>0) mutate(., Start_Year=min(Sample_Year)) %>% arrange(Sample_Year) %>%
+ select(Plot_Name, Cycle, Start_Year, Sample_Year, Tag, Latin_Name, Condition_Total) %>% 
+ pivot_wider(id_cols = c(Plot_Name, Tag, Latin_Name, Start_Year), names_prefix = "Cycle ",
+               values_from = c(Condition_Total), names_from = Cycle, names_sep = " " ) else data.frame()} } else data.frame()
+
+```
+
+### Conditions
+
+#### **Condition Records Checked:** `r TotConds` ####
+
+### Unit Codes
+
+```{r Condition_Unit_Codes, echo=FALSE, hold=FALSE, results="asis"}
+ if(nrow(Conditions_Bad_Unit)==0) cat("All condition records have a recognized Unit Code.<br>") else {
+    errortext("Condition records with a missing or unrecongized Unit Code:"); NiceTable(Conditions_Bad_Unit)}
+ 
+ if(nrow(Conditions_Bad_Unit_Group)==0) cat("All condition records have a recognized Unit Group.<br>") else {
+    errortext("Condition records with a missing or unrecongized Unit Group:"); NiceTable(Conditions_Bad_Unit_Group)}
+  
+ if(nrow(Conditions_Mismatch_Unit_Group)==0) cat("All condition records have Unit Group that is consistent with their Unit Code.<br>") else {
+     errortext("Condition records with a Unit Group that is inconsistent with their Unit Code:");NiceTable(Conditions_Mismatch_Unit_Group)}
+
+```
+
+---
+
+### Plot Names
+
+```{r Condition_plot_names, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Conditions_No_Plot_Name)==0) cat("All condition records have a Plot Name.<br>") else {
+  errortext("Conditions records with a missing Plot Name:"); NiceTable(Conditions_No_Plot_Name)}
+
+```
+
+---
+
+### Event Panel, Frame and Cycle
+
+```{r Condition_Panel_Frame_Cycle,echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Panel Data**<br>")
+if(nrow(Conditions_Bad_Panel)==0) cat("Each condition record has a panel code from 1 to 4.<br>") else {
+ errorText("Condition records without a panel code from 1-4:"); NiceTable(Conditions_Bad_Panel)}
+   
+cat("<br>**Frame Data**<br>")
+if(nrow(Conditions_Bad_Frame)==0) cat("Each condition record has a frame that is either Region or Park.<br>") else {
+ errorText("Condition records without a frame of either Region or Park:"); NiceTable(Conditions_Bad_Frame)}
+
+cat("<br>**Cycle Data**<br>")
+if(nrow(Conditions_Bad_Cycle)==0) cat("Each condition record is from a cycle that matches its event year <br>") else {
+ errorText("Condition records without a cycle or with a cycle that does not match its event year:"); NiceTable(Conditions_Bad_Cycle)}
+
+```
+
+---
+
+###  Dates
+```{r Condition_Dates, echo=FALSE, hold=FALSE, results="asis"}
+
+if(nrow(Conditions_Bad_Date)==0) cat("All condition record dates match an event date.<br>") else {
+ errorText("Condition records whose date does not match an event date:"); NiceTable(Conditions_Bad_Date)}
+
+if(nrow(Conditions_Bad_Year)==0) cat("All condition record dates and sample years are consistent.<br>") else {
+ errorText("Condition records whose date does not match its sample year:"); NiceTable(Conditions_Bad_Year)}
+
+```
+
+---
+
+### Tag
+
+```{r Condition_Tag, echo=FALSE, hold=FALSE, results="asis"}
+if(nrow(Conditions_Bad_Tag)==0) cat("All condition records have a valid tag.<br>") else {
+  errorText("Condition records with no tag or a tag <1 or >30,000 tag:"); NiceTable(Conditions_Bad_Tag)}
+ 
+if(nrow(Conditions_No_Plant)==0) cat("All condition records are matched with a tree, sapling or shrub record.<br>") else {
+    errorText("Condition records without a matching tree, sapling or shrub:"); NiceTable(Conditions_No_Plant)}
+ 
+
+
+```
+
+---
+
+### Species ID
+
+```{r Condition_Species, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Condtions_No_Name)==0) cat("All condition records have a species ID.<br>") else {
+     errorText("Condition records with no species name:"); NiceTable(Conditions_No_Name)}
+  
+if(nrow(Conditions_Wrong_Name)==0) cat("All condition records Latin names match their tree, sapling or shrub record.<br>") else {
+    errorText("Condition records whose Latin names don't match their tree, sapling or shrub:"); NiceTable(Conditions_Wrong_Name)}
+
+if(nrow(Conditions_No_TSN)==0) cat("All condition records have a TSN.<br>") else {
+     errorText("Condition records with no TSN:"); NiceTable(Conditions_No_TSN)}
+
+if(nrow(Conditions_Wrong_TSN)==0) cat("All condition records TSN's match their tree, sapling or shrub record.<br>") else {
+    errorText("Condition records whose TSN's don't match their tree, sapling or shrub:"); NiceTable(Conditions_Wrong_TSN)}
+
+```
+
+---
+
+### Status
+
+```{r Condition_Status, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Conditions_No_Status)==0) cat("All condition records have a status.<br>") else {
+     errorText("Condition records with no status:"); NiceTable(Conditions_No_Status)}
+  
+if(nrow(Conditions_Wrong_Status)==0) cat("All condition records status match their tree, sapling or shrub record.<br>") else {
+    errorText("Condition records whose status doesn't match their tree, sapling or shrub:"); NiceTable(Conditions_Wrong_Status)}
+```
+
+---
+
+### Conditions
+
+```{r Plant_Conditions, echo=FALSE, hold=FALSE, results="asis"}
+ 
+if(nrow(Conditions_Missing)==0) cat("All condition records have a condition.<br>") else {
+     errorText("Condition records with no condition:"); NiceTable(Conditions_Missing)} 
+
+cat("<br>**Living Plant Conditions**<br>")
+if(nrow(Plants_Live_Bad_Tree_Condition)==0) cat("All live tree, sapling and shrub conditions are valid.") else {
+      errorText("Living tree sapling or shrub records with a condition we don't monitor:"); NiceTable(Plants_Live_Bad_Tree_Condition)}
+ 
+cat("<br>**Anachronistic Conditions**<br>")
+if(nrow(Anachronistic_Conditions)==0) cat("No conditions were recorded in a year they were not used.<br>") else {
+ errorText("Records with a condition from the wrong year:"); NiceTable(Anachronistic_Conditions)}
+
+cat("<br>**Redundant Conditions**<br>")
+if(nrow(Plants_Live_Redundant_Conditions)==0) cat("All conditions are only entered only once.<br>") else {
+ errorText("Living tree, sapling or shrub records with duplicated conditions:"); NiceTable(Plants_Live_Redundant_Conditions)}
+
+cat("<br>**Non-Living Conditions**<br>")
+if(nrow(Plants_Unalive_Conditions)==0) cat("No non-living platns have conditions.<br>") else { 
+ errorText("Non-living plant records with a condition:"); NiceTable(Plants_Unalive_Conditions)}
+ 
+cat("<br>**Vines in the Crown vs. Vines**<br>")
+if(nrow(Plants_Bad_Vines)==0) cat("All tree, sapling ans shrub records with vines in the crown had vine species recorded in the crown.<br>") else { 
+ errorText("Tree, sapling or shrub records with vines in the crown but no corresponding vine record:"); NiceTable(Plants_Bad_Vines)}
+```
+
+---
+
+
+### Tree Pests
+
+```{r Plant_Pests, echo=FALSE, hold=FALSE, results="asis"}
+ 
+cat("<br>**Living Plant Pests**<br>")
+if(nrow(Plants_Live_Bad_Pest)==0) cat("All pest records from live trees saplings and shrubs are valid.<br>") else {
+    errorText("Living tree, sapling or shrub records with a pest we don't monitor:"); NiceTable(Plants_Live_Bad_Pest)}
+
+cat("<br>**Anachronistic Pests**<br>") 
+if(nrow(Plants_Live_Anachronistic_Pest)==0) cat("No pests recorded before we started monitoring that species.<br>") else {
+  errorText("Living tree, sapling or shrub records with a pest from the wrong year:"); NiceTable(Plants_Live_Anachronistic_Pest)}
+  
+cat("<br>**Non-Living Plant Pests**<br>")
+if(nrow(Plants_Unalive_Pest)==0) cat("No non-living trees,saplings or shrubs have pests (except for EAB).<br>") else {
+  errorText("Non-living tree, sapling or shrub records with a pest other than EAB:"); NiceTable(Plants_Unalive_Pest)}
+
+cat("<br>**Mis-matched Plant Pests**<br>")
+if(nrow(Plants_Pest_Bad_Host)==0) cat("No pests on incorrect host species.<br>") else {
+  errorText("Trees, saplings or shrubs with inconsistent host species - pest pairs:"); NiceTable(Plants_Pest_Bad_Host)}
+
+```
+
+---
+
+### Condition Changes
+```{r Plant_Condition_Change, echo=FALSE, hold=FALSE, results="asis"}
+
+cat("<br>**Trees, saplings and shrubs that had exposed roots and then later did not**<br>")
+if(nrow(Plants_Lose_ExpRoots)==0) cat("No tree, sapling or shrub had exposed roots and then lost it.<br>") else {
+  errorText("Trees, saplings or shrubs that had exposed roots and then lost it:"); NiceTable(Plants_Lose_ExpRoots)}
+
+cat("<br>**Trees, saplings and shrubs that were hollow and then later were not**<br>")
+if(nrow(Plants_Lose_Hollow)==0) cat("No tree, sapling or shrub was hollow and then lost it.<br>") else {
+  errorText("Trees, saplings or shrubs that were hollow and then lost it:"); NiceTable(Plants_Lose_Hollow)}
+
+cat("<br>**Trees, saplings and shrubs that had vines in the crown and then later did not**<br>")
+if(nrow(Plants_Lose_Vine_Crown)==0) cat("No tree, sapling or shryb had vines in the crown and then lost it.<br>") else {
+  errorText("Trees, saplings or shrubs that had vines in the crown and then lost it:"); NiceTable(Plants_Lose_Vine_Crown)}
+ 
+cat("<br>**Trees, saplings and shrubs that had vine stress and then later did not**<br>")
+if(nrow(Plants_Lose_Vine_Stress)==0) cat("No tree, sapling or shrub had vine stress and then lost it.<br>") else {
+  errorText("Trees, saplings and shrubs that had vine stress and then lost it:"); NiceTable(Plants_Lose_Vine_Stress)}
+```
+
+---
+
+### Pest Changes
+```{r Plant_Pest_Change, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Trees and saplings that had EAB and then later did not**<br>")
+if(nrow(Plants_Lose_EAB)==0) cat("No tree or sapling had EAB and then lost it.<br>") else {
+  errorText("Trees and saplings that had EAB and then lost it:"); NiceTable(Plants_Lose_EAB)}
+
+cat("<br>**Trees and saplings that had Dogwood Anthracnose and then later did not**<br>")
+if(nrow(Plants_Lose_Anthracnose)==0) cat("No tree or sapling had Dogwood Anthracnose and then lost it.<br>") else {
+  errorText("Trees and saplings that had Dogwood Anthracnose and then lost it:"); NiceTable(Plants_Lose_Anthracnose)}
+
+cat("<br>**Trees and saplings that had Hemlock Scale and then later did not**<br>")
+if(nrow(Plants_Lose_Scale)==0) cat("No tree or sapling had Hemlock Scale and then lost it.<br>") else {
+  errorText("Trees and saplings that had Hemlock Scale and then lost it:"); NiceTable(Plants_Lose_Scale)}
+
+cat("<br>**Trees and saplings that had Hemlock Wooly Adelgid and then later did not**<br>")
+if(nrow(Plants_Lose_Adelgid)==0) cat("No tree or sapling had Hemlock Wooly Adelgid and then lost it.<br>") else {
+  errorText("Trees and saplings that had Hemlock Wooly Adelgid and then lost it:"); NiceTable(Plants_Lose_Adelgid)}
+```
+
+---
+
+### Number of Condtions and Pests
+```{r Plant_Pest_Condition_Number, echo=FALSE, hold=FALSE, results="asis"}
+cat("<br>**Trees, saplings and shrubs that had changed number of conditions**<br>")
+if(nrow(Plants_Change_Conditon_Number)==0) cat("No tree, sapling or shrub changed number of conditions.<br>") else {
+  errorText("Trees, saplings or shrubs that changed number of conditiosn:"); NiceTable(Plants_Change_Conditon_Number)}
+```
+
+
+

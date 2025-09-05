@@ -33,15 +33,15 @@ errorText<-function(text) {cat(paste0("<span style='color:red;'>",text,"</span><
 #DataDir<-"C:/Data/NCRN_Veg_2020"
 
 #DataDir<-"C:/Users/jschmit/OneDrive - DOI/Data/NCRN_Veg_2024"
-DataDir<-"C:/Users/jschmit/OneDrive - DOI/Data/NCRN_Veg_2024/"
+DataDir<-"C:/Users/jschmit/OneDrive - DOI/Data/NCRN_Veg_2025/"
 
 NCRN<-importNCRN(DataDir)
 
 #QCYears<-c(2008, 2012,2016, 2021)
-QCYears<-c(2020:2021)
-QCPastYears<-c(2016, 2012, 2008)
+QCYears<-c(2025)
+QCPastYears<-c(2020:2021, 2016, 2012,2008)
 QCAllYears<-unique(c(QCYears, QCPastYears))
-QCLastSample<-2016
+QCLastSample<-2020:2021
 
 
 # Bad_Species<-c("Carya tomentosa", "Hicoria cordiformis", "Quercus prinus", "Robinia pseudo-acacia", "Rulac negundo", "Sassafras officinale",

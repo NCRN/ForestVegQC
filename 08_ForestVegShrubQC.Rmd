@@ -475,13 +475,12 @@ if(nrow(Shrubs_Bad_Vigor_Class)==0) cat("All shrubs have consisntent vigor and v
 ---
 
 
-
 ###  Missed Shrubs
 
 ```{r Shrub_Missed, echo=FALSE, hold=FALSE, results="asis"}
  
   if(nrow(Missed_Shrubs)==0) cat("All shrubs that should have been monitored were monitored.<br>") else {
-     errorText("Shrubs that should have been monitored but were not:"); NiceTable(Missed_Shrubs)}
+     errorText("Shrubs that should have been monitored but were not  (the habit field may not have been filled in):"); NiceTable(Missed_Shrubs)}
 
  
 ```

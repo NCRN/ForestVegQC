@@ -720,7 +720,7 @@ cat("<br>**Conditions Checkbox**<br>")
 ```{r Sapling_Missed, echo=FALSE, hold=FALSE, results="asis"}
  
   if(nrow(Missed_Saplings)==0) cat("All saplings that should have been monitored were monitored.<br>") else {
-     errorText("Saplings that should have been monitored but were not:"); NiceTable(Missed_Saplings)}
+     errorText("Saplings that should have been monitored but were not (the habit field may not have been filled in):"); NiceTable(Missed_Saplings)}
 
  
 ```

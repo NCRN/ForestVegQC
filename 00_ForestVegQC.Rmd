@@ -162,49 +162,34 @@ h1, h2, h3 {
 #### All
 - Flags are not exported from the database and are not considered during QC.
 
-- Sub-unit codes need to be revisited
-
-- Need a mechanism to check if Latin names are reasonable
-
-- Need a way to check about tags being retired
+- Sub-unit codes are not checked and should be reviewed in general
 
 - Need a way to check that we don't export data for plants that have been removed from study
 
 - Need to export Class and Habit for all relevant tables (Foliage in particular)
 
-- Exotic Status is sometimes exported and sometimes not
+- Exotic Status is not exported for Saplings, Seedlings, Shrubs, Shrub Seedlings, and Trees, but it is for Herbs and Vines. We should be consistent.
 
-- Browsing data is inconsistent between Seedlings and Herbs
+- Browsing data is inconsistent: Saplings, Shrubs = Yes / No / unk / blank, Seedlings, Herbs = 1 / 0 / blank, Shrub seedlings = Yes / No / unk,  
 
 #### Plots
-- Retired date for retired plots not currently recorded and should be revisited.
+- Retired date for retired plots not currently recorded and should be considered.
 
 #### Events
-- Need to export table that matches years with panels so we can verify the correct plots were sampled.
+- Need to consider how we can verify verify the correct plots were sampled and none were missed.
 
-- Need to consider if and how to handle Invasive, rare and plot maintenance checks before they were part of interface.
+- Need to handle Invasive, rare and plot maintenance checks before they were part of interface.
 
 #### Saplings
-- Around 1680 saplings and shrubs not currently exported due to not having habit filled in. Many are removed from study and would not be exported
-
 - Equivalent diameter and Sum basal area is not exported for dead stems of saplings (this will typically = 0)
 
-- Dead shrubs with no "habit" are exported as saplings
-
-#### Stems
-- Dead stems not exported
 
 #### Shrubs
-- Around 750 saplings and shrubs not currently exported due to not having habit filled in. 
 
-- Need  a mechanism to check if Latin names are reasonable
-
-- Need to export the foliage conditions, tree conditions and vines check-boxes. Need to verify they are checked for living shrubs, and  have conditions checked from 2015(?) on, but not checked in other cases.
+- Now that the foliage conditions, tree conditions and vines check-boxes are exported, need to verify they are checked for living shrubs, and  have conditions checked from 2015(?) on, but not checked in other cases.
 
 #### Conditions
-- Trees (and saplings) with no conditions are still listed in the Tree_Sapling_Conditions export - eliminate. This is not true of Shrubs
-
-- In Tree_Conditions export there is no way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields )
+- In Tree_Conditions export there is now a way to separate saplings and shrubs from trees (compare to stems export which has Habit and Class fields ) - what checks should be added?
 
 #### Quads
 - Need to export table that matches years with panels so we can verify the correct quads were sampled.
@@ -214,8 +199,6 @@ h1, h2, h3 {
 - Seedling number / height/ species - need to determine if these are consistent enough between samples for QC or not
 
 #### Understory Plants
-- Need to export Herb browsable and browse data
-
 - Current QC looks at large changes in herb %, additions of species and loss of species - are herb % consistent enough between samples  to use as QC? What about species lists? Need to check data.
 
 #### Tags
